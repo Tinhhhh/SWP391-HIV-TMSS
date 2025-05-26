@@ -12,7 +12,7 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**").allowedOrigins(
-                        "http://localhost:3000/", "https://swp-391-hivtmss.vercel.app/", "https://swp391.tinhvv.xyz/"
+                        "http://localhost:3000/", "https://swp-391-hivtmss.vercel.app/", "https://swp391.tinhvv.xyz"
                 )
                 .allowedHeaders("*")
                 .allowedHeaders("*")
