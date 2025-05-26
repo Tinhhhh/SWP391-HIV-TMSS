@@ -73,6 +73,12 @@ public class Account {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
+    @OneToOne(mappedBy = "account")
+    private DoctorDegree doctorDegree;
+
+    @OneToMany(mappedBy = "account")
+    private List<Blog> blogs;
+
     @JsonIgnore
     public String fullName() {
         return firstName + " " + lastName;
