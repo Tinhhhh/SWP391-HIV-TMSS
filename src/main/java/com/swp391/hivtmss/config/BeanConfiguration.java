@@ -37,7 +37,7 @@ public class BeanConfiguration {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000/", "https://swp-391-hivtmss.vercel.app/", "https://swp391.tinhvv.xyz"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000/", "https://swp-391-hivtmss.vercel.app/", "https://swp391.tinhvv.xyz/"));
         configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
