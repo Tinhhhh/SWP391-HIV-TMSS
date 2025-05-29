@@ -2,13 +2,17 @@ package com.swp391.hivtmss.model.entity;
 
 import com.swp391.hivtmss.model.payload.enums.Classification;
 import com.swp391.hivtmss.model.payload.enums.StudyMode;
+import com.swp391.hivtmss.model.payload.enums.TestStrategy;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Setter
@@ -16,6 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class DoctorDegree {
 
     @Id
@@ -29,9 +34,12 @@ public class DoctorDegree {
     @Column(name = "graduation_date")
     private LocalDate graduationDate;
 
+
+    @Enumerated(EnumType.STRING)
     private Classification classification;
 
     @Column(name = "study_mode")
+    @Enumerated(EnumType.STRING)
     private StudyMode studyMode;
 
     @Column(name = "issue_date")
@@ -42,6 +50,10 @@ public class DoctorDegree {
 
     @Column(name = "reg_no")
     private String regNo;
+
+    @CreatedDate
+    @Column(name = "created_date", nullable = false, updatable = false)
+    private Date createdDate;
 
     @OneToOne
     @JoinColumn(name = "account_id", nullable = false)
