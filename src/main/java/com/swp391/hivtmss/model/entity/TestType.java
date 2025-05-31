@@ -1,11 +1,13 @@
 package com.swp391.hivtmss.model.entity;
 
-import com.swp391.hivtmss.model.payload.enums.availableStatus;
+import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -29,10 +31,13 @@ public class TestType {
     @Column(name = "test_type_code", nullable = false, unique = true)
     private String code;
 
-    @Column(name = "status", nullable = false)
+    @Column(name = "is_active", nullable = false)
     @Enumerated(EnumType.STRING)
-    private availableStatus status;
+    private ActiveStatus isActive;
 
     @Column(name = "applicable", nullable = false)
     private String applicable;
+
+    @OneToMany(mappedBy = "testType")
+    private List<Diagnosis> diagnoses;
 }
