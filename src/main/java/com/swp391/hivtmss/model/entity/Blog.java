@@ -26,6 +26,7 @@ public class Blog {
     private String content;
 
     @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private BlogStatus status;
 
     @Column(name = "image_url")
@@ -33,6 +34,7 @@ public class Blog {
 
     @Column(name = "is_hidden", nullable = false)
     private boolean isHidden;
+
 
     @ManyToOne
     @JoinColumn(name = "account_id", nullable = false)
