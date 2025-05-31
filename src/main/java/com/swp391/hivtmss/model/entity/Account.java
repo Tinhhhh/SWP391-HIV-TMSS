@@ -79,6 +79,12 @@ public class Account {
     @OneToMany(mappedBy = "account")
     private List<Blog> blogs;
 
+    @OneToMany(mappedBy = "doctor")
+    private List<Appointment> appointmentsAsDoctor;
+
+    @OneToMany(mappedBy = "customer")
+    private List<Appointment> appointmentsAsCustomer;
+
     @JsonIgnore
     public String fullName() {
         return firstName + " " + lastName;
