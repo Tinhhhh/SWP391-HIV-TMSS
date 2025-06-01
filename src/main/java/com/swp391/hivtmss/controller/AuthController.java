@@ -27,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -64,7 +63,7 @@ public class AuthController {
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> SignIn(@RequestBody @Valid AuthenticationRequest request) {
-        return ResponseBuilder.responseBuilderWithData(HttpStatus.OK, "Successfully Sign in", authService.authenticate(request));
+        return ResponseBuilder.returnData(HttpStatus.OK, "Successfully Sign in", authService.authenticate(request));
     }
 
     @Operation(summary = "Refresh token if expired", description = "If the current JWT Refresh Token has expired or been revoked, you can refresh it using this method")
@@ -76,19 +75,19 @@ public class AuthController {
             """))), @ApiResponse(responseCode = "401", description = "No JWT token found in the request header"), @ApiResponse(responseCode = "401", description = "JWT token has expired and revoked")})
     @PostMapping("/refresh-token")
     public ResponseEntity<Object> refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return ResponseBuilder.responseBuilderWithData(HttpStatus.OK, "Generate new Refresh Token and Access Token successfully", authService.refreshToken(request, response));
+        return ResponseBuilder.returnData(HttpStatus.OK, "Generate new Refresh Token and Access Token successfully", authService.refreshToken(request, response));
     }
 
     @PostMapping("/forgot-password")
     public ResponseEntity<Object> forgotPassword(@RequestParam String email) throws MessagingException, NoSuchAlgorithmException {
         authService.forgotPassword(email);
-        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Please check your email for password reset link");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Please check your email for password reset link");
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<Object> resetPassword(@RequestParam("Email") String email, @RequestParam(value = "Password") String password, @RequestParam String token) throws JsonProcessingException {
         authService.resetPassword(email, password, token);
-        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Password reset successfully");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Password reset successfully");
     }
 
     @Operation(summary = "Logout of the system", description = "Logout of the system, bearer token (refresh token) is required")
@@ -96,13 +95,13 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Object> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         logoutHandler.logout(request, response, authentication);
-        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Logged out successfully");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Logged out successfully");
     }
 
     @Operation(summary = "Register a new account", description = "Register a new account, all information is required")
     @PostMapping("/register")
     public ResponseEntity<Object> register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
         authService.register(request);
-        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Your account is created successfully");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your account is created successfully");
     }
 }

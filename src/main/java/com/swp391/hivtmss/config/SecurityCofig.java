@@ -42,7 +42,9 @@ public class SecurityCofig {
                         //Authenticate
                         request.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api/v1/auth/**").permitAll()
                                 //Account
-                                .requestMatchers("/api/v1/accounts/change-password", "/api/v1/accounts/**").hasAnyAuthority("CUSTOMER", "DOCTOR", "MANAGER")
+                                .requestMatchers("/api/v1/accounts/change-password", "/api/v1/accounts/**")
+//                                .hasAnyAuthority("CUSTOMER", "DOCTOR", "MANAGER")
+                                .permitAll()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)

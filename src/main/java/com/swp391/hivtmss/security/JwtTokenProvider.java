@@ -1,7 +1,6 @@
 package com.swp391.hivtmss.security;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swp391.hivtmss.model.entity.AccessToken;
 import com.swp391.hivtmss.model.entity.Account;
@@ -101,7 +100,7 @@ public class JwtTokenProvider {
                 .setIssuedAt(currentDate)
                 .setExpiration(expirationDate)
                 .claim("type", "access")
-                .claim("id", account.getAccountId().toString())
+                .claim("id", account.getId().toString())
                 .claim("role", authentication.getAuthorities().stream().findFirst().orElseThrow().getAuthority())
                 .claim("fullName", account.fullName())
                 .signWith(key(), SignatureAlgorithm.HS256)
@@ -122,7 +121,7 @@ public class JwtTokenProvider {
                 .setIssuedAt(currentDate)
                 .setExpiration(expirationDate)
                 .claim("type", "refresh")
-                .claim("id", account.getAccountId().toString())
+                .claim("id", account.getId().toString())
                 .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
         return token;
@@ -142,17 +141,15 @@ public class JwtTokenProvider {
         //Nếu có thì không cho phép sử dụng token cũ
         AccessToken accessToken = getTokenFromJwt(jwt);
         final String key = RedisPrefix.TOKEN_IAT_AVAILABLE.getPrefix() + "_" + accessToken.getUserId();
-        String redisIat = (String) redisTemplate.opsForValue().get(key);
-        Long iat = redisIat != null ? redisObjectMapper.readValue(redisIat, new TypeReference<Long>() {
-        }) : null;
+        Long redisIat = (Long) redisTemplate.opsForValue().get(key);
         if (redisIat != null) {
-            LocalDateTime changePasswordTime = Instant.ofEpochMilli(iat)
+            LocalDateTime changePasswordTime = Instant.ofEpochMilli(redisIat)
                     .atZone(ZoneId.systemDefault())
                     .toLocalDateTime();
 
             LocalDateTime tokenTime = DateUtil.convertToLocalDateTime(accessToken.getIssuedAt());
 
-            if (changePasswordTime.isBefore(tokenTime)) {
+            if (tokenTime.isBefore(changePasswordTime)) {
                 return false;
             }
 

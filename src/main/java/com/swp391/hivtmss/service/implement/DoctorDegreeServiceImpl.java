@@ -57,7 +57,7 @@ public class DoctorDegreeServiceImpl implements DoctorDegreeService {
 
     @Override
     public DoctorDegreeResponse getDoctorDegreeByAccountId(UUID accountId) {
-        DoctorDegree doctorDegree = doctorDegreeRepository.findByAccountAccountId(accountId)
+        DoctorDegree doctorDegree = doctorDegreeRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor degree not found for this account"));
         return convertToResponse(doctorDegree);
     }
@@ -109,7 +109,7 @@ public class DoctorDegreeServiceImpl implements DoctorDegreeService {
                 doctorDegree.getIssueDate(),
                 doctorDegree.getSchoolName(),
                 doctorDegree.getRegNo(),
-                doctorDegree.getAccount().getAccountId(),
+                doctorDegree.getAccount().getId(),
                 doctorDegree.getAccount().getEmail()
         );
     }

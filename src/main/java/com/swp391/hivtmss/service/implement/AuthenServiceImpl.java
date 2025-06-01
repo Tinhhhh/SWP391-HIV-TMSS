@@ -100,7 +100,7 @@ public class AuthenServiceImpl implements AuthenService {
                 .orElseThrow(() -> new HivtmssException(HttpStatus.UNAUTHORIZED, "Authentication fails, your email is not exist"));
 
         if (account.isLocked()) {
-            throw new HivtmssException(HttpStatus.UNAUTHORIZED, "Authentication fails, your account is locked. Please contact admin");
+            throw new HivtmssException(HttpStatus.UNAUTHORIZED, "Your account is locked. Please contact admin");
         }
 
         //Create new token
@@ -162,7 +162,7 @@ public class AuthenServiceImpl implements AuthenService {
                         .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Invalid user. User not found"));
 
                 //Revoke old tokens
-                jwtTokenProvider.revokeAccessToken(account.getAccountId(), oldRefreshToken.getJitId());
+                jwtTokenProvider.revokeAccessToken(account.getId(), oldRefreshToken.getJitId());
 
                 oldRefreshToken.setRevoked(true);
                 oldRefreshToken.setExpired(true);
@@ -202,7 +202,7 @@ public class AuthenServiceImpl implements AuthenService {
                 EmailTemplateName.FORGOT_PASSWORD.getName(),
                 "Reset your password");
 
-        jwtTokenProvider.savePasswordResetToken(token, account.getAccountId());
+        jwtTokenProvider.savePasswordResetToken(token, account.getId());
     }
 
     @Override
@@ -210,14 +210,14 @@ public class AuthenServiceImpl implements AuthenService {
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Account not found"));
 
-        if (!jwtTokenProvider.isExistsPasswordResetToken(account.getAccountId(), token)) {
+        if (!jwtTokenProvider.isExistsPasswordResetToken(account.getId(), token)) {
             throw new HivtmssException(HttpStatus.BAD_REQUEST, "Token is expired or not exist");
         }
 
         account.setPassword(passwordEncoder.encode(newPassword));
         accountRepository.save(account);
-        jwtTokenProvider.deletePasswordResetToken(account.getAccountId(), token);
-        jwtTokenProvider.disableOldTokens(account.getAccountId());
+        jwtTokenProvider.deletePasswordResetToken(account.getId(), token);
+        jwtTokenProvider.disableOldTokens(account.getId());
     }
 
     private String generateResetPasswordToken(int codelength) throws NoSuchAlgorithmException {

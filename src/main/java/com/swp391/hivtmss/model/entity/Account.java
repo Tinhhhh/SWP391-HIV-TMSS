@@ -29,7 +29,7 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "account_id")
-    private UUID accountId;
+    private UUID id;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;

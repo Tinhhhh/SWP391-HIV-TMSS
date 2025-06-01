@@ -9,6 +9,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DoctorDegreeRepository extends JpaRepository<DoctorDegree, Long> {
-    Optional<DoctorDegree> findByAccountAccountId(UUID accountId);
+    Optional<DoctorDegree> findByAccountId(UUID accountId);
 
 }
