@@ -1,7 +1,7 @@
 package com.swp391.hivtmss.model.entity;
 
-import com.swp391.hivtmss.model.payload.enums.Classification;
-import com.swp391.hivtmss.model.payload.enums.StudyMode;
+import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
+import com.swp391.hivtmss.model.payload.enums.DrugType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,54 +10,43 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
-@Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Setter
 @Entity
+@Table(name = "drug")
 @EntityListeners(AuditingEntityListener.class)
-public class DoctorDegree {
+public class Drug {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "drug_id")
     private Long id;
 
+    @Column(name = "name", nullable = false)
     private String name;
 
-    private LocalDate dob;
+    @Column(name = "short_name", nullable = false, unique = true)
+    private String shortName;
 
-    @Column(name = "graduation_date")
-    private LocalDate graduationDate;
+    @Column(name = "side_effect")
+    private String sideEffect;
 
     @Enumerated(EnumType.STRING)
-    private Classification classification;
+    private DrugType type;
 
-    @Column(name = "study_mode")
+    @Column(name = "is_active", nullable = false)
     @Enumerated(EnumType.STRING)
-    private StudyMode studyMode;
-
-    @Column(name = "issue_date")
-    private LocalDate issueDate;
-
-    @Column(name = "school_name")
-    private String schoolName;
-
-    @Column(name = "reg_no")
-    private String regNo;
+    private ActiveStatus isActive;
 
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
     private Date createdDate;
 
-    @OneToOne
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
-
-    @OneToMany(mappedBy = "doctorDegree")
-    private List<DegreeImg> degreeImgs;
-
+    @OneToMany(mappedBy = "drug")
+    private List<DrugRegimenDetail> drugRegimenDetails;
 }
