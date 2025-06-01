@@ -1,9 +1,9 @@
 package com.swp391.hivtmss.model.payload.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.hivtmss.model.payload.enums.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -20,31 +21,35 @@ import java.time.LocalDate;
 @Setter
 public class EditAccountByAdmin {
 
-    @JsonProperty("first_name")
-    @Pattern(regexp = "^[^0-9]*$", message = "first name must not contain numbers")
-    @Size(max = 50, message = "First name must be less than 50 characters")
-    private String firstName;
-
-    @JsonProperty("last_name")
+    @JsonProperty(value = "last_name", index = 1)
     @Pattern(regexp = "^[^0-9]*$", message = "last name must not contain numbers")
     @Size(max = 50, message = "Last name must be less than 50 characters")
     private String lastName;
 
+    @JsonProperty(value = "first_name", index = 2)
+    @Pattern(regexp = "^[^0-9]*$", message = "first name must not contain numbers")
+    @Size(max = 50, message = "First name must be less than 50 characters")
+    private String firstName;
+
+    @JsonProperty(index = 3)
+    private Gender gender;
+
+    @JsonProperty(index = 4)
+    @Pattern(regexp = "(84|0[3|5|7|8|9])([0-9]{8})\\b", message = "Please enter a valid(+84) phone number")
+    private String phone;
+
+    @JsonProperty(index = 5)
     @Size(max = 100, message = "Address must be less than 100 characters")
     private String address;
 
-    private Gender gender;
-
+    @JsonProperty(index = 6)
     @Past(message = "Date of birth must be in the past")
     @Schema(description = "Account's date of birth", example = "2003-03-25")
     private LocalDate dob;
 
-    @Pattern(regexp = "(84|0[3|5|7|8|9])([0-9]{8})\\b", message = "Please enter a valid(+84) phone number")
-    private String phone;
-
-    @JsonProperty("is_locked")
+    @JsonProperty(value = "is_locked", index = 7)
     private boolean isLocked;
 
-    @JsonProperty("role_id")
+    @JsonProperty(value = "role_id", index = 8)
     private Long roleId;
 }

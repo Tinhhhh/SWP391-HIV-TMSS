@@ -1,5 +1,8 @@
 package com.swp391.hivtmss.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -33,6 +36,25 @@ public class BeanConfiguration {
     public ModelMapper modelMapper() {
         return new ModelMapper();
     }
+
+    @Bean ModelMapper restrictedModelMapper() {
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setFieldMatchingEnabled(true)
+                .setAmbiguityIgnored(true)
+                .setSkipNullEnabled(false)
+                .setMatchingStrategy(MatchingStrategies.STRICT);
+
+        return modelMapper;
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return mapper;
+    }
+
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
