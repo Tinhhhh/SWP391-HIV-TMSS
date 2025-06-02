@@ -1,11 +1,15 @@
 package com.swp391.hivtmss.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.swp391.hivtmss.model.payload.enums.BlogStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.util.Date;
 
 @Getter
 @Setter
@@ -35,6 +39,10 @@ public class Blog {
     @Column(name = "is_hidden", nullable = false)
     private boolean isHidden;
 
+    @JsonIgnore
+    @CreatedDate
+    @Column(name = "created_date", nullable = false, updatable = false)
+    private Date createdDate;
 
     @ManyToOne
     @JoinColumn(name = "account_id", nullable = false)

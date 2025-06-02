@@ -3,6 +3,7 @@ package com.swp391.hivtmss.service.implement;
 import com.swp391.hivtmss.model.entity.Account;
 import com.swp391.hivtmss.model.entity.Blog;
 import com.swp391.hivtmss.model.entity.DoctorDegree;
+import com.swp391.hivtmss.model.payload.enums.BlogStatus;
 import com.swp391.hivtmss.model.payload.exception.ResourceNotFoundException;
 import com.swp391.hivtmss.model.payload.request.BlogRequest;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
@@ -31,8 +32,6 @@ public class BlogServiceImpl implements BlogService {
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
         Blog blog = new Blog();
-
-
         blog.setAccount(account);
 
         Blog savedBlog = blogRepository.save(blog);
@@ -67,14 +66,11 @@ public class BlogServiceImpl implements BlogService {
         Blog blog = blogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Blog not found"));
 
-//        blog.setName(blogRequest.getName());
-//        blog.setDob(blogRequest.getDob());
-//        blog.setGraduationDate(blogRequest.getGraduationDate());
-//        blog.setClassification(blogRequest.getClassification());
-//        blog.setStudyMode(blogRequest.getStudyMode());
-//        blog.setIssueDate(blogRequest.getIssueDate());
-//        blog.setSchoolName(blogRequest.getSchoolName());
-//        blog.setRegNo(blogRequest.getRegNo());
+        blog.setTitle(blogRequest.getTitle());
+        blog.setContent(blogRequest.getContent());
+        blog.setImageUrl(blogRequest.getImageUrl());
+        blog.setStatus(blogRequest.getStatus());
+
 
         Blog updatedBlog = blogRepository.save(blog);
         return convertToResponse(updatedBlog);
@@ -91,17 +87,16 @@ public class BlogServiceImpl implements BlogService {
 
     private BlogResponse convertToResponse(Blog blog) {
         return new BlogResponse(
-//                blog.getId(),
-//                blog.getName(),
-//                blog.getDob(),
-//                blog.getGraduationDate(),
-//                blog.getClassification(),
-//                blog.getStudyMode(),
-//                blog.getIssueDate(),
-//                blog.getSchoolName(),
-//                blog.getRegNo(),
-//                blog.getAccount().getAccountId(),
-//                blog.getAccount().getEmail()
+                blog.getId(),
+                blog.getTitle(),
+                blog.getContent(),
+                blog.getStatus(),
+                blog.getImageUrl(),
+                blog.isHidden(),
+                blog.getAccount().getAccountId(),
+                blog.getAccount().getEmail()
+
+
         );
     }
 

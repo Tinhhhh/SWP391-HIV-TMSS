@@ -34,7 +34,8 @@ public class BlogRequest {
     @NotNull(message = "Account ID cannot be null")
     private UUID accountId;
 
-
+    @NotNull(message = "Hidden cannot be null")
+    private Boolean isHidden;
 
 
 
