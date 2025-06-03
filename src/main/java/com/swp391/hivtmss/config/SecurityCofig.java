@@ -45,6 +45,8 @@ public class SecurityCofig {
                                 .requestMatchers("/api/v1/accounts/change-password", "/api/v1/accounts/**")
 //                                .hasAnyAuthority("CUSTOMER", "DOCTOR", "MANAGER")
                                 .permitAll()
+                                //Appointment
+                                .requestMatchers("/api/v1/appointments/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
