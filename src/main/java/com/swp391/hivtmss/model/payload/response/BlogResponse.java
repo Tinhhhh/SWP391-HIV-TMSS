@@ -16,7 +16,7 @@ public class BlogResponse {
     @JsonProperty(value = "blog_id", index = 1)
     private Long id;
 
-    @JsonProperty(value = "tittle", index = 2)
+    @JsonProperty(value = "title", index = 2)
     private String title;
 
     @JsonProperty(value = "content", index = 3)

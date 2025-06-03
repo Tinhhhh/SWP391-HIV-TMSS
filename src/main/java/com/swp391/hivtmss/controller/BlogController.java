@@ -25,32 +25,32 @@ public class BlogController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BlogResponse> getDoctorDegreeById(@PathVariable Long id) {
-        BlogResponse doctorDegree = blogService.getBlogById(id);
-        return ResponseEntity.ok(doctorDegree);
+    public ResponseEntity<BlogResponse> getBlogById(@PathVariable Long id) {
+        BlogResponse blog = blogService.getBlogById(id);
+        return ResponseEntity.ok(blog);
     }
 
     @GetMapping("/account/{accountId}")
-    public ResponseEntity<BlogResponse> getDoctorDegreeByAccountId(@PathVariable UUID accountId) {
-        BlogResponse doctorDegree = blogService.getBlogByAccountId(accountId);
-        return ResponseEntity.ok(doctorDegree);
+    public ResponseEntity<BlogResponse> getBlogByAccountId(@PathVariable UUID accountId) {
+        BlogResponse blog = blogService.getBlogByAccountId(accountId);
+        return ResponseEntity.ok(blog);
     }
 
     @GetMapping
-    public ResponseEntity<List<BlogResponse>> getAllDoctorDegrees() {
-        List<BlogResponse> degrees = blogService.getAllBlogs();
-        return ResponseEntity.ok(degrees);
+    public ResponseEntity<List<BlogResponse>> getAllBlog() {
+        List<BlogResponse> blog = blogService.getAllBlogs();
+        return ResponseEntity.ok(blog);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BlogResponse> updateDoctorDegree(@PathVariable Long id,
+    public ResponseEntity<BlogResponse> updateBlog(@PathVariable Long id,
                                                                    @Valid @RequestBody BlogRequest blogRequest) {
-        BlogResponse updatedDegree = blogService.updateBlog(id, blogRequest);
-        return ResponseEntity.ok(updatedDegree);
+        BlogResponse updatedBlog = blogService.updateBlog(id, blogRequest);
+        return ResponseEntity.ok(updatedBlog);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDoctorDegree(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteBlog(@PathVariable Long id) {
         blogService.deleteBlog(id);
         return ResponseEntity.noContent().build();
     }
