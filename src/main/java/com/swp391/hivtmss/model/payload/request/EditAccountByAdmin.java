@@ -52,4 +52,7 @@ public class EditAccountByAdmin {
 
     @JsonProperty(value = "role_id", index = 8)
     private Long roleId;
+
+    @JsonProperty(value = "introduction", index = 9)
+    private String introduction;
 }
