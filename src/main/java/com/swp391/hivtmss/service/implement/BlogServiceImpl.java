@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,6 +34,11 @@ public class BlogServiceImpl implements BlogService {
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
         Blog blog = new Blog();
+        blog.setTitle(blogRequest.getTitle());
+        blog.setContent(blogRequest.getContent());
+        blog.setImageUrl(blogRequest.getImageUrl());
+        blog.setStatus(blogRequest.getStatus());
+        blog.setCreatedDate(new Date());
         blog.setAccount(account);
 
         Blog savedBlog = blogRepository.save(blog);
@@ -70,7 +77,7 @@ public class BlogServiceImpl implements BlogService {
         blog.setContent(blogRequest.getContent());
         blog.setImageUrl(blogRequest.getImageUrl());
         blog.setStatus(blogRequest.getStatus());
-
+        blog.setCreatedDate(new Date());
 
         Blog updatedBlog = blogRepository.save(blog);
         return convertToResponse(updatedBlog);
@@ -92,6 +99,7 @@ public class BlogServiceImpl implements BlogService {
                 blog.getContent(),
                 blog.getStatus(),
                 blog.getImageUrl(),
+                blog.getCreatedDate(),
                 blog.isHidden(),
                 blog.getAccount().getAccountId(),
                 blog.getAccount().getEmail()

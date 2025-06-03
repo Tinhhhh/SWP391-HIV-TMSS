@@ -1,6 +1,7 @@
 package com.swp391.hivtmss.model.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.swp391.hivtmss.model.entity.Account;
 import com.swp391.hivtmss.model.payload.enums.BlogStatus;
 import com.swp391.hivtmss.model.payload.enums.Classification;
 import com.swp391.hivtmss.model.payload.enums.StudyMode;
@@ -22,7 +23,7 @@ public class BlogRequest {
     @NotBlank(message = "Blog title cannot be blank")
     private String title;
 
-    @NotNull(message = "Content cannot be null")
+    @NotNull(message = "Content cannot be blank")
     private String content;
 
     @NotNull(message = "Status ate cannot be null")
@@ -36,6 +37,7 @@ public class BlogRequest {
 
     @NotNull(message = "Hidden cannot be null")
     private Boolean isHidden;
+
 
 
 
