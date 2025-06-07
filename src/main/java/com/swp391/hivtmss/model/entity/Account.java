@@ -29,7 +29,7 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "account_id")
-    private UUID accountId;
+    private UUID id;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -63,6 +63,9 @@ public class Account {
     @Column(name = "is_locked", nullable = false)
     private boolean isLocked;
 
+    @Column(name = "introduction")
+    private String introduction;
+
     @JsonIgnore
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
@@ -78,6 +81,12 @@ public class Account {
 
     @OneToMany(mappedBy = "account")
     private List<Blog> blogs;
+
+    @OneToMany(mappedBy = "doctor")
+    private List<Appointment> appointmentsAsDoctor;
+
+    @OneToMany(mappedBy = "customer")
+    private List<Appointment> appointmentsAsCustomer;
 
     @JsonIgnore
     public String fullName() {

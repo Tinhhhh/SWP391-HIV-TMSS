@@ -8,6 +8,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
+<<<<<<< HEAD
+=======
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+>>>>>>> main
 
 import java.util.Date;
 
@@ -17,6 +22,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Entity
 @Table(name = "blog")
+@EntityListeners(AuditingEntityListener.class)
 public class Blog {
 
     @Id
@@ -39,7 +45,14 @@ public class Blog {
     @Column(name = "is_hidden", nullable = false)
     private boolean isHidden;
 
+<<<<<<< HEAD
     @JsonIgnore
+=======
+    @LastModifiedDate
+    @Column(name = "last_modified_date", nullable = false)
+    private Date lastModifiedDate;
+
+>>>>>>> main
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
     private Date createdDate;
