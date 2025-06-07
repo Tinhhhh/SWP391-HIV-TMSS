@@ -2,6 +2,7 @@ package com.swp391.hivtmss.service.implement;
 
 import com.swp391.hivtmss.model.entity.Account;
 import com.swp391.hivtmss.model.entity.Appointment;
+import com.swp391.hivtmss.model.payload.enums.RoleName;
 import com.swp391.hivtmss.model.payload.exception.HivtmssException;
 import com.swp391.hivtmss.model.payload.request.NewAppointment;
 import com.swp391.hivtmss.model.payload.request.UpdateAppointment;
@@ -29,6 +30,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
+    private final ModelMapper restrictedModelMapper;
 
     @Override
     public List<DoctorResponse> getAvailableDoctors(Date startTime) {
@@ -39,14 +41,8 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, doctor not found");
         }
 
-        Calendar startCalendar = Calendar.getInstance();
-        startCalendar.setTime(startTime);
-        startCalendar.add(Calendar.HOUR_OF_DAY, 1);
-
         // Lấy danh sách cuộc hẹn trong khoảng thời gian từ startTime đến 1 giờ sau
-        List<Appointment> appointments = appointmentRepository.findByStartTimeBetween(
-                startTime,
-                startCalendar.getTime());
+        List<Appointment> appointments = appointmentRepository.findByStartTimeBetween(startTime);
 
         List<DoctorResponse> doctorResponses = new ArrayList<>();
 
@@ -71,6 +67,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
             for (Account doctor : availableDoctors) {
                 DoctorResponse doctorResponse = modelMapper.map(doctor, DoctorResponse.class);
+                doctorResponse.setFullName(doctor.fullName());
                 doctorResponses.add(doctorResponse);
             }
         }
@@ -79,22 +76,33 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    @Transactional
     public void createAppointment(NewAppointment newAppointment) {
         Account customer = accountRepository.findById(newAppointment.getCustomerId())
-                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, customer not found"));
+
+        if (!Objects.equals(customer.getRole().getRoleName(), RoleName.CUSTOMER.getRole())){
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, customer is not valid");
+        }
 
         Account doctor = accountRepository.findById(newAppointment.getDoctorId())
-                .orElseThrow(() -> new IllegalArgumentException("Doctor not found"));
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, doctor not found"));
 
+        if (!Objects.equals(doctor.getRole().getRoleName(), RoleName.DOCTOR.getRole())){
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, doctor is not valid");
+        }
         //Validate
         appointmentValidate(newAppointment);
 
-        Appointment appointment = modelMapper.map(newAppointment, Appointment.class);
+        Appointment appointment = restrictedModelMapper.map(newAppointment, Appointment.class);
+        appointment.setCustomer(customer);
+        appointment.setDoctor(doctor);
+
         appointmentRepository.save(appointment);
     }
 
     private void appointmentValidate(NewAppointment newAppointment) {
+
+        newAppointment.setStartTime(DateUtil.convertUTCtoICT(newAppointment.getStartTime()));
 
         LocalDateTime startDate = DateUtil.convertToLocalDateTime(newAppointment.getStartTime());
         LocalDateTime workingTimeStart = DateUtil.getLocalDateTime(startDate, AppointmentTime.WORKING_HOURS_START);
@@ -111,6 +119,21 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment start time must be within working hours (8:00 - 17:00)");
         }
 
+        // Kiểm tra giờ bắt đầu phải là giờ hiện tại hoặc sau giờ hiện tại
+        LocalDateTime now = LocalDateTime.now();
+        if (startDate.isBefore(now)) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment start time must be after current time");
+        }
+
+        //Kiểm tra bác sĩ có lịch hẹn trong khoảng thời gian này hay không
+
+        Optional<Appointment> appointments = appointmentRepository.findByStartTimeBetweenAndDoctor_Id(
+                newAppointment.getStartTime(),
+                newAppointment.getDoctorId());
+
+        if (appointments.isPresent()) {
+            throw new HivtmssException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error, doctor has another appointment at this time");
+        }
 
     }
 

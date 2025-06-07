@@ -1,10 +1,14 @@
 package com.swp391.hivtmss.service.implement;
 
 import com.swp391.hivtmss.model.entity.Account;
+import com.swp391.hivtmss.model.payload.enums.EmailTemplateName;
+import com.swp391.hivtmss.model.payload.enums.RoleName;
 import com.swp391.hivtmss.model.payload.enums.SortByRole;
 import com.swp391.hivtmss.model.payload.exception.HivtmssException;
+import com.swp391.hivtmss.model.payload.exception.RegisterAccountExistedException;
 import com.swp391.hivtmss.model.payload.request.EditAccount;
 import com.swp391.hivtmss.model.payload.request.EditAccountByAdmin;
+import com.swp391.hivtmss.model.payload.request.NewAccount;
 import com.swp391.hivtmss.model.payload.response.AccountInfoResponse;
 import com.swp391.hivtmss.model.payload.response.AccountReponseForAdmin;
 import com.swp391.hivtmss.model.payload.response.ListResponse;
@@ -12,8 +16,10 @@ import com.swp391.hivtmss.repository.AccountRepository;
 import com.swp391.hivtmss.repository.RoleRepository;
 import com.swp391.hivtmss.security.JwtTokenProvider;
 import com.swp391.hivtmss.service.AccountService;
+import com.swp391.hivtmss.service.EmailService;
 import com.swp391.hivtmss.util.AccountSpecification;
 import com.swp391.hivtmss.util.DateUtil;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -41,6 +47,7 @@ public class AccountServiceImpl implements AccountService {
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
     private final ModelMapper restrictedModelMapper;
+    private final EmailService emailService;
 
     @Override
     public void changePassword(HttpServletRequest request, String oldPassword, String newPassword) {
@@ -151,5 +158,37 @@ public class AccountServiceImpl implements AccountService {
         listResponse.setLast(accounts.isLast());
 
         return listResponse;
+    }
+
+    @Override
+    public void createAccountByAdmin(NewAccount newAcc) throws MessagingException {
+        if (accountRepository.findByEmail(newAcc.getEmail()).isPresent()) {
+            throw new RegisterAccountExistedException("Account already exists");
+        }
+
+        if (!newAcc.getRoleName().equals(RoleName.DOCTOR) && !newAcc.getRoleName().equals(RoleName.MANAGER)) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Invalid role name");
+        }
+
+        String password = newAcc.getFirstName() + newAcc.getLastName().trim();
+        String encodedPassword = passwordEncoder.encode(password);
+        Account account = modelMapper.map(newAcc, Account.class);
+        account.setLocked(false);
+        account.setPassword(password);
+
+        if (newAcc.getRoleName().equals(RoleName.DOCTOR)) {
+            account.setActive(false);
+        } else if (newAcc.getRoleName().equals(RoleName.MANAGER)) {
+            account.setActive(true);
+        }
+
+        accountRepository.save(account);
+        sendRegistrationEmail(account, encodedPassword);
+    }
+
+    private void sendRegistrationEmail(Account account, String password) throws MessagingException {
+        emailService.sendAccountInformation(
+                account.fullName(), account.getEmail(), password, account.getEmail(),
+                EmailTemplateName.CREATE_ACCOUNT.getName(), "[HIV TMSS service] Thông tin tài khoản của bạn đã đăng ký, cảm ơn đã sử dụng hệ thống của chúng tôi");
     }
 }

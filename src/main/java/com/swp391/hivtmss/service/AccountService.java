@@ -3,9 +3,11 @@ package com.swp391.hivtmss.service;
 import com.swp391.hivtmss.model.payload.enums.SortByRole;
 import com.swp391.hivtmss.model.payload.request.EditAccount;
 import com.swp391.hivtmss.model.payload.request.EditAccountByAdmin;
+import com.swp391.hivtmss.model.payload.request.NewAccount;
 import com.swp391.hivtmss.model.payload.response.AccountInfoResponse;
 import com.swp391.hivtmss.model.payload.response.AccountReponseForAdmin;
 import com.swp391.hivtmss.model.payload.response.ListResponse;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.UUID;
@@ -22,4 +24,7 @@ public interface AccountService {
     AccountReponseForAdmin getAccountForAdmin(UUID accountId);
 
     ListResponse getAccountsForAdmin(int pageNo, int pageSize, String keyword, String sortBy, String sortDir, SortByRole role);
+
+    void createAccountByAdmin(NewAccount account) throws MessagingException;
+
 }

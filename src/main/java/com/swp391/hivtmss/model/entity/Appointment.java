@@ -28,7 +28,7 @@ public class Appointment {
     @Column(name = "chief_complaint", nullable = false)
     private String chiefComplaint;
 
-    @Column(name = "medical_history", nullable = false)
+    @Column(name = "medical_history")
     private String medicalHistory;
 
     private String prognosis;
@@ -41,7 +41,7 @@ public class Appointment {
     @Column(name = "start_time", nullable = false)
     private Date startTime;
 
-    @Column(name = "end_time", nullable = false)
+    @Column(name = "end_time")
     private Date endTime;
 
     @Enumerated(EnumType.STRING)
@@ -66,11 +66,11 @@ public class Appointment {
     private Account customer;
 
     @OneToOne
-    @JoinColumn(name = "diagnosis_id", nullable = false)
+    @JoinColumn(name = "diagnosis_id")
     private Diagnosis diagnosis;
 
     @ManyToOne
-    @JoinColumn(name = "regimen_detail_id", nullable = false)
+    @JoinColumn(name = "regimen_detail_id")
     private RegimenDetail regimenDetail;
 
 }
