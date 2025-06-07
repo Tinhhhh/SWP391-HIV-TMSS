@@ -1,6 +1,7 @@
 package com.swp391.hivtmss.model.entity;
 
 import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
+import com.swp391.hivtmss.model.payload.enums.LineLevel;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,6 +31,12 @@ public class RegimenDetail {
 
     private String applicable;
 
+    private String note;
+
+    @Column(name = "line_level", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private LineLevel lineLevel;
+
     @Column(name = "is_active", nullable = false)
     @Enumerated(EnumType.STRING)
     private ActiveStatus isActive;
@@ -37,10 +44,6 @@ public class RegimenDetail {
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
     private Date createdDate;
-
-    @ManyToOne
-    @JoinColumn(name = "treatment_regimen_id", nullable = false)
-    private TreatmentRegimen treatmentRegimen;
 
     @OneToMany(mappedBy = "regimenDetail")
     private List<Appointment> appointments;

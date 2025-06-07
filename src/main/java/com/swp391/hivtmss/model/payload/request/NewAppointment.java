@@ -1,6 +1,7 @@
 package com.swp391.hivtmss.model.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.FutureOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ public class NewAppointment {
     @JsonProperty("doctor_id")
     private UUID doctorId;
 
+    @FutureOrPresent
     @JsonProperty("start_time")
     private Date StartTime;
 

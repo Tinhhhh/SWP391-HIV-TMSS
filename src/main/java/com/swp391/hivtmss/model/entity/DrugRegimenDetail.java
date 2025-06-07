@@ -23,6 +23,8 @@ public class DrugRegimenDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long drugRegimenDetailId;
 
+    private int method;
+
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
     private Date createdDate;

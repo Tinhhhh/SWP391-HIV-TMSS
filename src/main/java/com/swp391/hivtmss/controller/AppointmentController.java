@@ -1,6 +1,7 @@
 package com.swp391.hivtmss.controller;
 
 import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
+import com.swp391.hivtmss.model.payload.request.NewAppointment;
 import com.swp391.hivtmss.service.AppointmentService;
 import com.swp391.hivtmss.util.DateUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,10 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
@@ -31,6 +29,16 @@ public class AppointmentController {
         return ResponseBuilder.returnData(
                 HttpStatus.OK, "Successfully retrieved data",
                 appointmentService.getAvailableDoctors(DateUtil.convertToDate(startTime)));
+    }
+
+    @Operation(summary = "Create a new appointment", description = "Create a new appointment with the provided details")
+    @PostMapping
+    public ResponseEntity<Object> createAppointment(
+//            @RequestParam("endTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
+            @RequestBody NewAppointment newAppointment) {
+        appointmentService.createAppointment(newAppointment);
+        return ResponseBuilder.returnMessage(
+                HttpStatus.CREATED, "Appointment created successfully");
     }
 
 }

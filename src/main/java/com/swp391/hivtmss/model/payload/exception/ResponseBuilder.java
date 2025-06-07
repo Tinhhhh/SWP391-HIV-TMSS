@@ -30,9 +30,4 @@ public class ResponseBuilder {
         return new ResponseEntity<>(response, httpStatus);
     }
 
-    public static ResponseEntity<Object> returnPagination(HttpStatus httpStatus, String message, ListResponse listResponse) {
-        return returnData(httpStatus, message, listResponse);
-
-    }
-
 }

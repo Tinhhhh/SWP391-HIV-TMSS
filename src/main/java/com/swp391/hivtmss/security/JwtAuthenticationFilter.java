@@ -1,12 +1,14 @@
 package com.swp391.hivtmss.security;
 
 import com.swp391.hivtmss.model.entity.AccessToken;
+import com.swp391.hivtmss.model.entity.Account;
+import com.swp391.hivtmss.model.payload.enums.RoleName;
+import com.swp391.hivtmss.repository.AccountRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetail;
+    private final AccountRepository accountRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -42,6 +45,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
             //get username from jwt token
             String username = jwtTokenProvider.getUsernameFromJwt(jwt);
+
+            // Kiểm tra xem nếu là role doctor thì active chưa
+            if (username != null) {
+                Account account = accountRepository.findByEmail(username)
+                        .orElseThrow(() -> new RuntimeException("Account not found with email: " + username));
+
+                if (account.getRole().getRoleName().equals(RoleName.DOCTOR.getRole())) {
+                    if (!account.isActive()) {
+                        // Nếu là doctor nhưng chưa active, không set authentication
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
+                }
+            }
+
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetail.loadUserByUsername(username);
