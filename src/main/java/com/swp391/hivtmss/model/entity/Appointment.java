@@ -1,6 +1,9 @@
 package com.swp391.hivtmss.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.swp391.hivtmss.model.payload.enums.Applicable;
 import com.swp391.hivtmss.model.payload.enums.AppointmentStatus;
+import com.swp391.hivtmss.model.payload.enums.Gender;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +12,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
@@ -25,10 +29,26 @@ public class Appointment {
     @Column(name = "appointment_id")
     private Long id;
 
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
+
+    @Column(name = "gender")
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    @Column(name = "dob")
+    private LocalDate dob;
+
+    @Enumerated(EnumType.STRING)
+    private Applicable applicable;
+
     @Column(name = "chief_complaint", nullable = false)
     private String chiefComplaint;
 
-    @Column(name = "medical_history", nullable = false)
+    @Column(name = "medical_history")
     private String medicalHistory;
 
     private String prognosis;
@@ -41,7 +61,7 @@ public class Appointment {
     @Column(name = "start_time", nullable = false)
     private Date startTime;
 
-    @Column(name = "end_time", nullable = false)
+    @Column(name = "end_time")
     private Date endTime;
 
     @Enumerated(EnumType.STRING)
@@ -52,6 +72,9 @@ public class Appointment {
 
     @Column(name = "next_follow_up")
     private Date nextFollowUp;
+
+    @Column(name = "cancel_reason")
+    private String cancelReason;
 
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
@@ -66,11 +89,16 @@ public class Appointment {
     private Account customer;
 
     @OneToOne
-    @JoinColumn(name = "diagnosis_id", nullable = false)
+    @JoinColumn(name = "diagnosis_id")
     private Diagnosis diagnosis;
 
     @ManyToOne
-    @JoinColumn(name = "regimen_detail_id", nullable = false)
-    private RegimenDetail regimenDetail;
+    @JoinColumn(name = "treatment_id")
+    private Treatment treatment;
+
+    @JsonIgnore
+    public String fullName() {
+        return firstName + " " + lastName;
+    }
 
 }

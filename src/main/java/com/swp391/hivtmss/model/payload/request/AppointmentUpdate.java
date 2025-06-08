@@ -3,9 +3,6 @@ package com.swp391.hivtmss.model.payload.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.hivtmss.model.payload.enums.Applicable;
 import com.swp391.hivtmss.model.payload.enums.Gender;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.FutureOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,19 +11,14 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.Date;
-import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class NewAppointment {
+public class AppointmentUpdate {
 
-    @JsonProperty("customer_id")
-    private UUID customerId;
-
-    @JsonProperty("doctor_id")
-    private UUID doctorId;
+    private Long appointmentId;
 
     @JsonProperty("first_name")
     private String firstName;
@@ -40,16 +32,26 @@ public class NewAppointment {
 
     private Applicable applicable;
 
-    @FutureOrPresent
-    @JsonProperty("start_time")
-    private Date startTime;
+    @JsonProperty("medical_history")
+    private String medicalHistory;
 
-    @JsonProperty("chief_complaint")
-    private String chiefComplaint;
+    private String prognosis;
 
-    @JsonProperty("is_pregnant")
+    private String prevention;
+
     private boolean isPregnant;
 
-    @JsonProperty("is_anonymous")
-    private boolean isAnonymous;
+    @FutureOrPresent
+    @JsonProperty("end_time")
+    private Date endTime;
+
+    @FutureOrPresent
+    @JsonProperty("next_follow_up")
+    private Date nextFollowUp;
+
+    private int method;
+
+    @JsonProperty("regiment_detail_id")
+    private Long regimentDetailId;
+
 }

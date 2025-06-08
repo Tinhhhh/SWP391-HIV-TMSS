@@ -33,9 +33,6 @@ public class Drug {
     @Column(name = "short_name", nullable = false, unique = true)
     private String shortName;
 
-    @Column(name = "side_effect")
-    private String sideEffect;
-
     @Enumerated(EnumType.STRING)
     private DrugType type;
 

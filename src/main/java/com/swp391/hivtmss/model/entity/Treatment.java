@@ -9,19 +9,21 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "drug_regimen_detail")
+@Table(name = "treatment")
 @EntityListeners(AuditingEntityListener.class)
-public class DrugRegimenDetail {
+public class Treatment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long drugRegimenDetailId;
+    @Column(name = "treatment_id")
+    private Long id;
 
     private int method;
 
@@ -30,11 +32,10 @@ public class DrugRegimenDetail {
     private Date createdDate;
 
     @ManyToOne
-    @JoinColumn(name = "drug_id", nullable = false)
-    private Drug drug;
-
-    @ManyToOne
     @JoinColumn(name = "regimen_detail_id", nullable = false)
     private RegimenDetail regimenDetail;
+
+    @OneToMany(mappedBy = "treatment")
+    private List<Appointment> appointments;
 
 }
