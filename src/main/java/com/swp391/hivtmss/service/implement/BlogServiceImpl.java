@@ -32,7 +32,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Transactional
     public BlogResponse createBlog(BlogRequest blogRequest) {
-        Account account = accountRepository.findById(blogRequest.getAccount().getId())
+        Account account = accountRepository.findById(blogRequest.getAccountID())
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
         Blog blog = new Blog();
@@ -75,7 +75,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public void updateBlog(Long id, UpdateBlog updateBlog) {
         Blog blog = blogRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Blog not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("BlogID not found"));
 
         blog.setTitle(updateBlog.getTitle());
         blog.setContent(updateBlog.getContent());
@@ -93,7 +93,7 @@ public class BlogServiceImpl implements BlogService {
         Blog blog = blogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Blog not found"));
         // set giá trị isHidden thành true, ko xóa chỉ ẩn Blog đi.
-        blog.setHidden(true);
+        blog.setHidden(false);
         blogRepository.save(blog);
     }
 

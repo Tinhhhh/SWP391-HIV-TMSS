@@ -32,5 +32,5 @@ public class BlogRequest {
     @NotNull(message = "ImageUrl cannot be null")
     private String imageUrl;
 
-    private Account account;
+    private UUID accountID;
 }
