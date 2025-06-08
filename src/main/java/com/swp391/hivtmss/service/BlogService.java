@@ -1,7 +1,10 @@
 package com.swp391.hivtmss.service;
 
 import com.swp391.hivtmss.model.payload.request.BlogRequest;
+import com.swp391.hivtmss.model.payload.request.UpdateBlog;
+import com.swp391.hivtmss.model.payload.request.UpdateBlogByManager;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -16,7 +19,7 @@ public interface BlogService {
 
     List<BlogResponse> getAllBlogs();
 
-    BlogResponse updateBlog(Long id, @Valid BlogRequest blogRequest);
+    void updateBlog(Long id ,UpdateBlog updateBlog);
 
-    BlogResponse deleteBlog(Long id, @Valid BlogRequest blogRequest);
+    void deleteBlog(Long id, UpdateBlogByManager updateBlogByManager);
 }

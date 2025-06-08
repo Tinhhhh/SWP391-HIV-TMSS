@@ -6,6 +6,8 @@ import com.swp391.hivtmss.model.entity.DoctorDegree;
 import com.swp391.hivtmss.model.payload.enums.BlogStatus;
 import com.swp391.hivtmss.model.payload.exception.ResourceNotFoundException;
 import com.swp391.hivtmss.model.payload.request.BlogRequest;
+import com.swp391.hivtmss.model.payload.request.UpdateBlog;
+import com.swp391.hivtmss.model.payload.request.UpdateBlogByManager;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
 import com.swp391.hivtmss.repository.AccountRepository;
 import com.swp391.hivtmss.repository.BlogRepository;
@@ -30,10 +32,11 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Transactional
     public BlogResponse createBlog(BlogRequest blogRequest) {
-        Account account = accountRepository.findById(blogRequest.getAccountId())
-                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+        Account account = accountRepository.findByEmail(blogRequest.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("Account already exists"));
 
         Blog blog = new Blog();
+
         blog.setTitle(blogRequest.getTitle());
         blog.setContent(blogRequest.getContent());
         blog.setImageUrl(blogRequest.getImageUrl());
@@ -68,35 +71,28 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    @Transactional
-    public BlogResponse updateBlog(Long id, BlogRequest blogRequest) {
+    public void updateBlog(Long id, UpdateBlog updateBlog) {
         Blog blog = blogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Blog not found"));
 
-        blog.setTitle(blogRequest.getTitle());
-        blog.setContent(blogRequest.getContent());
-        blog.setImageUrl(blogRequest.getImageUrl());
-        blog.setStatus(blogRequest.getStatus());
+        blog.setTitle(updateBlog.getTitle());
+        blog.setContent(updateBlog.getContent());
+        blog.setImageUrl(updateBlog.getImageUrl());
         blog.setCreatedDate(new Date());
 
-        Blog updatedBlog = blogRepository.save(blog);
-        return convertToResponse(updatedBlog);
+        blogRepository.save(blog);
+
     }
 
     @Override
     @Transactional
-    public BlogResponse deleteBlog(Long id, BlogRequest blogRequest) {
-        if (!blogRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Blog not found");
-        }
+    public void deleteBlog(Long id, UpdateBlogByManager updateBlogByManager) {
+
         Blog blog = blogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Blog not found"));
         // set giá trị isHidden thành true, ko xóa chỉ ẩn Blog đi.
         blog.setHidden(true);
-
-        Blog deleteBlog = blogRepository.save(blog);
-        return convertToResponse(deleteBlog);
-
+        blogRepository.save(blog);
     }
 
     private BlogResponse convertToResponse(Blog blog) {

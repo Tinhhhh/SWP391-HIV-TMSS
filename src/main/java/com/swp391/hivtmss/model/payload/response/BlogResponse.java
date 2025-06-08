@@ -41,8 +41,8 @@ public class BlogResponse {
     @JsonProperty(value = "account_id", index = 8)
     private UUID accountId;
 
-    @JsonProperty(value = "email", index = 9)
-    private String email;
+    @JsonProperty(value = "full_name", index = 9)
+    private String fullName;
 
 
 
