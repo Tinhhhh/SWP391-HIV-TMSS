@@ -17,7 +17,9 @@ public interface DoctorDegreeService {
     void deleteDoctorDegree(Long id);
     DoctorDegree getDoctorDegreeEntityById(Long id);
     DoctorDegreeResponse saveDoctorDegree(DoctorDegree doctorDegree);
-    DoctorDegreeResponse uploadDegreeImages(Long id, MultipartFile[] files);
+    DoctorDegreeResponse uploadDegreeImages(Long id, List<MultipartFile> files);
+    DoctorDegreeResponse deleteAllImages(Long doctorDegreeId);
+    DoctorDegreeResponse deleteImageByUrl(Long doctorDegreeId, String imageUrl);
 
 
 }

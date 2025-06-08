@@ -11,6 +11,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -53,11 +54,11 @@ public class DoctorDegree {
     @Column(name = "created_date", nullable = false, updatable = false)
     private Date createdDate;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REFRESH)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @OneToMany(mappedBy = "doctorDegree")
-    private List<DegreeImg> degreeImgs;
+    @OneToMany(mappedBy = "doctorDegree", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<DegreeImg> degreeImgs = new ArrayList<>();
 
 }
