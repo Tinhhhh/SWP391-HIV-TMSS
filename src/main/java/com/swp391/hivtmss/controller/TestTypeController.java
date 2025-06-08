@@ -24,12 +24,11 @@ public class TestTypeController {
     @Autowired
     private TestTypeService testTypeService;
 
-    @Operation(summary = "Create TestType", description = "Create TestType")
+    @Operation(summary = "Create a new TestType", description = "Create TestType")
     @PostMapping
-    public ResponseEntity<Object> createTestType(@Valid @RequestBody TestTypeRequest testTypeRequest){
-
-
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your account is created successfully");
+    public ResponseEntity<Object> createTestType(@RequestBody TestTypeRequest testTypeRequest){
+        testTypeService.createTestType(testTypeRequest);
+        return ResponseBuilder.returnMessage(HttpStatus.CREATED, "Test-Type created successfully");
 
     }
 
@@ -37,7 +36,9 @@ public class TestTypeController {
     @GetMapping
     public ResponseEntity<Object> getTestTypeById(@PathParam("id") Long id) {
 
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your account is created successfully");
+
+        return ResponseBuilder.returnData(HttpStatus.OK, "Your account is created successfully",
+                testTypeService.getTestTypeByID(id));
     }
 
 
