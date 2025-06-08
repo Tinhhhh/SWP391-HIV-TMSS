@@ -18,5 +18,5 @@ public interface BlogService {
 
     BlogResponse updateBlog(Long id, @Valid BlogRequest blogRequest);
 
-    void deleteBlog(Long id);
+    BlogResponse deleteBlog(Long id, @Valid BlogRequest blogRequest);
 }

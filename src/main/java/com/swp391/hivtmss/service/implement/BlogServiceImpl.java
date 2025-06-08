@@ -85,11 +85,18 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     @Transactional
-    public void deleteBlog(Long id) {
+    public BlogResponse deleteBlog(Long id, BlogRequest blogRequest) {
         if (!blogRepository.existsById(id)) {
             throw new ResourceNotFoundException("Blog not found");
         }
-        blogRepository.deleteById(id);
+        Blog blog = blogRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Blog not found"));
+        // set giá trị isHidden thành true, ko xóa chỉ ẩn Blog đi.
+        blog.setHidden(true);
+
+        Blog deleteBlog = blogRepository.save(blog);
+        return convertToResponse(deleteBlog);
+
     }
 
     private BlogResponse convertToResponse(Blog blog) {
@@ -100,10 +107,10 @@ public class BlogServiceImpl implements BlogService {
                 blog.getStatus(),
                 blog.getImageUrl(),
                 blog.getCreatedDate(),
+                blog.getLastModifiedDate(),
                 blog.isHidden(),
-                blog.getAccount().getAccountId(),
-                blog.getAccount().getEmail()
-
+                blog.getAccount().getId(),
+                blog.getAccount().fullName()
 
         );
     }

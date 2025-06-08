@@ -3,6 +3,7 @@ package com.swp391.hivtmss.model.payload.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.hivtmss.model.entity.Account;
 import com.swp391.hivtmss.model.payload.enums.BlogStatus;
+import jakarta.persistence.Column;
 import lombok.*;
 
 import java.util.Date;
@@ -27,6 +28,9 @@ public class BlogResponse {
 
     @JsonProperty(value = "image_url", index = 5)
     private String imageUrl;
+
+    @Column(name = "last_modified_date", nullable = false)
+    private Date lastModifiedDate;
 
     @JsonProperty(value = "created_date", index = 6)
     private Date created_Date;
