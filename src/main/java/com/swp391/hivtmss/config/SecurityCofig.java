@@ -46,6 +46,10 @@ public class SecurityCofig {
 //                                .hasAnyAuthority("CUSTOMER", "DOCTOR", "MANAGER")
                                 .permitAll()
                                 .requestMatchers("/api/doctor-degrees/**").permitAll()
+                                //Appointment
+                                .requestMatchers("/api/v1/appointments/**").permitAll()
+                                .requestMatchers("/api/v1/test-types/**").permitAll()
+                                .requestMatchers("/api/v1/blogs/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
