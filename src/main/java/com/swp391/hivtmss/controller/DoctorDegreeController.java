@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/doctor-degrees")
+@RequestMapping("/api/v1/doctor-degrees")
 // @CrossOrigin(origins = "*") // Add if needed for frontend development
 public class DoctorDegreeController {
 
