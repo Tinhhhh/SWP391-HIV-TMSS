@@ -76,6 +76,7 @@ public class AuthenServiceImpl implements AuthenService {
         String password = passwordEncoder.encode(request.getPassword());
         Account account = modelMapper.map(request, Account.class);
         account.setLocked(false);
+        account.setActive(true);
         account.setPassword(password);
         account.setRole(role);
 
@@ -192,31 +193,31 @@ public class AuthenServiceImpl implements AuthenService {
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Account not found"));
 
-        String token = generateResetPasswordToken(32);
-        StringBuilder link = new StringBuilder();
-        link.append(forgotPasswordUrl).append("/").append(token);
+        String token = generateResetPasswordToken(6);
+//        StringBuilder link = new StringBuilder();
+//        link.append(forgotPasswordUrl).append("/").append(token);
         emailService.sendMimeMessageWithHtml(
                 account.fullName(),
                 account.getEmail(),
-                link.toString(),
+                token,
                 EmailTemplateName.FORGOT_PASSWORD.getName(),
-                "Reset your password");
+                "Your recovery code");
 
         jwtTokenProvider.savePasswordResetToken(token, account.getId());
     }
 
     @Override
-    public void resetPassword(String email, String newPassword, String token) throws JsonProcessingException {
+    public void resetPassword(String email, String newPassword, String code) throws JsonProcessingException {
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Account not found"));
 
-        if (!jwtTokenProvider.isExistsPasswordResetToken(account.getId(), token)) {
+        if (!jwtTokenProvider.isExistsPasswordResetToken(account.getId(), code)) {
             throw new HivtmssException(HttpStatus.BAD_REQUEST, "Token is expired or not exist");
         }
 
         account.setPassword(passwordEncoder.encode(newPassword));
         accountRepository.save(account);
-        jwtTokenProvider.deletePasswordResetToken(account.getId(), token);
+        jwtTokenProvider.deletePasswordResetToken(account.getId(), code);
         jwtTokenProvider.disableOldTokens(account.getId());
     }
 
@@ -229,10 +230,7 @@ public class AuthenServiceImpl implements AuthenService {
             codeBuilder.append(emailSecureChar.charAt(randomIndex));
         }
 
-        //Hash token with SHA-256
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] hash = digest.digest(codeBuilder.toString().getBytes());
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
+        return codeBuilder.toString();
     }
 
 }

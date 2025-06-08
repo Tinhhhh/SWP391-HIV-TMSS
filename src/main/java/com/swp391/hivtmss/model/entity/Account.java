@@ -63,6 +63,12 @@ public class Account {
     @Column(name = "is_locked", nullable = false)
     private boolean isLocked;
 
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive;
+
+    @Column(name = "introduction")
+    private String introduction;
+
     @JsonIgnore
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)

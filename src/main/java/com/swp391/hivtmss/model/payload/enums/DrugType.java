@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum DrugType {
+    NRTIs("NRTIs"),
     NtRTIs("NtRTIs"),
     NNRTIs("NNRTIs"),
     PIs("PIs"),

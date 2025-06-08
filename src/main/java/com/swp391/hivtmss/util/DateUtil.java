@@ -17,7 +17,7 @@ public class DateUtil {
     public final String DATE_FORMAT = "MM/dd/yyyy";
 
     public static String formatTimestamp(Date date) {
-        return formatTimestamp(date, DATE_FORMAT);
+        return formatTimestamp(date, DATE_TIME_FORMAT);
     }
 
     public static String formatTimestamp(Date date, String format) {
@@ -78,5 +78,8 @@ public class DateUtil {
 
     }
 
+    public LocalDateTime getLocalDateTime(LocalDateTime date, int time){
+        return LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), time, 0);
+    }
 
 }

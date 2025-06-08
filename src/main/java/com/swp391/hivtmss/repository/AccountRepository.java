@@ -18,7 +18,9 @@ import java.util.UUID;
 public interface AccountRepository extends JpaRepository<Account, UUID>, JpaSpecificationExecutor<Account> {
     Optional<Account> findByEmail(String email);
 
+    List<Account> findByRoleId(long l);
 
+    List<Account> findByRoleIdAndIsLocked(Long roleId, boolean locked);
 }
 
 

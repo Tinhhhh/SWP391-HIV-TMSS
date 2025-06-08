@@ -1,5 +1,6 @@
 package com.swp391.hivtmss.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.swp391.hivtmss.model.payload.enums.BlogStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 
 import java.util.Date;
 
@@ -41,6 +43,7 @@ public class Blog {
     @Column(name = "is_hidden", nullable = false)
     private boolean isHidden;
 
+    @JsonIgnore
     @LastModifiedDate
     @Column(name = "last_modified_date", nullable = false)
     private Date lastModifiedDate;
