@@ -7,10 +7,9 @@ import com.swp391.hivtmss.model.payload.request.UpdateBlogByManager;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
 import com.swp391.hivtmss.service.BlogService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,16 +18,16 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/blogs")
+@RequestMapping("/api/v1/blogs")
+@RequiredArgsConstructor
 public class BlogController {
-    @Autowired
-    private BlogService blogService;
 
+    private final BlogService blogService;
 
     // cái này tính sau
     @Operation(summary = "Create Blog By Account", description = "Create Blog By Account")
     @PostMapping
-    public ResponseEntity<Object> createBlog(@Valid @RequestBody BlogRequest blogRequest){
+    public ResponseEntity<Object> createBlog(@Valid @RequestBody BlogRequest blogRequest) {
         blogService.createBlog(blogRequest);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Your account is created successfully");
     }
@@ -50,7 +49,7 @@ public class BlogController {
     }
 
     @Operation(summary = "Get All Blog ", description = "Get All Blog")
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<BlogResponse>> getAllBlog() {
         List<BlogResponse> blog = blogService.getAllBlogs();
         return ResponseEntity.ok(blog);
@@ -62,6 +61,7 @@ public class BlogController {
         blogService.updateBlog(id, updateBlog);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Update Blog Successfully");
     }
+
     @Operation(summary = "Delete Blog", description = "Delete Blog")
     @DeleteMapping
     public ResponseEntity<Object> deleteBlog(@PathParam("id") Long id,
