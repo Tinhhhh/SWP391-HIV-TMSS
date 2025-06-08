@@ -1,5 +1,6 @@
 package com.swp391.hivtmss.model.payload.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.hivtmss.model.entity.Diagnosis;
 import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import jakarta.persistence.*;
@@ -16,22 +17,20 @@ import java.util.List;
 @NoArgsConstructor
 public class TestTypeResponse {
 
-    @Column(name = "test_type_id")
+    @JsonProperty("test_type_id")
     private Long id;
 
-    @Column(name = "test_type_name")
+    @JsonProperty("test_type_name")
     private String name;
 
-    @Column(name = "test_type_description")
+    @JsonProperty("test_type_description")
     private String description;
 
-    @Column(name = "test_type_code")
+    @JsonProperty("test_type_code")
     private String code;
 
-    @Column(name = "is_active")
+    @JsonProperty("is_active")
     private ActiveStatus isActive;
-
-    @Column(name = "applicable")
     private String applicable;
 
 
