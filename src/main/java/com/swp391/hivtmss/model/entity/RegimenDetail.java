@@ -46,7 +46,7 @@ public class RegimenDetail {
     private Date createdDate;
 
     @OneToMany(mappedBy = "regimenDetail")
-    private List<Appointment> appointments;
+    private List<Treatment> treatments;
 
     @OneToMany(mappedBy = "regimenDetail")
     private List<DrugRegimenDetail> drugRegimenDetails;

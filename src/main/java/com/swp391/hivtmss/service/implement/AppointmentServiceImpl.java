@@ -1,14 +1,16 @@
 package com.swp391.hivtmss.service.implement;
 
-import com.swp391.hivtmss.model.entity.Account;
-import com.swp391.hivtmss.model.entity.Appointment;
+import com.swp391.hivtmss.model.entity.*;
+import com.swp391.hivtmss.model.payload.enums.AppointmentStatus;
 import com.swp391.hivtmss.model.payload.enums.RoleName;
 import com.swp391.hivtmss.model.payload.exception.HivtmssException;
+import com.swp391.hivtmss.model.payload.request.AppointmentDiagnosisUpdate;
+import com.swp391.hivtmss.model.payload.request.AppointmentUpdate;
 import com.swp391.hivtmss.model.payload.request.NewAppointment;
-import com.swp391.hivtmss.model.payload.request.UpdateAppointment;
+import com.swp391.hivtmss.model.payload.response.AppointmentResponse;
+import com.swp391.hivtmss.model.payload.response.CustomerResponse;
 import com.swp391.hivtmss.model.payload.response.DoctorResponse;
-import com.swp391.hivtmss.repository.AccountRepository;
-import com.swp391.hivtmss.repository.AppointmentRepository;
+import com.swp391.hivtmss.repository.*;
 import com.swp391.hivtmss.service.AppointmentService;
 import com.swp391.hivtmss.util.AppointmentTime;
 import com.swp391.hivtmss.util.DateUtil;
@@ -31,6 +33,10 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
     private final ModelMapper restrictedModelMapper;
+    private final TestTypeRepository testTypeRepository;
+    private final DiagnosisRepository diagnosisRepository;
+    private final RegimentDetailRepository regimentDetailRepository;
+    private final TreatmentRepository treatmentRepository;
 
     @Override
     public List<DoctorResponse> getAvailableDoctors(Date startTime) {
@@ -42,17 +48,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         // Lấy danh sách cuộc hẹn trong khoảng thời gian từ startTime đến 1 giờ sau
-        List<Appointment> appointments = appointmentRepository.findByStartTimeBetween(startTime);
+        List<Appointment> appointments = appointmentRepository.findByStartTime(startTime)
+                .stream().filter(appointment -> appointment.getStatus().equals(AppointmentStatus.PENDING)).toList();
 
-        List<DoctorResponse> doctorResponses = new ArrayList<>();
-
-        if (appointments.isEmpty()) {
-            // Nếu không có cuộc hẹn nào trong khoảng thời gian này, trả về tất cả bác sĩ
-            for (Account doctor : doctors) {
-                DoctorResponse doctorResponse = modelMapper.map(doctor, DoctorResponse.class);
-                doctorResponses.add(doctorResponse);
-            }
-        } else {
+        final List<DoctorResponse> doctorResponses = new ArrayList<>();
+        // Nếu không có cuộc hẹn nào trong khoảng thời gian này, trả về tất cả bác sĩ
+        List<Account> availableDoctors = doctors;
+        if (!appointments.isEmpty()) {
             // Nếu có cuộc hẹn, lọc ra những bác sĩ không có cuộc hẹn trong khoảng thời gian này
 
             // Lấy danh sách bác sĩ đã có cuộc hẹn
@@ -61,15 +63,16 @@ public class AppointmentServiceImpl implements AppointmentService {
                     .collect(Collectors.toSet());
 
             // Lấy danh sách bác sĩ không có cuộc hẹn trong khoảng thời gian này
-            List<Account> availableDoctors = doctors.stream()
+            availableDoctors = doctors.stream()
                     .filter(doctor -> !unavailableDoctors.contains(doctor))
                     .toList();
 
-            for (Account doctor : availableDoctors) {
-                DoctorResponse doctorResponse = modelMapper.map(doctor, DoctorResponse.class);
-                doctorResponse.setFullName(doctor.fullName());
-                doctorResponses.add(doctorResponse);
-            }
+        }
+
+        for (Account doctor : availableDoctors) {
+            DoctorResponse doctorResponse = modelMapper.map(doctor, DoctorResponse.class);
+            doctorResponse.setFullName(doctor.fullName());
+            doctorResponses.add(doctorResponse);
         }
 
         return doctorResponses;
@@ -80,14 +83,14 @@ public class AppointmentServiceImpl implements AppointmentService {
         Account customer = accountRepository.findById(newAppointment.getCustomerId())
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, customer not found"));
 
-        if (!Objects.equals(customer.getRole().getRoleName(), RoleName.CUSTOMER.getRole())){
+        if (!Objects.equals(customer.getRole().getRoleName(), RoleName.CUSTOMER.getRole())) {
             throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, customer is not valid");
         }
 
         Account doctor = accountRepository.findById(newAppointment.getDoctorId())
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, doctor not found"));
 
-        if (!Objects.equals(doctor.getRole().getRoleName(), RoleName.DOCTOR.getRole())){
+        if (!Objects.equals(doctor.getRole().getRoleName(), RoleName.DOCTOR.getRole())) {
             throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, doctor is not valid");
         }
         //Validate
@@ -96,6 +99,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = restrictedModelMapper.map(newAppointment, Appointment.class);
         appointment.setCustomer(customer);
         appointment.setDoctor(doctor);
+        appointment.setStatus(AppointmentStatus.PENDING);
 
         appointmentRepository.save(appointment);
     }
@@ -129,7 +133,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         Optional<Appointment> appointments = appointmentRepository.findByStartTimeBetweenAndDoctor_Id(
                 newAppointment.getStartTime(),
-                newAppointment.getDoctorId());
+                newAppointment.getDoctorId()).stream().filter(appointment -> appointment.getStatus().equals(AppointmentStatus.PENDING)).findFirst();
 
         if (appointments.isPresent()) {
             throw new HivtmssException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error, doctor has another appointment at this time");
@@ -138,8 +142,119 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public void updateAppointment(UpdateAppointment updateAppointment) {
+    @Transactional
+    public void updateAppointment(AppointmentDiagnosisUpdate appointmentUpdate) {
 
+        Appointment appointment = appointmentRepository.findById(appointmentUpdate.getAppointmentId())
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment not found"));
+
+        TestType testType = testTypeRepository.findById(appointmentUpdate.getTestTypeId())
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, test type not found"));
+
+        Diagnosis diagnosis = restrictedModelMapper.map(appointmentUpdate, Diagnosis.class);
+        diagnosis.setTestType(testType);
+        diagnosisRepository.save(diagnosis);
+
+        appointment.setDiagnosis(diagnosis);
+        appointmentRepository.save(appointment);
+    }
+
+    @Override
+    @Transactional
+    public void updateAppointment(AppointmentUpdate appointmentUpdate) {
+        Appointment appointment = appointmentRepository.findById(appointmentUpdate.getAppointmentId())
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment not found"));
+
+        RegimenDetail regimenDetail = regimentDetailRepository.findById(appointmentUpdate.getRegimentDetailId())
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, regiment detail not found"));
+
+        restrictedModelMapper.map(appointmentUpdate, appointment);
+
+        Treatment treatment = new Treatment();
+        treatment.setMethod(appointmentUpdate.getMethod());
+        treatment.setRegimenDetail(regimenDetail);
+        treatmentRepository.save(treatment);
+
+        appointment.setTreatment(treatment);
+        appointmentRepository.save(appointment);
+    }
+
+    @Override
+    public List<AppointmentResponse> getAppointmentByRange(Date startTime, Date endTime, UUID doctorId) {
+
+        List<Appointment> appointments = appointmentRepository.findByStartTimeBetweenAndDoctor_Id(startTime, endTime, doctorId);
+        List<AppointmentResponse> listResponse = new ArrayList<>();
+        if (!appointments.isEmpty()) {
+            for (Appointment appointment : appointments) {
+                AppointmentResponse response = getAppointmentResponse(appointment);
+                listResponse.add(response);
+            }
+        } else {
+            throw new HivtmssException(HttpStatus.OK, "Request accepted, no appointment found in this time range");
+        }
+        return listResponse;
+    }
+
+    @Override
+    public AppointmentResponse getAppointmentById(Long id) {
+
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment not found"));
+
+        return getAppointmentResponse(appointment);
+    }
+
+    @Override
+    public void cancelAppointment(Long appointmentId, String reason) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment not found"));
+
+        if (appointment.getStatus() != AppointmentStatus.PENDING) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment is not in pending status");
+        }
+
+        appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointment.setCancelReason(reason);
+        appointmentRepository.save(appointment);
+    }
+
+    private AppointmentResponse getAppointmentResponse(Appointment appointment) {
+        AppointmentResponse response = restrictedModelMapper.map(appointment, AppointmentResponse.class);
+        response.setStartTime(DateUtil.formatTimestamp(appointment.getStartTime()));
+
+        if (appointment.getEndTime() != null) {
+            response.setEndTime(DateUtil.formatTimestamp(appointment.getEndTime()));
+        }
+
+        response.setCreatedDate(DateUtil.formatTimestamp(appointment.getCreatedDate()));
+
+        // Set doctor information
+        DoctorResponse doctor = restrictedModelMapper.map(appointment.getDoctor(), DoctorResponse.class);
+        doctor.setFullName(appointment.getDoctor().fullName());
+        response.setDoctor(doctor);
+
+        // Set customer information
+        CustomerResponse customer = restrictedModelMapper.map(appointment.getCustomer(), CustomerResponse.class);
+        customer.setFullName(appointment.getCustomer().fullName());
+        response.setCustomer(customer);
+
+        response.setAppointmentId(appointment.getId());
+
+        if (appointment.isAnonymous()) {
+            response.setFullName("Bệnh nhân ẩn danh");
+        } else {
+            response.setFullName(appointment.fullName());
+        }
+
+        if (appointment.getDiagnosis() != null) {
+            response.setDiagnosisId(appointment.getDiagnosis().getId());
+        }
+
+        if (appointment.getTreatment() != null) {
+            response.setTreatmentId(appointment.getTreatment().getId());
+        }
+
+        return response;
     }
 
 }

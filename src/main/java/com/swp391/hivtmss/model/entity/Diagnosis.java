@@ -42,7 +42,7 @@ public class Diagnosis {
 
     @Column(name = "ag_ab_result")
     @Enumerated(EnumType.STRING)
-    private HivResult AgAbResult;
+    private HivResult agAbResult;
 
     @Column(name = "cd4")
     private Long cd4;
