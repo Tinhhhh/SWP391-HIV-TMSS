@@ -1,6 +1,9 @@
 package com.swp391.hivtmss.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.swp391.hivtmss.model.payload.enums.Applicable;
 import com.swp391.hivtmss.model.payload.enums.AppointmentStatus;
+import com.swp391.hivtmss.model.payload.enums.Gender;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +12,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
@@ -24,6 +28,22 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "appointment_id")
     private Long id;
+
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
+
+    @Column(name = "gender")
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    @Column(name = "dob")
+    private LocalDate dob;
+
+    @Enumerated(EnumType.STRING)
+    private Applicable applicable;
 
     @Column(name = "chief_complaint", nullable = false)
     private String chiefComplaint;
@@ -53,6 +73,9 @@ public class Appointment {
     @Column(name = "next_follow_up")
     private Date nextFollowUp;
 
+    @Column(name = "cancel_reason")
+    private String cancelReason;
+
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
     private Date createdDate;
@@ -70,7 +93,12 @@ public class Appointment {
     private Diagnosis diagnosis;
 
     @ManyToOne
-    @JoinColumn(name = "regimen_detail_id")
-    private RegimenDetail regimenDetail;
+    @JoinColumn(name = "treatment_id")
+    private Treatment treatment;
+
+    @JsonIgnore
+    public String fullName() {
+        return firstName + " " + lastName;
+    }
 
 }
