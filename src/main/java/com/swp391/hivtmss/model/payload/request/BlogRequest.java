@@ -29,23 +29,8 @@ public class BlogRequest {
     @NotNull(message = "Content cannot be blank")
     private String content;
 
-    @NotNull(message = "Status ate cannot be null")
-    private BlogStatus status;
-
     @NotNull(message = "ImageUrl cannot be null")
     private String imageUrl;
 
-
-    @NotNull(message = "Hidden cannot be null")
-    private Boolean isHidden;
-
-
-    @Schema(description = "User's email address", example = "john.doe@example.com")
-    @NotBlank(message = "Email cannot be blank")
-    @Email(message = "Invalid email format")
-    @Size(max = 50, message = "email must be less than 50 characters")
-    private String email;
-
-
-
+    private UUID accountID;
 }

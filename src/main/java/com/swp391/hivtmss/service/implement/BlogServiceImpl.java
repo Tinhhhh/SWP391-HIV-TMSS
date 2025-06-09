@@ -32,16 +32,18 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Transactional
     public BlogResponse createBlog(BlogRequest blogRequest) {
-        Account account = accountRepository.findByEmail(blogRequest.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Account already exists"));
+        Account account = accountRepository.findById(blogRequest.getAccountID())
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
         Blog blog = new Blog();
 
         blog.setTitle(blogRequest.getTitle());
         blog.setContent(blogRequest.getContent());
         blog.setImageUrl(blogRequest.getImageUrl());
-        blog.setStatus(blogRequest.getStatus());
+        blog.setStatus(BlogStatus.PENDING);
         blog.setCreatedDate(new Date());
+        blog.setLastModifiedDate(new Date());
+        blog.setHidden(true);
         blog.setAccount(account);
 
         Blog savedBlog = blogRepository.save(blog);
@@ -73,7 +75,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public void updateBlog(Long id, UpdateBlog updateBlog) {
         Blog blog = blogRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Blog not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("BlogID not found"));
 
         blog.setTitle(updateBlog.getTitle());
         blog.setContent(updateBlog.getContent());
@@ -91,7 +93,7 @@ public class BlogServiceImpl implements BlogService {
         Blog blog = blogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Blog not found"));
         // set giá trị isHidden thành true, ko xóa chỉ ẩn Blog đi.
-        blog.setHidden(true);
+        blog.setHidden(false);
         blogRepository.save(blog);
     }
 

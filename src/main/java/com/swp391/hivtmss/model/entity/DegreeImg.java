@@ -21,8 +21,9 @@ public class DegreeImg {
     @Column(name = "img_url")
     private String imgUrl;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_degree_id", nullable = false)
     private DoctorDegree doctorDegree;
+
 
 }
