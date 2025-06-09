@@ -24,12 +24,12 @@ public class BlogController {
 
     private final BlogService blogService;
 
-    // cái này tính sau
+
     @Operation(summary = "Create Blog By Account", description = "Create Blog By Account")
     @PostMapping
     public ResponseEntity<Object> createBlog(@Valid @RequestBody BlogRequest blogRequest) {
         blogService.createBlog(blogRequest);
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your account is created successfully");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Blog created successfully");
     }
 
     @Operation(summary = "Get Blog By BlogID", description = "Get Blog By BlogID")
