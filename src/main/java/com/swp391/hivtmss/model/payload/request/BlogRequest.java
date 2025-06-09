@@ -24,7 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class BlogRequest {
 
-    private Long id;
+    
     @NotBlank(message = "Blog title cannot be blank")
     private String title;
 
