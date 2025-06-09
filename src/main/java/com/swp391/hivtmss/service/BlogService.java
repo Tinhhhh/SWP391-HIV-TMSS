@@ -15,7 +15,7 @@ public interface BlogService {
 
     BlogResponse getBlogById(Long id);
 
-    BlogResponse getBlogByAccountId(UUID accountId);
+    List<BlogResponse> getBlogByAccountId(UUID accountId);
 
     List<BlogResponse> getAllBlogs();
 

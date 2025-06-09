@@ -26,7 +26,7 @@ public class TestTypeController {
     public ResponseEntity<Object> createTestType(@Valid @RequestBody TestTypeRequest testTypeRequest) {
 
         testTypeService.createTestType(testTypeRequest);
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your account is created successfully");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Test-Type is created successfully");
 
     }
 
@@ -34,7 +34,7 @@ public class TestTypeController {
     @GetMapping
     public ResponseEntity<Object> getTestTypeById(@PathParam("id") Long id) {
 
-        return ResponseBuilder.returnData(HttpStatus.OK, "Your account is created successfully",
+        return ResponseBuilder.returnData(HttpStatus.OK, "Your Test-Type is created successfully",
                 testTypeService.getTestTypeByID(id));
     }
 
@@ -44,7 +44,8 @@ public class TestTypeController {
     public ResponseEntity<Object> getAllTestType() {
         List<TestTypeResponse> testTypeResponses = testTypeService.getAllTestType();
 
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your account is created successfully");
+        return ResponseBuilder.returnData(HttpStatus.OK, "Your Test-Type is created successfully",
+                testTypeResponses);
     }
 
     @Operation(summary = "Update TestType By ID", description = "Get TestType By ID")
@@ -53,7 +54,7 @@ public class TestTypeController {
                                                  @Valid @RequestBody TestTypeRequest testTypeRequest) {
 
         testTypeService.updateTestType(id, testTypeRequest);
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your account is created successfully");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Test-Type is created successfully");
     }
 
     @Operation(summary = "Delete TestType", description = "Delete TestType")
@@ -63,7 +64,7 @@ public class TestTypeController {
         // delete TestType by change TestType , not delete all information
 
         testTypeService.deleteTestType(id, testTypeRequest);
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your account is created successfully");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Test-Type is created successfully");
     }
 
 }

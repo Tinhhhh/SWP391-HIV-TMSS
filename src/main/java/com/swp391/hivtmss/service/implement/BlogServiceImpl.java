@@ -58,16 +58,18 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public BlogResponse getBlogByAccountId(UUID accountId) {
-        Blog blog = blogRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Blog not found for this account"));
-        return convertToResponse(blog);
+    public List<BlogResponse> getBlogByAccountId(UUID accountId) {
+        List<Blog> blogs = blogRepository.findByAccountId(accountId)
+                ;
+        return blogs.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<BlogResponse> getAllBlogs() {
-        List<Blog> degrees = blogRepository.findAll();
-        return degrees.stream()
+        List<Blog> blogs = blogRepository.findAll();
+        return blogs.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
