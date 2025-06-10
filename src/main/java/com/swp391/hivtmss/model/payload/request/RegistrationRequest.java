@@ -19,14 +19,14 @@ public class RegistrationRequest {
     @Schema(description = "User's first name", example = "Vo Van")
     @NotEmpty(message = "First name is mandatory")
     @JsonProperty("first_name")
-    @Pattern(regexp = "^[^0-9]*$", message = "first name must not contain numbers")
+    @Pattern(regexp = "^[a-z A-Z]*$", message = "First name contain only characters")
     @Size(max = 50, message = "First name must be less than 50 characters")
     private String firstName;
 
     @Schema(description = "User's last name", example = "Tinh")
     @NotEmpty(message = "Last name is mandatory")
     @JsonProperty("last_name")
-    @Pattern(regexp = "^[^0-9]*$", message = "first name must not contain numbers")
+    @Pattern(regexp = "^[a-zA-Z]*$", message = "Last name contain only characters")
     @Size(max = 50, message = "Last name must be less than 50 characters")
     private String lastName;
 

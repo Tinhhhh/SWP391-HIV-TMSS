@@ -14,4 +14,13 @@ public enum RoleName {
     RoleName(String role) {
         this.role = role;
     }
+
+    public static boolean isExistRole(String role) {
+        for (RoleName roleName : RoleName.values()) {
+            if (roleName.getRole().equalsIgnoreCase(role)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

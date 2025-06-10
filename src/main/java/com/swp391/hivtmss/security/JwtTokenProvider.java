@@ -7,6 +7,7 @@ import com.swp391.hivtmss.model.entity.Account;
 import com.swp391.hivtmss.model.entity.RefreshToken;
 import com.swp391.hivtmss.model.entity.Role;
 import com.swp391.hivtmss.model.payload.enums.RedisPrefix;
+import com.swp391.hivtmss.model.payload.enums.RoleName;
 import com.swp391.hivtmss.model.payload.exception.HivtmssException;
 import com.swp391.hivtmss.repository.AccountRepository;
 import com.swp391.hivtmss.repository.RefreshTokenRepository;
@@ -197,6 +198,10 @@ public class JwtTokenProvider {
                 .build()
                 .parseClaimsJws(jwt)
                 .getBody();
+
+        if (!RoleName.isExistRole(claims.get("role").toString())) {
+            throw new HivtmssException(HttpStatus.INTERNAL_SERVER_ERROR, "Role not found or invalid");
+        }
 
         Role role = roleRepository.findByRoleName(claims.get("role").toString())
                 .orElseThrow(() -> new HivtmssException(HttpStatus.INTERNAL_SERVER_ERROR, "Role not found"));
