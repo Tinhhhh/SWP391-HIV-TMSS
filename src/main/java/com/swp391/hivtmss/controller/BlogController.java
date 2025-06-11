@@ -58,7 +58,7 @@ public class BlogController {
 
     @Operation(summary = "Update Blog By ID", description = "Get Blog By ID")
     @PutMapping
-    public ResponseEntity<Object> updateBlog(@PathParam("id") Long id, @RequestBody UpdateBlog updateBlog) {
+    public ResponseEntity<Object> updateBlog(@PathParam("id") Long id,@Valid @RequestBody UpdateBlog updateBlog) {
         blogService.updateBlog(id, updateBlog);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Update Blog Successfully");
     }
@@ -66,7 +66,7 @@ public class BlogController {
     @Operation(summary = "Delete Blog", description = "Delete Blog")
     @DeleteMapping
     public ResponseEntity<Object> deleteBlog(@PathParam("id") Long id,
-                                             @RequestBody UpdateBlogByManager updateBlogByManager) {
+                                             @Valid @RequestBody UpdateBlogByManager updateBlogByManager) {
         // delete blog by change blog status , not delete all information
         blogService.deleteBlog(id, updateBlogByManager);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Delete Blog Successfully");
