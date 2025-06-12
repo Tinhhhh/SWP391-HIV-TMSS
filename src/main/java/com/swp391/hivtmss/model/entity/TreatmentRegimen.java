@@ -18,24 +18,23 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "regimen_detail")
+@Table(name = "treatment_regimen")
 @EntityListeners(AuditingEntityListener.class)
-public class RegimenDetail {
+public class TreatmentRegimen {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "regimen_detail_id")
+    @Column(name = "treatment_regimen_id")
     private Long id;
 
     private String name;
 
     private String applicable;
 
-    private String note;
-
-    @Column(name = "line_level", nullable = false)
     @Enumerated(EnumType.STRING)
     private LineLevel lineLevel;
+
+    private String note;
 
     @Column(name = "is_active", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -45,9 +44,9 @@ public class RegimenDetail {
     @Column(name = "created_date", nullable = false, updatable = false)
     private Date createdDate;
 
-    @OneToMany(mappedBy = "regimenDetail")
+    @OneToMany(mappedBy = "treatmentRegimen")
     private List<Treatment> treatments;
 
-    @OneToMany(mappedBy = "regimenDetail")
-    private List<DrugRegimenDetail> drugRegimenDetails;
+    @OneToMany(mappedBy = "treatmentRegimen")
+    private List<TreatmentRegimenDrug> treatmentRegimenDrugs;
 }

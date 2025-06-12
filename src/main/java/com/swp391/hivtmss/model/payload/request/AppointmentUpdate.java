@@ -51,7 +51,7 @@ public class AppointmentUpdate {
 
     private int method;
 
-    @JsonProperty("regiment_detail_id")
-    private Long regimentDetailId;
+    @JsonProperty("treatment_regimen_id")
+    private Long treatmentRegimenId;
 
 }

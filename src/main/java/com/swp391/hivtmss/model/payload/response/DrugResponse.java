@@ -1,29 +1,25 @@
 package com.swp391.hivtmss.model.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.swp391.hivtmss.model.payload.enums.DrugType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TreatmentResponse {
+public class DrugResponse {
 
-    @JsonProperty("treatment_id")
-    private Long treatmentId;
-
-    @JsonProperty("treatment_regimen_id")
-    private Long treatmentRegimenId;
+    @JsonProperty("drug_id")
+    private Long id;
 
     private String name;
 
-    private int method;
+    @JsonProperty("short_name")
+    private String shortName;
 
-    private List<DrugResponse> drugs;
-
+    private DrugType type;
 }

@@ -6,17 +6,14 @@ import com.swp391.hivtmss.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -39,18 +36,21 @@ public class SecurityCofig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(withDefaults())
                 .authorizeHttpRequests(request ->
-                        //Authenticate
-                        request.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api/v1/auth/**").permitAll()
-                                //Account
-                                .requestMatchers("/api/v1/accounts/change-password", "/api/v1/accounts/**")
+                                //Authenticate
+                                request.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api/v1/auth/**").permitAll()
+                                        //Account
+                                        .requestMatchers("/api/v1/accounts/change-password", "/api/v1/accounts/**")
 //                                .hasAnyAuthority("CUSTOMER", "DOCTOR", "MANAGER")
-                                .permitAll()
-                                .requestMatchers("/api/v1/doctor-degrees/**").permitAll()
-                                //Appointment
-                                .requestMatchers("/api/v1/appointments/**").permitAll()
-                                .requestMatchers("/api/v1/test-types/**").permitAll()
-                                .requestMatchers("/api/v1/blogs/**").permitAll()
-                                .anyRequest().authenticated()
+                                        .permitAll()
+                                        .requestMatchers("/api/v1/doctor-degrees/**").permitAll()
+                                        //Appointment
+                                        .requestMatchers("/api/v1/appointments/**").permitAll()
+                                        .requestMatchers("/api/v1/test-types/**").permitAll()
+                                        .requestMatchers("/api/v1/blogs/**").permitAll()
+                                        .requestMatchers("/api/v1/treatment-regimens/**").permitAll()
+                                        .requestMatchers("/api/v1/diagnosis/**").permitAll()
+                                        .requestMatchers("/api/v1/treatments/**").permitAll()
+                                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
