@@ -1,5 +1,6 @@
 package com.swp391.hivtmss.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,13 +16,14 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "drug_regimen_detail")
+@Table(name = "treatment_regimen_drug")
 @EntityListeners(AuditingEntityListener.class)
-public class DrugRegimenDetail {
+public class TreatmentRegimenDrug {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long drugRegimenDetailId;
+    @Column(name = "treatment_regimen_drug_id")
+    private Long id;
 
     private int method;
 
@@ -34,7 +36,7 @@ public class DrugRegimenDetail {
     private Drug drug;
 
     @ManyToOne
-    @JoinColumn(name = "regimen_detail_id", nullable = false)
-    private RegimenDetail regimenDetail;
+    @JoinColumn(name = "treatment_regimen_id", nullable = false)
+    private TreatmentRegimen treatmentRegimen;
 
 }

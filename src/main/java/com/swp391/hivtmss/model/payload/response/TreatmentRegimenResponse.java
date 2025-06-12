@@ -8,22 +8,21 @@ import lombok.Setter;
 
 import java.util.List;
 
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TreatmentResponse {
-
-    @JsonProperty("treatment_id")
-    private Long treatmentId;
+@Setter
+@Getter
+public class TreatmentRegimenResponse {
 
     @JsonProperty("treatment_regimen_id")
-    private Long treatmentRegimenId;
+    private Long id;
 
     private String name;
 
-    private int method;
+    private String applicable;
 
-    private List<DrugResponse> drugs;
+    @JsonProperty("treatment_regimen_drugs")
+    private List<TreatmentRegimenDrugResponse> drugMethods;
+
 
 }

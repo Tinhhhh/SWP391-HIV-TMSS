@@ -58,6 +58,8 @@ public class Diagnosis {
     @Enumerated(EnumType.STRING)
     private HivStage clinicalStage;
 
+    private String note;
+
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
     private Date createdDate;

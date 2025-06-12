@@ -7,6 +7,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,9 +32,15 @@ public class NewAppointment {
     private UUID doctorId;
 
     @JsonProperty("first_name")
+    @Pattern(regexp = "^[\\p{L}]*$", message = "First name contain only characters")
+    @NotEmpty(message = "Last name is mandatory")
+    @Size(max = 50, message = "First name must be less than 50 characters")
     private String firstName;
 
     @JsonProperty("last_name")
+    @NotEmpty(message = "Last name is mandatory")
+    @Pattern(regexp = "^[\\p{L}]*$", message = "Last name contain only characters")
+    @Size(max = 50, message = "Last name must be less than 50 characters")
     private String lastName;
 
     private Gender gender;

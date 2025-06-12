@@ -22,12 +22,12 @@ import java.time.LocalDate;
 public class EditAccountByAdmin {
 
     @JsonProperty(value = "last_name", index = 1)
-    @Pattern(regexp = "^[a-zA-Z]*$", message = "Last name contain only characters")
+    @Pattern(regexp = "^[\\p{L}]*$", message = "Last name contain only characters")
     @Size(max = 50, message = "Last name must be less than 50 characters")
     private String lastName;
 
     @JsonProperty(value = "first_name", index = 2)
-    @Pattern(regexp = "^[a-z A-Z]*$", message = "First name contain only characters")
+    @Pattern(regexp = "^[\\p{L}]*$", message = "First name contain only characters")
     @Size(max = 50, message = "First name must be less than 50 characters")
     private String firstName;
 

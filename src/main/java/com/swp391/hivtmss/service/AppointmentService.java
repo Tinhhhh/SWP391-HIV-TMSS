@@ -6,6 +6,7 @@ import com.swp391.hivtmss.model.payload.request.NewAppointment;
 import com.swp391.hivtmss.model.payload.request.UpdateAppointment;
 import com.swp391.hivtmss.model.payload.response.AppointmentResponse;
 import com.swp391.hivtmss.model.payload.response.DoctorResponse;
+import com.swp391.hivtmss.model.payload.response.ListResponse;
 
 import java.util.Date;
 import java.util.List;
@@ -15,9 +16,9 @@ public interface AppointmentService {
     List<DoctorResponse> getAvailableDoctors(Date startTime);
     void createAppointment(NewAppointment newAppointment);
 
-    void updateAppointment(AppointmentDiagnosisUpdate appointmentUpdate);
+    void updateAppointmentDiagnosis(AppointmentDiagnosisUpdate appointmentUpdate);
 
-    void updateAppointment(AppointmentUpdate appointmentUpdate);
+    void updateAppointmentTreatment(AppointmentUpdate appointmentUpdate);
 
 //    void updateAppointmentDiagnosis(Long appointmentId, String diagnosis);
 
@@ -28,5 +29,7 @@ public interface AppointmentService {
 //    ListResponse getAppointmentByCustomerId(Long id);
 
     void cancelAppointment(Long appointmentId, String reason);
+
+    ListResponse getAppointmentByCustomerId(Long id);
 
 }

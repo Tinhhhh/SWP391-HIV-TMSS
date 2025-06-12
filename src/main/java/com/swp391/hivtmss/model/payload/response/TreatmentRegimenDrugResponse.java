@@ -12,15 +12,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TreatmentResponse {
-
-    @JsonProperty("treatment_id")
-    private Long treatmentId;
-
-    @JsonProperty("treatment_regimen_id")
-    private Long treatmentRegimenId;
-
-    private String name;
+public class TreatmentRegimenDrugResponse {
 
     private int method;
 

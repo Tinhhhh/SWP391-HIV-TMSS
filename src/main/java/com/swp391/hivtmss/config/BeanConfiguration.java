@@ -41,7 +41,7 @@ public class BeanConfiguration {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setFieldMatchingEnabled(true)
                 .setAmbiguityIgnored(true)
-                .setSkipNullEnabled(false)
+                .setSkipNullEnabled(true)
                 .setMatchingStrategy(MatchingStrategies.STRICT);
 
         return modelMapper;
