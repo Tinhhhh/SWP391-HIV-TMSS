@@ -40,12 +40,12 @@ public class BlogController {
                 blogService.getBlogById(id));
     }
 
-    @Operation(summary = "Get Blog By AccountID", description = "Get Blog By AccountID")
+    @Operation(summary = "Get All Blog By AccountID", description = "Get All Blog By AccountID")
     @GetMapping("/account")
     public ResponseEntity<Object> getBlogByAccountId(@PathParam("accountId") UUID accountId) {
 
         List<BlogResponse> blogResponseList = blogService.getBlogByAccountId(accountId);
-        return ResponseBuilder.returnData(HttpStatus.OK, "Get Blog By AccountID Successfully",
+        return ResponseBuilder.returnData(HttpStatus.OK, "Get All Blog By AccountID Successfully",
                 blogResponseList);
     }
 
