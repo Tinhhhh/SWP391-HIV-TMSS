@@ -32,8 +32,8 @@ public class Treatment {
     private Date createdDate;
 
     @ManyToOne
-    @JoinColumn(name = "regimen_detail_id", nullable = false)
-    private RegimenDetail regimenDetail;
+    @JoinColumn(name = "treatment_regimen_id", nullable = false)
+    private TreatmentRegimen treatmentRegimen;
 
     @OneToMany(mappedBy = "treatment")
     private List<Appointment> appointments;

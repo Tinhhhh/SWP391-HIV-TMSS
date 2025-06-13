@@ -1,6 +1,7 @@
 package com.swp391.hivtmss.service.implement;
 
 import com.swp391.hivtmss.model.entity.Account;
+import com.swp391.hivtmss.model.entity.Role;
 import com.swp391.hivtmss.model.payload.enums.EmailTemplateName;
 import com.swp391.hivtmss.model.payload.enums.RoleName;
 import com.swp391.hivtmss.model.payload.enums.SortByRole;
@@ -170,11 +171,15 @@ public class AccountServiceImpl implements AccountService {
             throw new HivtmssException(HttpStatus.BAD_REQUEST, "Invalid role name");
         }
 
+        Role role = roleRepository.findByRoleName(newAcc.getRoleName().toString())
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Role not found"));
+
         String password = newAcc.getFirstName() + newAcc.getLastName().trim();
         String encodedPassword = passwordEncoder.encode(password);
         Account account = modelMapper.map(newAcc, Account.class);
         account.setLocked(false);
         account.setPassword(password);
+        account.setRole(role);
 
         if (newAcc.getRoleName().equals(RoleName.DOCTOR)) {
             account.setActive(false);

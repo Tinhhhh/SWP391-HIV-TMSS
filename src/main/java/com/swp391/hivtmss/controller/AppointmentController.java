@@ -2,6 +2,7 @@ package com.swp391.hivtmss.controller;
 
 import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
 import com.swp391.hivtmss.model.payload.request.AppointmentDiagnosisUpdate;
+import com.swp391.hivtmss.model.payload.request.AppointmentUpdate;
 import com.swp391.hivtmss.model.payload.request.NewAppointment;
 import com.swp391.hivtmss.service.AppointmentService;
 import com.swp391.hivtmss.util.DateUtil;
@@ -68,19 +69,19 @@ public class AppointmentController {
     public ResponseEntity<Object> updateDiagnosis(
             @RequestBody AppointmentDiagnosisUpdate appointmentUpdate) {
 
-        appointmentService.updateAppointment(appointmentUpdate);
+        appointmentService.updateAppointmentDiagnosis(appointmentUpdate);
         return ResponseBuilder.returnMessage(
                 HttpStatus.OK, "Appointment diagnosis updated successfully");
     }
 
     @Operation(summary = "Update appointment details including treatment method", description = "Update the details of an appointment. Role required: DOCTOR")
-    @PutMapping
+    @PutMapping("/treatment")
     public ResponseEntity<Object> updateAppointmentDetails(
-            @RequestBody AppointmentDiagnosisUpdate appointmentUpdate) {
+            @RequestBody AppointmentUpdate appointmentUpdate) {
 
-        appointmentService.updateAppointment(appointmentUpdate);
+        appointmentService.updateAppointmentTreatment(appointmentUpdate);
         return ResponseBuilder.returnMessage(
-                HttpStatus.OK, "Appointment details updated successfully");
+                HttpStatus.OK, "Appointment treatment details updated successfully");
     }
 
     @Operation(summary = "Update appointment details", description = "Update the details of an appointment. Role required: DOCTOR")

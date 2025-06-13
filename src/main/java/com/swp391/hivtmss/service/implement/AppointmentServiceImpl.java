@@ -10,6 +10,7 @@ import com.swp391.hivtmss.model.payload.request.NewAppointment;
 import com.swp391.hivtmss.model.payload.response.AppointmentResponse;
 import com.swp391.hivtmss.model.payload.response.CustomerResponse;
 import com.swp391.hivtmss.model.payload.response.DoctorResponse;
+import com.swp391.hivtmss.model.payload.response.ListResponse;
 import com.swp391.hivtmss.repository.*;
 import com.swp391.hivtmss.service.AppointmentService;
 import com.swp391.hivtmss.util.AppointmentTime;
@@ -17,6 +18,7 @@ import com.swp391.hivtmss.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +37,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final ModelMapper restrictedModelMapper;
     private final TestTypeRepository testTypeRepository;
     private final DiagnosisRepository diagnosisRepository;
-    private final RegimentDetailRepository regimentDetailRepository;
+    private final TreatmentRegimenRepository treatmentRegimenRepository;
     private final TreatmentRepository treatmentRepository;
 
     @Override
@@ -143,7 +145,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
-    public void updateAppointment(AppointmentDiagnosisUpdate appointmentUpdate) {
+    public void updateAppointmentDiagnosis(AppointmentDiagnosisUpdate appointmentUpdate) {
 
         Appointment appointment = appointmentRepository.findById(appointmentUpdate.getAppointmentId())
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment not found"));
@@ -161,21 +163,22 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
-    public void updateAppointment(AppointmentUpdate appointmentUpdate) {
+    public void updateAppointmentTreatment(AppointmentUpdate appointmentUpdate) {
         Appointment appointment = appointmentRepository.findById(appointmentUpdate.getAppointmentId())
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment not found"));
 
-        RegimenDetail regimenDetail = regimentDetailRepository.findById(appointmentUpdate.getRegimentDetailId())
+        TreatmentRegimen treatmentRegimen = treatmentRegimenRepository.findById(appointmentUpdate.getTreatmentRegimenId())
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, regiment detail not found"));
 
         restrictedModelMapper.map(appointmentUpdate, appointment);
 
         Treatment treatment = new Treatment();
         treatment.setMethod(appointmentUpdate.getMethod());
-        treatment.setRegimenDetail(regimenDetail);
+        treatment.setTreatmentRegimen(treatmentRegimen);
         treatmentRepository.save(treatment);
 
         appointment.setTreatment(treatment);
+        appointment.setStatus(AppointmentStatus.COMPLETED);
         appointmentRepository.save(appointment);
     }
 
@@ -218,6 +221,11 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointmentRepository.save(appointment);
     }
 
+    @Override
+    public ListResponse getAppointmentByCustomerId(Long id) {
+        return null;
+    }
+
     private AppointmentResponse getAppointmentResponse(Appointment appointment) {
         AppointmentResponse response = restrictedModelMapper.map(appointment, AppointmentResponse.class);
         response.setStartTime(DateUtil.formatTimestamp(appointment.getStartTime()));
@@ -255,6 +263,24 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         return response;
+    }
+
+
+    @Scheduled(cron = "1 0 * * * ?")
+    public void updateAppointmentStatus() {
+        // Lấy danh sách tất cả các cuộc hẹn có trạng thái PENDING và đã qua thời gian hẹn
+        Date now = DateUtil.getCurrentTimestamp();
+        List<Appointment> pendingAppointments = appointmentRepository.findByStatusAndStartTimeBefore(AppointmentStatus.PENDING, now);
+
+        if (!pendingAppointments.isEmpty()) {
+            // Duyệt qua từng appointment và cập nhật status
+            for (Appointment appointment : pendingAppointments) {
+                appointment.setStatus(AppointmentStatus.CANCELLED);
+                appointment.setCancelReason("Quá thời gian hẹn");
+                appointmentRepository.save(appointment);
+            }
+        }
+
     }
 
 }

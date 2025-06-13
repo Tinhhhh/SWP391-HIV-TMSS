@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.UUID;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,4 +27,22 @@ public class DoctorDegreeResponse {
     private String regNo;
     private UUID accountId;
     private String accountUsername; //show account basic info
+    private List<String> imageUrls;
+
+    public DoctorDegreeResponse(Long id, String name, LocalDate dob, LocalDate graduationDate,
+                                Classification classification, StudyMode studyMode, LocalDate issueDate,
+                                String schoolName, String regNo, UUID accountId, String accountUsername) {
+        this.id = id;
+        this.name = name;
+        this.dob = dob;
+        this.graduationDate = graduationDate;
+        this.classification = classification;
+        this.studyMode = studyMode;
+        this.issueDate = issueDate;
+        this.schoolName = schoolName;
+        this.regNo = regNo;
+        this.accountId = accountId;
+        this.accountUsername = accountUsername;
+    }
+
 }

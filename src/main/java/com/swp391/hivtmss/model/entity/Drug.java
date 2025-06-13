@@ -45,5 +45,5 @@ public class Drug {
     private Date createdDate;
 
     @OneToMany(mappedBy = "drug")
-    private List<DrugRegimenDetail> drugRegimenDetails;
+    private List<TreatmentRegimenDrug> treatmentRegimenDrugs;
 }
