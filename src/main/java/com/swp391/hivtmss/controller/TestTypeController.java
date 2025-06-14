@@ -34,7 +34,7 @@ public class TestTypeController {
     @GetMapping
     public ResponseEntity<Object> getTestTypeById(@PathParam("id") Long id) {
 
-        return ResponseBuilder.returnData(HttpStatus.OK, "Your Test-Type is created successfully",
+        return ResponseBuilder.returnData(HttpStatus.OK, "this your Test-Type with TestTypeID: " + id,
                 testTypeService.getTestTypeByID(id));
     }
 
@@ -44,8 +44,8 @@ public class TestTypeController {
     public ResponseEntity<Object> getAllTestType() {
         List<TestTypeResponse> testTypeResponses = testTypeService.getAllTestType();
 
-        return ResponseBuilder.returnData(HttpStatus.OK, "Your Test-Type is created successfully",
-                testTypeResponses);
+        return ResponseBuilder.returnData(HttpStatus.OK, "This is your all Test-Type",
+                testTypeService.getAllTestType());
     }
 
     @Operation(summary = "Update Test-Type By ID", description = "Get Test-Type By ID")
@@ -54,7 +54,7 @@ public class TestTypeController {
                                                  @Valid @RequestBody TestTypeRequest testTypeRequest) {
 
         testTypeService.updateTestType(id, testTypeRequest);
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Test-Type is created successfully");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Test-Type is update successfully");
     }
 
     @Operation(summary = "Delete Test-Type", description = "Delete Test-Type")
@@ -64,7 +64,7 @@ public class TestTypeController {
         // delete TestType by change TestType , not delete all information
 
         testTypeService.deleteTestType(id, testTypeRequest);
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Test-Type is created successfully");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Test-Type is Delete successfully");
     }
 
 }
