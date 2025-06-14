@@ -1,5 +1,6 @@
 package com.swp391.hivtmss.service.implement;
 
+import com.swp391.hivtmss.model.entity.Blog;
 import com.swp391.hivtmss.model.entity.TestType;
 import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import com.swp391.hivtmss.model.payload.exception.ResourceNotFoundException;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +22,11 @@ public class TestTypeServiceImpl implements TestTypeService {
 
     @Override
     public List<TestTypeResponse> getAllTestType() {
-        return List.of();
+
+        List<TestType> testTypes = testTypeRepository.findAll();
+        return testTypes.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -31,7 +37,6 @@ public class TestTypeServiceImpl implements TestTypeService {
         TestType testType = new TestType();
 
         testType.setName(testTypeRequest.getName());
-        testType.setCode(testTypeRequest.getCode());
         testType.setDescription(testTypeRequest.getDescription());
         testType.setCode(testTypeRequest.getCode());
         testType.setIsActive(ActiveStatus.ACTIVE);
@@ -50,14 +55,16 @@ public class TestTypeServiceImpl implements TestTypeService {
 
     @Override
     public void updateTestType(Long id, TestTypeRequest testTypeRequest) {
-        TestType testType = testTypeRepository.findById(id)
+        TestType testTypeID = testTypeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("testTypeID not found"));
+
+        TestType testType = new TestType();
 
         testType.setName(testTypeRequest.getName());
         testType.setDescription(testTypeRequest.getDescription());
         testType.setCode(testTypeRequest.getCode());
         testType.setApplicable(testTypeRequest.getApplicable());
-
+        testTypeRepository.save(testType);
     }
 
     @Override

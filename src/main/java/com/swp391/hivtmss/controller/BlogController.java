@@ -40,12 +40,13 @@ public class BlogController {
                 blogService.getBlogById(id));
     }
 
-    @Operation(summary = "Get Blog By AccountID", description = "Get Blog By AccountID")
+    @Operation(summary = "Get All Blog By AccountID", description = "Get All Blog By AccountID")
     @GetMapping("/account")
     public ResponseEntity<Object> getBlogByAccountId(@PathParam("accountId") UUID accountId) {
 
-        return ResponseBuilder.returnData(HttpStatus.OK, "Get Blog By AccountID Successfully",
-                blogService.getBlogByAccountId(accountId));
+        List<BlogResponse> blogResponseList = blogService.getBlogByAccountId(accountId);
+        return ResponseBuilder.returnData(HttpStatus.OK, "Get All Blog By AccountID Successfully",
+                blogResponseList);
     }
 
     @Operation(summary = "Get All Blog ", description = "Get All Blog")
@@ -57,7 +58,7 @@ public class BlogController {
 
     @Operation(summary = "Update Blog By ID", description = "Get Blog By ID")
     @PutMapping
-    public ResponseEntity<Object> updateBlog(@PathParam("id") Long id, @RequestBody UpdateBlog updateBlog) {
+    public ResponseEntity<Object> updateBlog(@PathParam("id") Long id,@Valid @RequestBody UpdateBlog updateBlog) {
         blogService.updateBlog(id, updateBlog);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Update Blog Successfully");
     }
@@ -65,7 +66,7 @@ public class BlogController {
     @Operation(summary = "Delete Blog", description = "Delete Blog")
     @DeleteMapping
     public ResponseEntity<Object> deleteBlog(@PathParam("id") Long id,
-                                             @RequestBody UpdateBlogByManager updateBlogByManager) {
+                                             @Valid @RequestBody UpdateBlogByManager updateBlogByManager) {
         // delete blog by change blog status , not delete all information
         blogService.deleteBlog(id, updateBlogByManager);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Delete Blog Successfully");
