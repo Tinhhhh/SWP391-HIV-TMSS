@@ -18,6 +18,9 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
+import static com.swp391.hivtmss.util.AppConstants.*;
+import static com.swp391.hivtmss.util.AppConstants.DEFAULT_SORT_DIRECTION;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/appointments")
@@ -84,7 +87,7 @@ public class AppointmentController {
                 HttpStatus.OK, "Appointment treatment details updated successfully");
     }
 
-    @Operation(summary = "Update appointment details", description = "Update the details of an appointment. Role required: DOCTOR")
+    @Operation(summary = "Update appointment details", description = "Update the details of an appointment. Role required: CUSTOMER")
     @PutMapping("/cancel")
     public ResponseEntity<Object> cancelAppointment(
             @RequestParam("appointmentId") Long appointmentId,
@@ -92,6 +95,37 @@ public class AppointmentController {
         appointmentService.cancelAppointment(appointmentId, reason);
         return ResponseBuilder.returnMessage(
                 HttpStatus.OK, "Appointment cancelled successfully");
+    }
+
+    @Operation(summary = "Get appointments by customerId", description = "Retrieve a paginated list of appointments. " +
+            "Example: 2025-06-08T08:01:00. " +
+            "Role required: CUSTOMER")
+    @GetMapping("/customer")
+    public ResponseEntity<Object> getAppointmentsByCustomerId(
+            @RequestParam(value = "pageNo", defaultValue = DEFAULT_PAGE_NUMBER) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = DEFAULT_SORT_BY) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = DEFAULT_SORT_DIRECTION) String sortDir,
+            @RequestParam("customerId") UUID customerId) {
+        return ResponseBuilder.returnData(
+                HttpStatus.OK, "Successfully retrieved appointments for customer",
+                appointmentService.getAppointmentByCustomerId(pageNo, pageSize, sortBy, sortDir, customerId));
+    }
+
+    @Operation(summary = "Get appointments for doctor, admin", description = "Retrieve a paginated list of appointments. " +
+            "Example: 2025-06-08T08:01:00. " +
+            "Role required: DOCTOR, ADMIN")
+    @GetMapping("/all")
+    public ResponseEntity<Object> getAppointments(
+            @RequestParam(value = "pageNo", defaultValue = DEFAULT_PAGE_NUMBER) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = DEFAULT_SORT_BY) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = DEFAULT_SORT_DIRECTION) String sortDir,
+            @RequestParam(value = "searchTerm", required = false) String searchTerm
+    ) {
+        return ResponseBuilder.returnData(
+                HttpStatus.OK, "Successfully retrieved appointments",
+                appointmentService.getAllAppointment(pageNo, pageSize, sortBy, sortDir, searchTerm));
     }
 
 
