@@ -14,6 +14,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -96,9 +97,12 @@ public class Appointment {
     @JoinColumn(name = "treatment_id")
     private Treatment treatment;
 
+    @OneToMany(mappedBy = "appointment")
+    private List<AppointmentHistory> appointmentHistories;
+
     @JsonIgnore
     public String fullName() {
-        return firstName + " " + lastName;
+        return lastName + " " + firstName;
     }
 
 }

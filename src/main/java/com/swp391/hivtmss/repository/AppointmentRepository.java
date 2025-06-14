@@ -33,4 +33,5 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>,
     List<Appointment> findByStartTimeBetweenAndDoctor_Id(Date startTime, Date endTime, UUID doctorId);
 
     List<Appointment> findByStatusAndStartTimeBefore(AppointmentStatus appointmentStatus, Date now);
+
 }
