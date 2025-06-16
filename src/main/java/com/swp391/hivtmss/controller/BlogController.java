@@ -1,9 +1,7 @@
 package com.swp391.hivtmss.controller;
 
 import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
-import com.swp391.hivtmss.model.payload.request.BlogRequest;
-import com.swp391.hivtmss.model.payload.request.UpdateBlog;
-import com.swp391.hivtmss.model.payload.request.UpdateBlogByManager;
+import com.swp391.hivtmss.model.payload.request.*;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
 import com.swp391.hivtmss.service.BlogService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api/v1/blogs")
@@ -40,7 +39,7 @@ public class BlogController {
                 blogService.getBlogById(id));
     }
 
-    @Operation(summary = "Get All Blog By AccountID", description = "Get All Blog By AccountID")
+    @Operation(summary = "Get All Blogs By AccountID", description = "Get All Blogs By AccountID")
     @GetMapping("/account")
     public ResponseEntity<Object> getBlogByAccountId(@PathParam("accountId") UUID accountId) {
 
@@ -66,10 +65,28 @@ public class BlogController {
     @Operation(summary = "Delete Blog", description = "Delete Blog")
     @DeleteMapping
     public ResponseEntity<Object> deleteBlog(@PathParam("id") Long id,
-                                             @Valid @RequestBody UpdateBlogByManager updateBlogByManager) {
+                                             @Valid @RequestBody UpdateBlogByCustomer updateBlogByCustomer) {
         // delete blog by change blog status , not delete all information
-        blogService.deleteBlog(id, updateBlogByManager);
+        blogService.deleteBlog(id, updateBlogByCustomer);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Delete Blog Successfully");
     }
 
+
+    @Operation(summary = "Update Blogs status with account:Manager ", description = "Update the Blog status By Role. Role required: MANAGER")
+    @PutMapping("/approved")
+    public ResponseEntity<Object> updateBlogByRole(
+            @RequestBody UpdateBlogByManager updateBlogByManager) {
+
+        blogService.updateBlogByManager(updateBlogByManager);
+        return ResponseBuilder.returnMessage(
+                HttpStatus.OK, "Blog Status approved by Manager successfully");
+    }
+
+    @Operation(summary = "Rejected Blog status ", description = "Reject the status of an Blog. Role required: MANAGER")
+    @PutMapping("/rejected")
+    public ResponseEntity<Object> cancelAppointment(@RequestParam("id") Long id) {
+        blogService.cancelBlog(id);
+        return ResponseBuilder.returnMessage(
+                HttpStatus.OK, "Blog Status rejected by Manager successfully");
+    }
 }
