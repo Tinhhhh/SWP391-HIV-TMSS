@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
-
+import static com.swp391.hivtmss.util.AppConstants.*;
 
 @RestController
 @RequestMapping("/api/v1/blogs")
@@ -89,4 +89,19 @@ public class BlogController {
         return ResponseBuilder.returnMessage(
                 HttpStatus.OK, "Blog Status rejected by Manager successfully");
     }
+
+    @Operation(summary = "Get all blog info", description = "get all blogs info")
+    @GetMapping("/blog")
+    public ResponseEntity<Object> getBlogs(
+            @RequestParam(value = "pageNo", defaultValue = DEFAULT_PAGE_NUMBER) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = DEFAULT_SORT_BY) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = DEFAULT_SORT_DIRECTION) String sortDir,
+            @RequestParam("searchTerm") String searchTerm) {
+        return ResponseBuilder.returnData(
+                HttpStatus.OK, "Successfully retrieved appointments for customer",
+                blogService.getAllBlog(pageNo, pageSize, sortBy, sortDir, searchTerm));
+    }
+
+
 }

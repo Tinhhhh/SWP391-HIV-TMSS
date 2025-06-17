@@ -10,17 +10,27 @@ import com.swp391.hivtmss.model.payload.request.UpdateBlog;
 import com.swp391.hivtmss.model.payload.request.UpdateBlogByCustomer;
 import com.swp391.hivtmss.model.payload.request.UpdateBlogByManager;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
+import com.swp391.hivtmss.model.payload.response.CustomerResponse;
+import com.swp391.hivtmss.model.payload.response.ListResponse;
 import com.swp391.hivtmss.repository.AccountRepository;
 import com.swp391.hivtmss.repository.BlogRepository;
 import com.swp391.hivtmss.service.BlogService;
+import com.swp391.hivtmss.util.BlogSpecification;
+import com.swp391.hivtmss.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -132,6 +142,55 @@ public class BlogServiceImpl implements BlogService {
         blog.setStatus(BlogStatus.REJECTED);
         blogRepository.save(blog);
     }
+
+    private ListResponse getBlogResponseWithPagination(int pageNo, int pageSize, Pageable pageable, Specification<Blog> spec) {
+        Page<Blog> blogs = blogRepository.findAll(spec, pageable);
+
+        List<BlogResponse> listResponse = new ArrayList<>();
+
+        if (!blogs.isEmpty()) {
+            for (Blog blog : blogs) {
+                BlogResponse response = getBlogResponse(blog);
+                listResponse.add(response);
+            }
+        }
+        return new ListResponse(listResponse, pageNo, pageSize, blogs.getTotalElements(),
+                blogs.getTotalPages(), blogs.isLast());
+    }
+
+
+
+    @Override
+    public ListResponse getAllBlog(int pageNo, int pageSize, String sortBy, String sortDir, String searchTerm) {
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+
+        Specification<Blog> spec = Specification.where(BlogSpecification.hasEmailOrFullName(searchTerm)
+                .or(BlogSpecification.hasPhoneNumber(searchTerm)));
+
+        return getBlogResponseWithPagination(pageNo, pageSize, pageable, spec);
+    }
+
+
+    private BlogResponse getBlogResponse(Blog blog) {
+        BlogResponse response = restrictedModelMapper.map(blog, BlogResponse.class);
+        response.setCreated_Date(blog.getCreatedDate());
+
+        if (blog.getLastModifiedDate() != null) {
+            response.setLastModifiedDate(blog.getLastModifiedDate());
+        }
+
+        // Set customer information
+        CustomerResponse customer = restrictedModelMapper.map(blog.getAccount(), CustomerResponse.class);
+        customer.setFullName(blog.getAccount().fullName());
+        response.setAccountId(customer.getId());
+
+        response.setId(blog.getId());
+
+        return response;
+    }
+
+
 
     private BlogResponse convertToResponse(Blog blog) {
         return new BlogResponse(

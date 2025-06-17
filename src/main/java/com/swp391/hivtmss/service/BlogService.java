@@ -5,6 +5,7 @@ import com.swp391.hivtmss.model.payload.request.UpdateBlog;
 import com.swp391.hivtmss.model.payload.request.UpdateBlogByCustomer;
 import com.swp391.hivtmss.model.payload.request.UpdateBlogByManager;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
+import com.swp391.hivtmss.model.payload.response.ListResponse;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -26,4 +27,6 @@ public interface BlogService {
     void updateBlogByManager(UpdateBlogByManager updateBlogByManager);
 
     void cancelBlog(Long accountId);
+
+    ListResponse getAllBlog(int pageNo, int pageSize, String sortBy, String sortDir, String searchTerm);
 }
