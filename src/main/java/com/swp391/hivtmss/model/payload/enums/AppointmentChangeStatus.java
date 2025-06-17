@@ -3,15 +3,15 @@ package com.swp391.hivtmss.model.payload.enums;
 import lombok.Getter;
 
 @Getter
-public enum AppointmentHistoryStatus {
+public enum AppointmentChangeStatus {
     PENDING("PENDING"),
-    APPROVED("APPROVED"),
+    ACCEPTED("ACCEPTED"),
     REJECTED("REJECTED"),
     CANCELLED("CANCELLED");
 
     private final String status;
 
-    AppointmentHistoryStatus(String status) {
+    AppointmentChangeStatus(String status) {
         this.status = status;
     }
 

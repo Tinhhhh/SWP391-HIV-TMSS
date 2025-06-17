@@ -67,7 +67,7 @@ public class AppointmentController {
                 appointmentService.getAppointmentById(appointmentId));
     }
 
-    @Operation(summary = "Update appointment diagnosis", description = "Update the diagnosis of an appointment. Role required: MANAGER")
+    @Operation(summary = "Update appointment diagnosis", description = "Update the diagnosis of an appointment. Role required: DOCTOR")
     @PutMapping("/diagnosis")
     public ResponseEntity<Object> updateDiagnosis(
             @RequestBody AppointmentDiagnosisUpdate appointmentUpdate) {

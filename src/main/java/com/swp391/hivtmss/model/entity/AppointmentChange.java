@@ -1,6 +1,6 @@
 package com.swp391.hivtmss.model.entity;
 
-import com.swp391.hivtmss.model.payload.enums.AppointmentHistoryStatus;
+import com.swp391.hivtmss.model.payload.enums.AppointmentChangeStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,18 +16,19 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "appointment_history")
+@Table(name = "appointment_change")
 @EntityListeners(AuditingEntityListener.class)
-public class AppointmentHistory {
+public class AppointmentChange {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "appointment_history_id")
+    @Column(name = "appointment_change_id")
     private Long id;
 
     private String reason;
 
-    private AppointmentHistoryStatus status;
+    @Enumerated(EnumType.STRING)
+    private AppointmentChangeStatus status;
 
     @Column(name = "created_date", nullable = false, updatable = false)
     @CreatedDate
@@ -38,7 +39,11 @@ public class AppointmentHistory {
     private Appointment appointment;
 
     @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account doctor;
+    @JoinColumn(name = "old_doctor_id", nullable = false)
+    private Account oldDoctor;
+
+    @ManyToOne
+    @JoinColumn(name = "new_doctor_id", nullable = false)
+    private Account newDoctor;
 
 }

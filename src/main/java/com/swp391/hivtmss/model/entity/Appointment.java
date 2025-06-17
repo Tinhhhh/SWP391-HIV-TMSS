@@ -98,7 +98,7 @@ public class Appointment {
     private Treatment treatment;
 
     @OneToMany(mappedBy = "appointment")
-    private List<AppointmentHistory> appointmentHistories;
+    private List<AppointmentChange> appointmentHistories;
 
     @JsonIgnore
     public String fullName() {
