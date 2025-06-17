@@ -21,49 +21,50 @@ public class TestTypeController {
 
     private final TestTypeService testTypeService;
 
-    @Operation(summary = "Create TestType", description = "Create TestType")
+    @Operation(summary = "Create Test-Type", description = "Create Test-Type")
     @PostMapping
     public ResponseEntity<Object> createTestType(@Valid @RequestBody TestTypeRequest testTypeRequest) {
 
         testTypeService.createTestType(testTypeRequest);
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your account is created successfully");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Test-Type is created successfully");
 
     }
 
-    @Operation(summary = "Get TestType By TestTypeID", description = "Get TestType By TestTypeID")
+    @Operation(summary = "Get Test-Type By TestTypeID", description = "Get TestType By ID")
     @GetMapping
     public ResponseEntity<Object> getTestTypeById(@PathParam("id") Long id) {
 
-        return ResponseBuilder.returnData(HttpStatus.OK, "Your account is created successfully",
+        return ResponseBuilder.returnData(HttpStatus.OK, "this your Test-Type with TestTypeID: " + id,
                 testTypeService.getTestTypeByID(id));
     }
 
 
-    @Operation(summary = "Get All TestType ", description = "Get All TestType")
+    @Operation(summary = "Get All Test-Type ", description = "Get All Test-Type")
     @GetMapping("/all")
     public ResponseEntity<Object> getAllTestType() {
         List<TestTypeResponse> testTypeResponses = testTypeService.getAllTestType();
 
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your account is created successfully");
+        return ResponseBuilder.returnData(HttpStatus.OK, "This is your all Test-Type",
+                testTypeService.getAllTestType());
     }
 
-    @Operation(summary = "Update TestType By ID", description = "Get TestType By ID")
+    @Operation(summary = "Update Test-Type By ID", description = "Get Test-Type By ID")
     @PutMapping
     public ResponseEntity<Object> updateTestType(@PathParam("id") Long id,
                                                  @Valid @RequestBody TestTypeRequest testTypeRequest) {
 
         testTypeService.updateTestType(id, testTypeRequest);
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your account is created successfully");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Test-Type is update successfully");
     }
 
-    @Operation(summary = "Delete TestType", description = "Delete TestType")
+    @Operation(summary = "Delete Test-Type", description = "Delete Test-Type")
     @DeleteMapping
     public ResponseEntity<Object> deleteTestType(@PathParam("id") Long id,
                                                  @Valid @RequestBody TestTypeRequest testTypeRequest) {
         // delete TestType by change TestType , not delete all information
 
         testTypeService.deleteTestType(id, testTypeRequest);
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your account is created successfully");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Test-Type is Delete successfully");
     }
 
 }

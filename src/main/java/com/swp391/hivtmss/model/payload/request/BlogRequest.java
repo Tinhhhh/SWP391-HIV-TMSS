@@ -23,6 +23,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BlogRequest {
+
+    
     @NotBlank(message = "Blog title cannot be blank")
     private String title;
 

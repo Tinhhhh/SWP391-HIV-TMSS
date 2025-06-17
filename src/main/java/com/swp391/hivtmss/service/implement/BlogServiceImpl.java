@@ -2,7 +2,6 @@ package com.swp391.hivtmss.service.implement;
 
 import com.swp391.hivtmss.model.entity.Account;
 import com.swp391.hivtmss.model.entity.Blog;
-import com.swp391.hivtmss.model.entity.DoctorDegree;
 import com.swp391.hivtmss.model.payload.enums.BlogStatus;
 import com.swp391.hivtmss.model.payload.exception.ResourceNotFoundException;
 import com.swp391.hivtmss.model.payload.request.BlogRequest;
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -31,7 +29,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     @Transactional
-    public BlogResponse createBlog(BlogRequest blogRequest) {
+    public void createBlog(BlogRequest blogRequest) {
         Account account = accountRepository.findById(blogRequest.getAccountID())
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
@@ -47,7 +45,7 @@ public class BlogServiceImpl implements BlogService {
         blog.setAccount(account);
 
         Blog savedBlog = blogRepository.save(blog);
-        return convertToResponse(savedBlog);
+        convertToResponse(savedBlog);
     }
 
     @Override
@@ -58,16 +56,18 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public BlogResponse getBlogByAccountId(UUID accountId) {
-        Blog blog = blogRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Blog not found for this account"));
-        return convertToResponse(blog);
+    public List<BlogResponse> getBlogByAccountId(UUID accountId) {
+        List<Blog> blogs = blogRepository.findByAccountId(accountId)
+                ;
+        return blogs.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<BlogResponse> getAllBlogs() {
-        List<Blog> degrees = blogRepository.findAll();
-        return degrees.stream()
+        List<Blog> blogs = blogRepository.findAll();
+        return blogs.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
