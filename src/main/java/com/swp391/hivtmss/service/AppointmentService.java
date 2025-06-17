@@ -32,6 +32,6 @@ public interface AppointmentService {
             int pageNo, int pageSize, String sortBy, String sortDir, String searchTerm
     );
 
-//    void changeAppointmentSlot()
+
 
 }

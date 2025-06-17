@@ -7,10 +7,7 @@ import com.swp391.hivtmss.model.payload.exception.HivtmssException;
 import com.swp391.hivtmss.model.payload.request.AppointmentDiagnosisUpdate;
 import com.swp391.hivtmss.model.payload.request.AppointmentUpdate;
 import com.swp391.hivtmss.model.payload.request.NewAppointment;
-import com.swp391.hivtmss.model.payload.response.AppointmentResponse;
-import com.swp391.hivtmss.model.payload.response.CustomerResponse;
-import com.swp391.hivtmss.model.payload.response.DoctorResponse;
-import com.swp391.hivtmss.model.payload.response.ListResponse;
+import com.swp391.hivtmss.model.payload.response.*;
 import com.swp391.hivtmss.repository.*;
 import com.swp391.hivtmss.service.AppointmentService;
 import com.swp391.hivtmss.util.AppointmentSpecification;
@@ -46,6 +43,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final TreatmentRegimenRepository treatmentRegimenRepository;
     private final TreatmentRepository treatmentRepository;
     private final TreatmentRegimenDrugRepository treatmentRegimenDrugRepository;
+    private final AppointmentChangeRepository appointmentChangeRepository;
 
     @Override
     public List<DoctorResponse> getAvailableDoctors(Date startTime) {
@@ -289,6 +287,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         return getAppointmentResponseWithPagination(pageNo, pageSize, pageable, spec);
     }
 
+
+
     private AppointmentResponse getAppointmentResponse(Appointment appointment, boolean isAnonymous) {
         AppointmentResponse response = restrictedModelMapper.map(appointment, AppointmentResponse.class);
         response.setStartTime(DateUtil.formatTimestamp(appointment.getStartTime()));
@@ -329,7 +329,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
 
-    @Scheduled(cron = "1 0 * * * ?")
+    @Scheduled(cron = "1 0 0 * * ?")
     public void updateAppointmentStatus() {
         // Lấy danh sách tất cả các cuộc hẹn có trạng thái PENDING và đã qua thời gian hẹn
         Date now = DateUtil.getCurrentTimestamp();
@@ -345,5 +345,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
     }
+
 
 }

@@ -91,8 +91,11 @@ public class Account {
     @OneToMany(mappedBy = "customer")
     private List<Appointment> appointmentsAsCustomer;
 
-    @OneToMany(mappedBy = "doctor")
-    private List<AppointmentHistory> appointmentHistories;
+    @OneToMany(mappedBy = "oldDoctor")
+    private List<AppointmentChange> appointmentChangesAsOldDoctor;
+
+    @OneToMany(mappedBy = "newDoctor")
+    private List<AppointmentChange> appointmentChangesAsNewDoctor;
 
     @OneToMany(mappedBy = "account")
     private List<Notification> notifications;
