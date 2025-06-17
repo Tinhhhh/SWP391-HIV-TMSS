@@ -5,6 +5,8 @@ import com.swp391.hivtmss.model.entity.TreatmentRegimen;
 import com.swp391.hivtmss.model.entity.TreatmentRegimenDrug;
 import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import com.swp391.hivtmss.model.payload.exception.HivtmssException;
+import com.swp391.hivtmss.model.payload.request.TreatmentRegimenDrugRequest;
+import com.swp391.hivtmss.model.payload.request.TreatmentRegimenRequest;
 import com.swp391.hivtmss.model.payload.response.DrugResponse;
 import com.swp391.hivtmss.model.payload.response.ListResponse;
 import com.swp391.hivtmss.model.payload.response.TreatmentRegimenDrugResponse;
@@ -23,6 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -105,4 +108,97 @@ public class TreatmentRegimenServiceImpl implements TreatmentRegimenService {
                 regimenDetailPage.getTotalPages(),
                 regimenDetailPage.isLast());
     }
+
+    @Override
+    public TreatmentRegimenResponse createTreatmentRegimen(TreatmentRegimenRequest request) {
+        if (treatmentRegimenRepository.existsByName(request.getName())) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Treatment regimen with this name already exists");
+        }
+
+        TreatmentRegimen treatmentRegimen = new TreatmentRegimen();
+        treatmentRegimen.setName(request.getName());
+        treatmentRegimen.setApplicable(request.getApplicable());
+        treatmentRegimen.setLineLevel(request.getLineLevel());
+        treatmentRegimen.setNote(request.getNote());
+        treatmentRegimen.setIsActive(ActiveStatus.ACTIVE);
+
+        TreatmentRegimen savedRegimen = treatmentRegimenRepository.save(treatmentRegimen);
+
+        if (request.getTreatmentRegimenDrugs() != null && !request.getTreatmentRegimenDrugs().isEmpty()) {
+            for (TreatmentRegimenDrugRequest drugRequest : request.getTreatmentRegimenDrugs()) {
+                Drug drug = drugRepository.findById(drugRequest.getDrugId())
+                        .orElseThrow(() -> new HivtmssException(HttpStatus.NOT_FOUND, "Drug not found"));
+
+                TreatmentRegimenDrug treatmentRegimenDrug = new TreatmentRegimenDrug();
+                treatmentRegimenDrug.setDrug(drug);
+                treatmentRegimenDrug.setMethod(drugRequest.getMethod());
+                treatmentRegimenDrug.setTreatmentRegimen(savedRegimen);
+                treatmentRegimenDrugRepository.save(treatmentRegimenDrug);
+            }
+        }
+
+        return modelMapper.map(savedRegimen, TreatmentRegimenResponse.class);
+    }
+
+
+    @Override
+    public TreatmentRegimenResponse getTreatmentRegimenById(Long id) {
+        TreatmentRegimen treatmentRegimen = treatmentRegimenRepository.findById(id)
+                .orElseThrow(() -> new HivtmssException(HttpStatus.NOT_FOUND, "Treatment regimen not found"));
+        return modelMapper.map(treatmentRegimen, TreatmentRegimenResponse.class);
+    }
+
+    @Override
+    @Transactional
+    public TreatmentRegimenResponse updateTreatmentRegimen(Long id, TreatmentRegimenRequest request) {
+        TreatmentRegimen existingRegimen = treatmentRegimenRepository.findById(id)
+                .orElseThrow(() -> new HivtmssException(HttpStatus.NOT_FOUND, "Treatment regimen not found"));
+
+        // Update basic information
+        existingRegimen.setName(request.getName());
+        existingRegimen.setApplicable(request.getApplicable());
+        existingRegimen.setLineLevel(request.getLineLevel());
+        existingRegimen.setNote(request.getNote());
+
+        // Update drug associations if provided
+        if (request.getTreatmentRegimenDrugs() != null && !request.getTreatmentRegimenDrugs().isEmpty()) {
+            // Clear only the associations in treatment_regimen_drug table
+            List<TreatmentRegimenDrug> existingAssociations = treatmentRegimenDrugRepository
+                    .findByTreatmentRegimen_Id(existingRegimen.getId());
+            treatmentRegimenDrugRepository.deleteAllInBatch(existingAssociations);
+
+            // Create new associations
+            List<TreatmentRegimenDrug> newAssociations = request.getTreatmentRegimenDrugs().stream()
+                    .map(drugRequest -> {
+                        Drug drug = drugRepository.findById(drugRequest.getDrugId())
+                                .orElseThrow(() -> new HivtmssException(HttpStatus.NOT_FOUND,
+                                        "Drug not found with ID: " + drugRequest.getDrugId()));
+
+                        TreatmentRegimenDrug association = new TreatmentRegimenDrug();
+                        association.setDrug(drug);
+                        association.setMethod(drugRequest.getMethod());
+                        association.setTreatmentRegimen(existingRegimen);
+                        return association;
+                    })
+                    .collect(Collectors.toList());
+
+            // Save new associations in batch
+            treatmentRegimenDrugRepository.saveAll(newAssociations);
+        }
+
+        TreatmentRegimen updatedRegimen = treatmentRegimenRepository.save(existingRegimen);
+        return modelMapper.map(updatedRegimen, TreatmentRegimenResponse.class);
+    }
+
+
+
+
+    @Override
+    public void deleteTreatmentRegimen(Long id) {
+        TreatmentRegimen treatmentRegimen = treatmentRegimenRepository.findById(id)
+                .orElseThrow(() -> new HivtmssException(HttpStatus.NOT_FOUND, "Treatment regimen not found"));
+        treatmentRegimen.setIsActive(ActiveStatus.INACTIVE);
+        treatmentRegimenRepository.save(treatmentRegimen);
+    }
+
 }
