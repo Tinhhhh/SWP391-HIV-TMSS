@@ -121,7 +121,8 @@ public class BlogServiceImpl implements BlogService {
 
         Blog blog = blogRepository.findById(updateBlogByManager.getId())
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
-        restrictedModelMapper.map(updateBlogByManager, account);
+
+        restrictedModelMapper.map(updateBlogByManager, blog);
 
         blog.setStatus(BlogStatus.APPROVED);
         blogRepository.save(blog);
