@@ -91,8 +91,17 @@ public class Account {
     @OneToMany(mappedBy = "customer")
     private List<Appointment> appointmentsAsCustomer;
 
+    @OneToMany(mappedBy = "oldDoctor")
+    private List<AppointmentChange> appointmentChangesAsOldDoctor;
+
+    @OneToMany(mappedBy = "newDoctor")
+    private List<AppointmentChange> appointmentChangesAsNewDoctor;
+
+    @OneToMany(mappedBy = "account")
+    private List<Notification> notifications;
+
     @JsonIgnore
     public String fullName() {
-        return firstName + " " + lastName;
+        return lastName + " " + firstName;
     }
 }

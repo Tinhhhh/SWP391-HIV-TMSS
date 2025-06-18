@@ -20,7 +20,8 @@ public class AccountSpecification {
             String likePattern = "%" + keyword.toLowerCase() + "%";
             return cb.or(
                     cb.like(cb.lower(root.get("email")), likePattern),
-                    cb.like(cb.lower(root.get("fullName")), likePattern)
+                    cb.like(cb.lower(root.get("lastName")), likePattern),
+                    cb.like(cb.lower(root.get("firstName")), likePattern)
             );
         };
 

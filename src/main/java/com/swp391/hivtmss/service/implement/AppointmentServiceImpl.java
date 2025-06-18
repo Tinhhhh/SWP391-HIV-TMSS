@@ -7,16 +7,19 @@ import com.swp391.hivtmss.model.payload.exception.HivtmssException;
 import com.swp391.hivtmss.model.payload.request.AppointmentDiagnosisUpdate;
 import com.swp391.hivtmss.model.payload.request.AppointmentUpdate;
 import com.swp391.hivtmss.model.payload.request.NewAppointment;
-import com.swp391.hivtmss.model.payload.response.AppointmentResponse;
-import com.swp391.hivtmss.model.payload.response.CustomerResponse;
-import com.swp391.hivtmss.model.payload.response.DoctorResponse;
-import com.swp391.hivtmss.model.payload.response.ListResponse;
+import com.swp391.hivtmss.model.payload.response.*;
 import com.swp391.hivtmss.repository.*;
 import com.swp391.hivtmss.service.AppointmentService;
+import com.swp391.hivtmss.util.AppointmentSpecification;
 import com.swp391.hivtmss.util.AppointmentTime;
 import com.swp391.hivtmss.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -39,6 +42,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final DiagnosisRepository diagnosisRepository;
     private final TreatmentRegimenRepository treatmentRegimenRepository;
     private final TreatmentRepository treatmentRepository;
+    private final TreatmentRegimenDrugRepository treatmentRegimenDrugRepository;
+    private final AppointmentChangeRepository appointmentChangeRepository;
 
     @Override
     public List<DoctorResponse> getAvailableDoctors(Date startTime) {
@@ -81,6 +86,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional
     public void createAppointment(NewAppointment newAppointment) {
         Account customer = accountRepository.findById(newAppointment.getCustomerId())
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, customer not found"));
@@ -104,6 +110,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(AppointmentStatus.PENDING);
 
         appointmentRepository.save(appointment);
+
+        // Tạo notification cho bác sĩ và khách hàng
+
+
     }
 
     private void appointmentValidate(NewAppointment newAppointment) {
@@ -173,6 +183,23 @@ public class AppointmentServiceImpl implements AppointmentService {
         restrictedModelMapper.map(appointmentUpdate, appointment);
 
         Treatment treatment = new Treatment();
+
+        //Validate treatment method
+        List<TreatmentRegimenDrug> listDrug = treatmentRegimenDrugRepository.findByTreatmentRegimen_IdAndMethod(treatmentRegimen.getId(), appointmentUpdate.getMethod());
+
+        if (listDrug.isEmpty()) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, treatment method not found in treatment regimen");
+        } else {
+            // Kiểm tra xem phương pháp điều trị có hợp lệ trong phác đồ điều trị không
+            boolean hasMethod = listDrug.stream()
+                    .anyMatch(drug -> drug.getMethod() == appointmentUpdate.getMethod());
+
+            if (!hasMethod) {
+                throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, treatment method is not valid for this treatment regimen");
+            }
+        }
+
+
         treatment.setMethod(appointmentUpdate.getMethod());
         treatment.setTreatmentRegimen(treatmentRegimen);
         treatmentRepository.save(treatment);
@@ -189,7 +216,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         List<AppointmentResponse> listResponse = new ArrayList<>();
         if (!appointments.isEmpty()) {
             for (Appointment appointment : appointments) {
-                AppointmentResponse response = getAppointmentResponse(appointment);
+                AppointmentResponse response = getAppointmentResponse(appointment, appointment.isAnonymous());
                 listResponse.add(response);
             }
         } else {
@@ -204,7 +231,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment not found"));
 
-        return getAppointmentResponse(appointment);
+        return getAppointmentResponse(appointment, appointment.isAnonymous());
     }
 
     @Override
@@ -222,11 +249,47 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public ListResponse getAppointmentByCustomerId(Long id) {
-        return null;
+    public ListResponse getAppointmentByCustomerId(int pageNo, int pageSize, String sortBy, String sortDir, UUID customerId) {
+
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+
+        Specification<Appointment> spec = Specification.where(AppointmentSpecification.hasCustomerId(customerId));
+
+        return getAppointmentResponseWithPagination(pageNo, pageSize, pageable, spec);
     }
 
-    private AppointmentResponse getAppointmentResponse(Appointment appointment) {
+    private ListResponse getAppointmentResponseWithPagination(int pageNo, int pageSize, Pageable pageable, Specification<Appointment> spec) {
+        Page<Appointment> appointments = appointmentRepository.findAll(spec, pageable);
+
+        List<AppointmentResponse> listResponse = new ArrayList<>();
+
+        if (!appointments.isEmpty()) {
+            for (Appointment appointment : appointments) {
+                AppointmentResponse response = getAppointmentResponse(appointment, false);
+                listResponse.add(response);
+            }
+        }
+
+        return new ListResponse(listResponse, pageNo, pageSize, appointments.getTotalElements(),
+                appointments.getTotalPages(), appointments.isLast());
+    }
+
+    @Override
+    public ListResponse getAllAppointment(int pageNo, int pageSize, String sortBy, String sortDir, String searchTerm) {
+
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+
+        Specification<Appointment> spec = Specification.where(AppointmentSpecification.hasEmailOrFullName(searchTerm)
+                .or(AppointmentSpecification.hasPhoneNumber(searchTerm)));
+
+        return getAppointmentResponseWithPagination(pageNo, pageSize, pageable, spec);
+    }
+
+
+
+    private AppointmentResponse getAppointmentResponse(Appointment appointment, boolean isAnonymous) {
         AppointmentResponse response = restrictedModelMapper.map(appointment, AppointmentResponse.class);
         response.setStartTime(DateUtil.formatTimestamp(appointment.getStartTime()));
 
@@ -248,7 +311,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         response.setAppointmentId(appointment.getId());
 
-        if (appointment.isAnonymous()) {
+        if (isAnonymous) {
             response.setFullName("Bệnh nhân ẩn danh");
         } else {
             response.setFullName(appointment.fullName());
@@ -266,7 +329,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
 
-    @Scheduled(cron = "1 0 * * * ?")
+    @Scheduled(cron = "1 0 0 * * ?")
     public void updateAppointmentStatus() {
         // Lấy danh sách tất cả các cuộc hẹn có trạng thái PENDING và đã qua thời gian hẹn
         Date now = DateUtil.getCurrentTimestamp();
@@ -282,5 +345,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
     }
+
 
 }

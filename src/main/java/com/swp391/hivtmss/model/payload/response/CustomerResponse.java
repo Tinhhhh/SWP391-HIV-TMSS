@@ -23,4 +23,8 @@ public class CustomerResponse {
 
     private Gender gender;
 
+    private String email;
+
+    private String phone;
+
 }

@@ -1,5 +1,6 @@
 package com.swp391.hivtmss.model.entity;
 
+import com.swp391.hivtmss.model.payload.enums.AppointmentChangeStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,36 +10,40 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
-import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "treatment")
+@Table(name = "appointment_change")
 @EntityListeners(AuditingEntityListener.class)
-public class Treatment {
+public class AppointmentChange {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "treatment_id")
+    @Column(name = "appointment_change_id")
     private Long id;
 
-    private int method;
+    private String reason;
 
-    @Column(name = "dosage_instruction")
-    private String dosageInstruction;
+    @Enumerated(EnumType.STRING)
+    private AppointmentChangeStatus status;
 
-    @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
+    @CreatedDate
     private Date createdDate;
 
     @ManyToOne
-    @JoinColumn(name = "treatment_regimen_id", nullable = false)
-    private TreatmentRegimen treatmentRegimen;
+    @JoinColumn(name = "appointment_id", nullable = false)
+    private Appointment appointment;
 
-    @OneToMany(mappedBy = "treatment")
-    private List<Appointment> appointments;
+    @ManyToOne
+    @JoinColumn(name = "old_doctor_id", nullable = false)
+    private Account oldDoctor;
+
+    @ManyToOne
+    @JoinColumn(name = "new_doctor_id", nullable = false)
+    private Account newDoctor;
 
 }
