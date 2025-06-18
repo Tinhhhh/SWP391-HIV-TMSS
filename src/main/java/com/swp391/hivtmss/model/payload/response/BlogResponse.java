@@ -44,6 +44,4 @@ public class BlogResponse {
     @JsonProperty(value = "full_name", index = 9)
     private String fullName;
 
-
-
 }
