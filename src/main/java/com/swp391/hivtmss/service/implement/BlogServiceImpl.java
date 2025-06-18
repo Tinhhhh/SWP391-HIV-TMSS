@@ -3,29 +3,46 @@ package com.swp391.hivtmss.service.implement;
 import com.swp391.hivtmss.model.entity.Account;
 import com.swp391.hivtmss.model.entity.Blog;
 import com.swp391.hivtmss.model.payload.enums.BlogStatus;
+import com.swp391.hivtmss.model.payload.exception.HivtmssException;
 import com.swp391.hivtmss.model.payload.exception.ResourceNotFoundException;
 import com.swp391.hivtmss.model.payload.request.BlogRequest;
 import com.swp391.hivtmss.model.payload.request.UpdateBlog;
+import com.swp391.hivtmss.model.payload.request.UpdateBlogByCustomer;
 import com.swp391.hivtmss.model.payload.request.UpdateBlogByManager;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
+import com.swp391.hivtmss.model.payload.response.CustomerResponse;
+import com.swp391.hivtmss.model.payload.response.ListResponse;
 import com.swp391.hivtmss.repository.AccountRepository;
 import com.swp391.hivtmss.repository.BlogRepository;
 import com.swp391.hivtmss.service.BlogService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.swp391.hivtmss.util.BlogSpecification;
+import com.swp391.hivtmss.util.DateUtil;
+import lombok.RequiredArgsConstructor;
+
+
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class BlogServiceImpl implements BlogService {
-    @Autowired
-    private BlogRepository blogRepository;
-    @Autowired
-    private AccountRepository accountRepository;
+
+    private final BlogRepository blogRepository;
+    private final AccountRepository accountRepository;
+    private final ModelMapper restrictedModelMapper;
 
     @Override
     @Transactional
@@ -88,7 +105,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     @Transactional
-    public void deleteBlog(Long id, UpdateBlogByManager updateBlogByManager) {
+    public void deleteBlog(Long id, UpdateBlogByCustomer updateBlogByCustomer) {
 
         Blog blog = blogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Blog not found"));
@@ -96,6 +113,84 @@ public class BlogServiceImpl implements BlogService {
         blog.setHidden(false);
         blogRepository.save(blog);
     }
+
+    @Override
+    public void updateBlogByManager(UpdateBlogByManager updateBlogByManager) {
+        Account account = accountRepository.findById(updateBlogByManager.getAccountId())
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, Account not found"));
+
+        Blog blog = blogRepository.findById(updateBlogByManager.getId())
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
+        restrictedModelMapper.map(updateBlogByManager, account);
+
+        blog.setStatus(BlogStatus.APPROVED);
+        blogRepository.save(blog);
+
+
+    }
+
+    @Override
+    public void cancelBlog(Long id) {
+        Blog blog = blogRepository.findById(id)
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
+
+
+        if (blog.getStatus() != BlogStatus.PENDING){
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog is not in pending status");
+        }
+
+        blog.setStatus(BlogStatus.REJECTED);
+        blogRepository.save(blog);
+    }
+
+    private ListResponse getBlogResponseWithPagination(int pageNo, int pageSize, Pageable pageable, Specification<Blog> spec) {
+        Page<Blog> blogs = blogRepository.findAll(spec, pageable);
+
+        List<BlogResponse> listResponse = new ArrayList<>();
+
+        if (!blogs.isEmpty()) {
+            for (Blog blog : blogs) {
+                BlogResponse response = getBlogResponse(blog);
+                listResponse.add(response);
+            }
+        }
+        return new ListResponse(listResponse, pageNo, pageSize, blogs.getTotalElements(),
+                blogs.getTotalPages(), blogs.isLast());
+    }
+
+
+
+    @Override
+    public ListResponse getAllBlog(int pageNo, int pageSize, String sortBy, String sortDir, String searchTerm) {
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+
+        Specification<Blog> spec = Specification.where(BlogSpecification.hasEmailOrFullName(searchTerm)
+                .or(BlogSpecification.hasPhoneNumber(searchTerm)));
+
+        return getBlogResponseWithPagination(pageNo, pageSize, pageable, spec);
+    }
+
+
+    private BlogResponse getBlogResponse(Blog blog) {
+        BlogResponse response = restrictedModelMapper.map(blog, BlogResponse.class);
+        response.setCreated_Date(blog.getCreatedDate());
+
+        if (blog.getLastModifiedDate() != null) {
+            response.setLastModifiedDate(blog.getLastModifiedDate());
+        }
+
+        // Set customer information
+        CustomerResponse customer = restrictedModelMapper.map(blog.getAccount(), CustomerResponse.class);
+        customer.setFullName(blog.getAccount().fullName());
+        response.setAccountId(customer.getId());
+
+        response.setId(blog.getId());
+
+        return response;
+    }
+
+
 
     private BlogResponse convertToResponse(Blog blog) {
         return new BlogResponse(
