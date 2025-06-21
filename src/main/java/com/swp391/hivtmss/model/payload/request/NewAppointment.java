@@ -53,6 +53,10 @@ public class NewAppointment {
     @JsonProperty("start_time")
     private Date startTime;
 
+    @FutureOrPresent
+    @JsonProperty("end_time")
+    private Date endTime;
+
     @JsonProperty("chief_complaint")
     private String chiefComplaint;
 
