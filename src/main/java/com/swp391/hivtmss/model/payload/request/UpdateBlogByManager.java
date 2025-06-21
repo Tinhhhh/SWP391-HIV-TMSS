@@ -1,6 +1,7 @@
 package com.swp391.hivtmss.model.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.swp391.hivtmss.model.entity.Role;
 import com.swp391.hivtmss.model.payload.enums.BlogStatus;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
@@ -45,10 +46,10 @@ public class UpdateBlogByManager {
     private UUID accountId;
 
     @JsonProperty(value = "role_id", index = 9)
-    private String roleID;
+    private Long roleID;
 
     @JsonProperty(value = "role_name", index = 10)
-    private String rolaName;
+    private String roleName;
 
 
 }
