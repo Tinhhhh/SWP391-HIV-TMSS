@@ -87,11 +87,11 @@ public class BlogController {
     public ResponseEntity<Object> cancelAppointment(@RequestParam("id") Long id) {
         blogService.cancelBlog(id);
         return ResponseBuilder.returnMessage(
-                HttpStatus.OK, "Blog Status rejected by Manager successfully");
+                HttpStatus.OK, "Blog Status rejected successfully");
     }
 
     @Operation(summary = "Get all blog info", description = "get all blogs info")
-    @GetMapping("/blog")
+    @GetMapping("/blog/all")
     public ResponseEntity<Object> getBlogs(
             @RequestParam(value = "pageNo", defaultValue = DEFAULT_PAGE_NUMBER) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
@@ -99,7 +99,7 @@ public class BlogController {
             @RequestParam(value = "sortDir", defaultValue = DEFAULT_SORT_DIRECTION) String sortDir,
             @RequestParam("searchTerm") String searchTerm) {
         return ResponseBuilder.returnData(
-                HttpStatus.OK, "Successfully retrieved appointments for customer",
+                HttpStatus.OK, "Successfully retrieved Blog for customer",
                 blogService.getAllBlog(pageNo, pageSize, sortBy, sortDir, searchTerm));
     }
 
