@@ -5,6 +5,7 @@ import com.swp391.hivtmss.model.entity.Drug;
 import com.swp391.hivtmss.model.entity.TestType;
 import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import com.swp391.hivtmss.model.payload.exception.HivtmssException;
+import com.swp391.hivtmss.model.payload.exception.ResourceNotFoundException;
 import com.swp391.hivtmss.model.payload.request.DrugRequest;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
 import com.swp391.hivtmss.model.payload.response.DrugResponse;
@@ -54,12 +55,21 @@ public class DrugServiceImpl implements DrugService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void deleteDrug(Long id, DrugRequest drugRequest) {
+        Drug drug = drugRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("DrugID not found"));
+        drug.setIsActive(ActiveStatus.INACTIVE);
+        drugRepository.save(drug);
+    }
+
     public DrugResponse convertToResponse(Drug drug){
         return new DrugResponse(
                 drug.getId(),
                 drug.getName(),
                 drug.getShortName(),
                 drug.getType(),
+                drug.getIsActive(),
                 drug.getCreatedDate()
         );
     }

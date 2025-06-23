@@ -1,10 +1,7 @@
 package com.swp391.hivtmss.controller;
 
 import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
-import com.swp391.hivtmss.model.payload.request.BlogRequest;
-import com.swp391.hivtmss.model.payload.request.DrugRequest;
-import com.swp391.hivtmss.model.payload.request.UpdateBlogByCustomer;
-import com.swp391.hivtmss.model.payload.request.UpdateBlogByManager;
+import com.swp391.hivtmss.model.payload.request.*;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
 import com.swp391.hivtmss.model.payload.response.DrugResponse;
 import com.swp391.hivtmss.service.DrugService;
@@ -46,6 +43,16 @@ public class DrugController {
     public ResponseEntity<List<DrugResponse>> getAllDrug() {
         List<DrugResponse> drugs = drugService.getAllDrugs();
         return ResponseEntity.ok(drugs);
+    }
+
+    @Operation(summary = "Delete Drug", description = "Delete Drug")
+    @DeleteMapping
+    public ResponseEntity<Object> deleteDrug(@PathParam("id") Long id,
+                                                 @Valid @RequestBody DrugRequest drugRequest) {
+        // delete Drug by change TestType , not delete all information
+
+        drugService.deleteDrug(id, drugRequest);
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Drug is Delete successfully");
     }
 
 

@@ -1,6 +1,7 @@
 package com.swp391.hivtmss.model.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import com.swp391.hivtmss.model.payload.enums.DrugType;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,9 @@ public class DrugResponse {
     private String shortName;
 
     private DrugType type;
+
+    @JsonProperty("is_active")
+    private ActiveStatus isActive;
 
     @JsonProperty("created_date")
     private Date createdDate;

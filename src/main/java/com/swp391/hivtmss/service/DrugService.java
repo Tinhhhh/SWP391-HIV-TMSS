@@ -13,4 +13,6 @@ public interface DrugService{
     Object getDrugById(Long id);
 
     List<DrugResponse> getAllDrugs();
+
+    void deleteDrug(Long id, @Valid DrugRequest drugRequest);
 }
