@@ -17,19 +17,21 @@ import java.util.Date;
 @NoArgsConstructor
 public class DrugResponse {
 
-    @JsonProperty("drug_id")
+    @JsonProperty(value = "drug_id", index = 1)
     private Long id;
 
+    @JsonProperty(value = "drug_name", index = 2)
     private String name;
 
-    @JsonProperty("short_name")
+    @JsonProperty(value = "short_name", index = 3)
     private String shortName;
 
+    @JsonProperty(value = "drug_type", index = 4)
     private DrugType type;
 
-    @JsonProperty("is_active")
+    @JsonProperty(value = "is_active", index = 5)
     private ActiveStatus isActive;
 
-    @JsonProperty("created_date")
+    @JsonProperty(value = "created_date", index = 6)
     private Date createdDate;
 }

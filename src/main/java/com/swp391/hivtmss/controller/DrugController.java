@@ -56,6 +56,15 @@ public class DrugController {
     }
 
 
+    @Operation(summary = "Update Drug By ID", description = "Get Drug By ID")
+    @PutMapping
+    public ResponseEntity<Object> updateDrug(@PathParam("id") Long id,
+                                                 @Valid @RequestBody DrugRequest drugRequest) {
+
+        drugService.updateDrug(id, drugRequest);
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Drug is update successfully");
+    }
+
 }
 
 

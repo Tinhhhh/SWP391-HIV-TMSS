@@ -63,6 +63,21 @@ public class DrugServiceImpl implements DrugService {
         drugRepository.save(drug);
     }
 
+    @Override
+    public void updateDrug(Long id, DrugRequest drugRequest) {
+        Drug drugId = drugRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("DrugID not found"));
+
+        Drug drug = new Drug();
+        drug.setName(drugRequest.getName());
+        drug.setShortName(drugRequest.getShortName());
+        drug.setType(drugRequest.getType());
+        drug.setCreatedDate(new Date());
+
+        drugRepository.save(drug);
+
+    }
+
     public DrugResponse convertToResponse(Drug drug){
         return new DrugResponse(
                 drug.getId(),
