@@ -15,11 +15,11 @@ public interface DoctorDegreeService {
     List<DoctorDegreeResponse> getAllDoctorDegrees();
     DoctorDegreeResponse updateDoctorDegree(Long id, DoctorDegreeRequest doctorDegreeRequest);
     void deleteDoctorDegree(Long id);
+
     DoctorDegree getDoctorDegreeEntityById(Long id);
     DoctorDegreeResponse saveDoctorDegree(DoctorDegree doctorDegree);
     DoctorDegreeResponse uploadDegreeImages(Long id, List<MultipartFile> files);
     DoctorDegreeResponse deleteAllImages(Long doctorDegreeId);
     DoctorDegreeResponse deleteImageByUrl(Long doctorDegreeId, String imageUrl);
-
 
 }

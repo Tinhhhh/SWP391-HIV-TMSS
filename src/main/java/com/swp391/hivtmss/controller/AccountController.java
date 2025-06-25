@@ -16,6 +16,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
+import com.swp391.hivtmss.model.payload.response.AccountInfoResponse;
+
+
 import java.util.UUID;
 
 import static com.swp391.hivtmss.util.AppConstants.*;
@@ -85,4 +90,18 @@ public class AccountController {
         return ResponseBuilder.returnMessage(HttpStatus.CREATED, "Create new account successfully");
     }
 
+    // Fix the uploadAvatar method
+    @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload account avatar",
+            description = "Upload or replace an account avatar. The old avatar will be replaced if it exists.")
+    public ResponseEntity<?> uploadAvatar(
+            HttpServletRequest request,
+            @RequestParam("file") MultipartFile file) {
+        AccountInfoResponse updatedAccount = accountService.uploadAvatar(request, file);
+        return ResponseBuilder.returnData(
+                HttpStatus.OK,
+                "Avatar uploaded successfully",
+                updatedAccount
+        );
+    }
 }
