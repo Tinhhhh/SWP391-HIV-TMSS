@@ -2,17 +2,23 @@ package com.swp391.hivtmss.service.implement;
 
 import com.swp391.hivtmss.model.entity.*;
 import com.swp391.hivtmss.model.payload.enums.AppointmentStatus;
+import com.swp391.hivtmss.model.payload.enums.EmailTemplateName;
 import com.swp391.hivtmss.model.payload.enums.RoleName;
 import com.swp391.hivtmss.model.payload.exception.HivtmssException;
 import com.swp391.hivtmss.model.payload.request.AppointmentDiagnosisUpdate;
 import com.swp391.hivtmss.model.payload.request.AppointmentUpdate;
 import com.swp391.hivtmss.model.payload.request.NewAppointment;
-import com.swp391.hivtmss.model.payload.response.*;
+import com.swp391.hivtmss.model.payload.response.AppointmentResponse;
+import com.swp391.hivtmss.model.payload.response.CustomerResponse;
+import com.swp391.hivtmss.model.payload.response.DoctorResponse;
+import com.swp391.hivtmss.model.payload.response.ListResponse;
 import com.swp391.hivtmss.repository.*;
 import com.swp391.hivtmss.service.AppointmentService;
+import com.swp391.hivtmss.service.EmailService;
 import com.swp391.hivtmss.util.AppointmentSpecification;
 import com.swp391.hivtmss.util.AppointmentTime;
 import com.swp391.hivtmss.util.DateUtil;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -44,6 +50,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final TreatmentRepository treatmentRepository;
     private final TreatmentRegimenDrugRepository treatmentRegimenDrugRepository;
     private final AppointmentChangeRepository appointmentChangeRepository;
+    private final NotificationRepository notificationRepository;
+    private final EmailService emailService;
 
     @Override
     public List<DoctorResponse> getAvailableDoctors(Date startTime) {
@@ -108,11 +116,11 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setCustomer(customer);
         appointment.setDoctor(doctor);
         appointment.setStatus(AppointmentStatus.PENDING);
+        appointment.setNextFollowUpReminder(false);
 
         appointmentRepository.save(appointment);
 
         // Tạo notification cho bác sĩ và khách hàng
-
 
     }
 
@@ -206,6 +214,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         appointment.setTreatment(treatment);
         appointment.setStatus(AppointmentStatus.COMPLETED);
+        appointment.setNextFollowUp(DateUtil.convertToStartOfTheDay(appointmentUpdate.getNextFollowUp()));
         appointmentRepository.save(appointment);
     }
 
@@ -288,7 +297,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
 
-
     private AppointmentResponse getAppointmentResponse(Appointment appointment, boolean isAnonymous) {
         AppointmentResponse response = restrictedModelMapper.map(appointment, AppointmentResponse.class);
         response.setStartTime(DateUtil.formatTimestamp(appointment.getStartTime()));
@@ -344,6 +352,30 @@ public class AppointmentServiceImpl implements AppointmentService {
             }
         }
 
+    }
+
+    @Scheduled(cron = "1 1 0 * * ?")
+    public void updateAppointmentChangeHistory() throws MessagingException {
+        // Lấy danh sách tất cả các cuộc hẹn có trạng thái COMPLETED và đã qua thời gian hẹn
+        Date now = DateUtil.getCurrentTimestamp();
+        List<Appointment> completedAppointment = appointmentRepository.findByStatusAndNextFollowUpBeforeAndNextFollowUpReminderFalse(AppointmentStatus.COMPLETED, now);
+
+        if (!completedAppointment.isEmpty()) {
+            // Duyệt qua từng appointment và gửi thông báo
+            for (Appointment appointment : completedAppointment) {
+                emailService.sendAppointmentFollowUpNotification(
+                        appointment.getCustomer().fullName(),
+                        appointment.getCustomer().getEmail(),
+                        DateUtil.formatTimestamp(appointment.getNextFollowUp(), DateUtil.DATE_FORMAT),
+                        appointment.fullName(),
+                        EmailTemplateName.APPOINTMENT_REMINDER.getName(),
+                        "[HIV TMSS service] Bạn có một cuộc hẹn tái khám sắp tới"
+                );
+                // Cập nhật trạng thái nhắc nhở
+                appointment.setNextFollowUpReminder(true);
+                appointmentRepository.save(appointment);
+            }
+        }
     }
 
 

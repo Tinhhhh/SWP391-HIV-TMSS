@@ -3,14 +3,17 @@ package com.swp391.hivtmss.controller;
 import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
 import com.swp391.hivtmss.model.payload.request.*;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
+import com.swp391.hivtmss.model.payload.response.DoctorDegreeResponse;
 import com.swp391.hivtmss.service.BlogService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -101,6 +104,32 @@ public class BlogController {
         return ResponseBuilder.returnData(
                 HttpStatus.OK, "Successfully retrieved appointments for customer",
                 blogService.getAllBlog(pageNo, pageSize, sortBy, sortDir, searchTerm));
+    }
+
+    @PostMapping(value = "/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> uploadBlogImg(
+            @RequestParam("blogId") Long blogId,
+            @RequestParam(value = "files") List<MultipartFile> files) {
+        BlogResponse blogImg = blogService.uploadBlogImg(blogId, files);
+        return ResponseBuilder.returnData(
+                HttpStatus.OK,
+                "Images uploaded successfully",
+                blogImg
+        );
+    }
+
+    @DeleteMapping("/images")
+    public ResponseEntity<Object> deleteAllImages(@RequestParam("blogId") Long blogId) {
+        BlogResponse blogImg = blogService.deleteAllImages(blogId);
+        return ResponseBuilder.returnData(HttpStatus.OK, "All images deleted successfully", blogImg);
+    }
+
+    @DeleteMapping("/images/by-url")
+    public ResponseEntity<Object> deleteImageByUrl(
+            @RequestParam("blogId") Long blogId,
+            @RequestParam("imageUrl") String imageUrl) {
+        BlogResponse blogImg = blogService.deleteImageByUrl(blogId, imageUrl);
+        return ResponseBuilder.returnData(HttpStatus.OK, "Image deleted successfully", blogImg);
     }
 
 

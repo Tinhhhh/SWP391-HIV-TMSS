@@ -25,6 +25,7 @@ public class DoctorDegree {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "doctor_degree_id")
     private Long id;
 
     private String name;

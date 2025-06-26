@@ -7,6 +7,7 @@ import jakarta.persistence.Column;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -26,9 +27,6 @@ public class BlogResponse {
     @JsonProperty(value = "status", index = 4)
     private BlogStatus status;
 
-    @JsonProperty(value = "image_url", index = 5)
-    private String imageUrl;
-
     @Column(name = "last_modified_date", nullable = false)
     private Date lastModifiedDate;
 
@@ -43,5 +41,7 @@ public class BlogResponse {
 
     @JsonProperty(value = "full_name", index = 9)
     private String fullName;
+
+    private List<String> imageUrls;
 
 }

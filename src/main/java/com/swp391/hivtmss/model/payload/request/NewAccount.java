@@ -21,14 +21,14 @@ public class NewAccount {
     @NotEmpty(message = "First name is mandatory")
     @JsonProperty("first_name")
     @Pattern(regexp = "^[\\p{L}\\s]*$", message = "First name contain only characters")
-    @Size(max = 50, message = "First name must be less than 50 characters")
+    @Size(max = 100, message = "First name must be less than 50 characters")
     private String firstName;
 
     @Schema(description = "User's last name", example = "Tinh")
     @NotEmpty(message = "Last name is mandatory")
     @JsonProperty("last_name")
     @Pattern(regexp = "^[\\p{L}\\s]*$", message = "Last name contain only characters")
-    @Size(max = 50, message = "Last name must be less than 50 characters")
+    @Size(max = 100, message = "Last name must be less than 50 characters")
     private String lastName;
 
     @Schema(description = "User's email address", example = "Java@example.com")

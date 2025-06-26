@@ -74,6 +74,9 @@ public class Appointment {
     @Column(name = "next_follow_up")
     private Date nextFollowUp;
 
+    @Column(name = "next_follow_up_reminder", nullable = false)
+    private boolean nextFollowUpReminder;
+
     @Column(name = "cancel_reason")
     private String cancelReason;
 

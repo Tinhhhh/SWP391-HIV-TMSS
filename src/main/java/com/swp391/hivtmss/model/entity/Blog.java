@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -25,6 +26,7 @@ public class Blog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "blog_id")
     private Long id;
 
     @Column(name = "title", nullable = false)
@@ -36,9 +38,6 @@ public class Blog {
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private BlogStatus status;
-
-    @Column(name = "image_url")
-    private String imageUrl;
 
     @Column(name = "is_hidden", nullable = false)
     private boolean isHidden;
@@ -55,5 +54,8 @@ public class Blog {
     @ManyToOne
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
+
+    @OneToMany(mappedBy = "blog")
+    private List<BlogImg> blogImgs;
 
 }
