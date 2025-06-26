@@ -9,6 +9,7 @@ import com.swp391.hivtmss.model.entity.Role;
 import com.swp391.hivtmss.model.payload.enums.RedisPrefix;
 import com.swp391.hivtmss.model.payload.enums.RoleName;
 import com.swp391.hivtmss.model.payload.exception.HivtmssException;
+import com.swp391.hivtmss.model.payload.exception.ResourceNotFoundException;
 import com.swp391.hivtmss.repository.AccountRepository;
 import com.swp391.hivtmss.repository.RefreshTokenRepository;
 import com.swp391.hivtmss.repository.RoleRepository;
@@ -277,4 +278,20 @@ public class JwtTokenProvider {
         }
         return null;
     }
+
+    public Account getAccountFromRequest(HttpServletRequest request) {
+        String token = resolveToken(request);
+        String email = getUsername(token);
+        return accountRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+    }
+
+    public String resolveToken(HttpServletRequest request) {
+        return getJwtFromRequest(request);
+    }
+
+    public String getUsername(String token) {
+        return getUsernameFromJwt(token);
+    }
+
 }

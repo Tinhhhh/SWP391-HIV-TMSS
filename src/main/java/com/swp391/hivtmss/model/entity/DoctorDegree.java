@@ -1,5 +1,6 @@
 package com.swp391.hivtmss.model.entity;
 
+import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import com.swp391.hivtmss.model.payload.enums.Classification;
 import com.swp391.hivtmss.model.payload.enums.StudyMode;
 import jakarta.persistence.*;
@@ -15,11 +16,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Entity
+@Table(name = "doctor_degree")
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
 @EntityListeners(AuditingEntityListener.class)
 public class DoctorDegree {
 
@@ -28,12 +30,29 @@ public class DoctorDegree {
     @Column(name = "doctor_degree_id")
     private Long id;
 
-    private String name;
-
     private LocalDate dob;
 
     @Column(name = "graduation_date")
     private LocalDate graduationDate;
+
+    @Column(name = "issue_date")
+    private LocalDate issueDate;
+
+    private String name;
+
+    @Column(name = "reg_no")
+    private String regNo;
+
+    @Column(name = "school_name")
+    private String schoolName;
+
+    @OneToOne
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
+
+    @CreatedDate
+    @Column(name = "created_date", nullable = false, updatable = false)
+    private Date createdDate;
 
     @Enumerated(EnumType.STRING)
     private Classification classification;
@@ -42,24 +61,6 @@ public class DoctorDegree {
     @Enumerated(EnumType.STRING)
     private StudyMode studyMode;
 
-    @Column(name = "issue_date")
-    private LocalDate issueDate;
-
-    @Column(name = "school_name")
-    private String schoolName;
-
-    @Column(name = "reg_no")
-    private String regNo;
-
-    @CreatedDate
-    @Column(name = "created_date", nullable = false, updatable = false)
-    private Date createdDate;
-
-    @OneToOne(cascade = CascadeType.REFRESH)
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
-
-    @OneToMany(mappedBy = "doctorDegree", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "doctorDegree", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DegreeImg> degreeImgs = new ArrayList<>();
-
 }

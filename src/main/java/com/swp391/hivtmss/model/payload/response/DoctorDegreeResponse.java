@@ -29,6 +29,7 @@ public class DoctorDegreeResponse {
     private String accountUsername; //show account basic info
     private List<String> imageUrls;
 
+
     public DoctorDegreeResponse(Long id, String name, LocalDate dob, LocalDate graduationDate,
                                 Classification classification, StudyMode studyMode, LocalDate issueDate,
                                 String schoolName, String regNo, UUID accountId, String accountUsername) {
@@ -43,6 +44,7 @@ public class DoctorDegreeResponse {
         this.regNo = regNo;
         this.accountId = accountId;
         this.accountUsername = accountUsername;
+
     }
 
 }

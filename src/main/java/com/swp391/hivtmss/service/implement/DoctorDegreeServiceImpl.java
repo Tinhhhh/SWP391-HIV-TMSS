@@ -3,6 +3,7 @@ package com.swp391.hivtmss.service.implement;
 import com.swp391.hivtmss.model.entity.Account;
 import com.swp391.hivtmss.model.entity.DegreeImg;
 import com.swp391.hivtmss.model.entity.DoctorDegree;
+import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import com.swp391.hivtmss.model.payload.exception.HivtmssException;
 import com.swp391.hivtmss.model.payload.exception.ResourceNotFoundException;
 import com.swp391.hivtmss.model.payload.request.DoctorDegreeRequest;
@@ -19,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID; // Thêm import này
 import java.util.stream.Collectors;
@@ -38,7 +38,6 @@ public class DoctorDegreeServiceImpl implements DoctorDegreeService {
         Account account = accountRepository.findById(doctorDegreeRequest.getAccountId())
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
-
         if (doctorDegreeRepository.findByAccountId(account.getId()).isPresent()) {
             throw new HivtmssException(HttpStatus.BAD_REQUEST, "Doctor degree already exists for this account");
         }
@@ -53,9 +52,9 @@ public class DoctorDegreeServiceImpl implements DoctorDegreeService {
         doctorDegree.setSchoolName(doctorDegreeRequest.getSchoolName());
         doctorDegree.setRegNo(doctorDegreeRequest.getRegNo());
         doctorDegree.setAccount(account);
-
         return convertToResponse(doctorDegreeRepository.save(doctorDegree));
     }
+
 
     @Override
     public DoctorDegreeResponse getDoctorDegreeById(Long id) {
@@ -120,6 +119,7 @@ public class DoctorDegreeServiceImpl implements DoctorDegreeService {
         doctorDegreeRepository.delete(doctorDegree);
     }
 
+
     @Override
     public DoctorDegree getDoctorDegreeEntityById(Long id) {
         return doctorDegreeRepository.findById(id)
@@ -141,24 +141,37 @@ public class DoctorDegreeServiceImpl implements DoctorDegreeService {
 
         DoctorDegree doctorDegree = getDoctorDegreeEntityById(id);
 
-        List<DegreeImg> images = new ArrayList<>();
-        for (MultipartFile file : files) {
-            if (!file.getContentType().startsWith("image/")) {
-                throw new HivtmssException(HttpStatus.BAD_REQUEST, "Invalid file type. Only images are allowed");
+        // Delete existing images if any
+        if (!doctorDegree.getDegreeImgs().isEmpty()) {
+            for (DegreeImg image : doctorDegree.getDegreeImgs()) {
+                try {
+                    cloudinaryService.deleteFile(image.getImgUrl());
+                } catch (IOException e) {
+                    throw new HivtmssException(HttpStatus.INTERNAL_SERVER_ERROR,
+                            "Failed to delete existing image: " + e.getMessage());
+                }
             }
-
-            try {
-                String imageUrl = cloudinaryService.uploadFile(file);
-                DegreeImg degreeImg = new DegreeImg();
-                degreeImg.setImgUrl(imageUrl);
-                degreeImg.setDoctorDegree(doctorDegree);
-                images.add(degreeImg);
-            } catch (IOException e) {
-                throw new HivtmssException(HttpStatus.BAD_REQUEST, "Failed to upload image: " + e.getMessage());
-            }
+            // Clear existing images
+            degreeImgRepository.deleteByDoctorDegreeId(id);
+            doctorDegree.getDegreeImgs().clear();
         }
 
-        doctorDegree.getDegreeImgs().addAll(images);
+        // Upload new image (take only the first file)
+        MultipartFile file = files.get(0);
+        if (!file.getContentType().startsWith("image/")) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Invalid file type. Only images are allowed");
+        }
+
+        try {
+            String imageUrl = cloudinaryService.uploadFile(file);
+            DegreeImg degreeImg = new DegreeImg();
+            degreeImg.setImgUrl(imageUrl);
+            degreeImg.setDoctorDegree(doctorDegree);
+            doctorDegree.getDegreeImgs().add(degreeImg);
+        } catch (IOException e) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Failed to upload image: " + e.getMessage());
+        }
+
         return convertToResponse(doctorDegreeRepository.save(doctorDegree));
     }
 
@@ -185,6 +198,7 @@ public class DoctorDegreeServiceImpl implements DoctorDegreeService {
 
         return response;
     }
+
 
     @Override
     @Transactional
