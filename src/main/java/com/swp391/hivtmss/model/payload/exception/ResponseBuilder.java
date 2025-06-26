@@ -1,6 +1,5 @@
 package com.swp391.hivtmss.model.payload.exception;
 
-import com.swp391.hivtmss.model.payload.response.ListResponse;
 import com.swp391.hivtmss.util.DateUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

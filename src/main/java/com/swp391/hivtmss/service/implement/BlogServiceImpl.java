@@ -2,7 +2,9 @@ package com.swp391.hivtmss.service.implement;
 
 import com.swp391.hivtmss.model.entity.Account;
 import com.swp391.hivtmss.model.entity.Blog;
+import com.swp391.hivtmss.model.entity.BlogImg;
 import com.swp391.hivtmss.model.payload.enums.BlogStatus;
+import com.swp391.hivtmss.model.payload.enums.RoleName;
 import com.swp391.hivtmss.model.payload.exception.HivtmssException;
 import com.swp391.hivtmss.model.payload.exception.ResourceNotFoundException;
 import com.swp391.hivtmss.model.payload.request.BlogRequest;
@@ -13,13 +15,12 @@ import com.swp391.hivtmss.model.payload.response.BlogResponse;
 import com.swp391.hivtmss.model.payload.response.CustomerResponse;
 import com.swp391.hivtmss.model.payload.response.ListResponse;
 import com.swp391.hivtmss.repository.AccountRepository;
+import com.swp391.hivtmss.repository.BlogImgRepository;
 import com.swp391.hivtmss.repository.BlogRepository;
 import com.swp391.hivtmss.service.BlogService;
+import com.swp391.hivtmss.service.CloudinaryService;
 import com.swp391.hivtmss.util.BlogSpecification;
-import com.swp391.hivtmss.util.DateUtil;
 import lombok.RequiredArgsConstructor;
-
-
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,7 +30,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +46,9 @@ public class BlogServiceImpl implements BlogService {
     private final BlogRepository blogRepository;
     private final AccountRepository accountRepository;
     private final ModelMapper restrictedModelMapper;
+    private final CloudinaryService cloudinaryService;
+    private final ModelMapper modelMapper;
+    private final BlogImgRepository blogImgRepository;
 
     @Override
     @Transactional
@@ -54,7 +60,6 @@ public class BlogServiceImpl implements BlogService {
 
         blog.setTitle(blogRequest.getTitle());
         blog.setContent(blogRequest.getContent());
-        blog.setImageUrl(blogRequest.getImageUrl());
         blog.setStatus(BlogStatus.PENDING);
         blog.setCreatedDate(new Date());
         blog.setLastModifiedDate(new Date());
@@ -74,8 +79,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public List<BlogResponse> getBlogByAccountId(UUID accountId) {
-        List<Blog> blogs = blogRepository.findByAccountId(accountId)
-                ;
+        List<Blog> blogs = blogRepository.findByAccountId(accountId);
         return blogs.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
@@ -96,7 +100,6 @@ public class BlogServiceImpl implements BlogService {
 
         blog.setTitle(updateBlog.getTitle());
         blog.setContent(updateBlog.getContent());
-        blog.setImageUrl(updateBlog.getImageUrl());
         blog.setCreatedDate(new Date());
 
         blogRepository.save(blog);
@@ -119,6 +122,9 @@ public class BlogServiceImpl implements BlogService {
         Account account = accountRepository.findById(updateBlogByManager.getAccountId())
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, Account not found"));
 
+        if (!account.isActive() || !account.getRole().getRoleName().equals(RoleName.MANAGER.toString())) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, Account is not valid or not MANAGER");
+        }
         Blog blog = blogRepository.findById(updateBlogByManager.getId())
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
 
@@ -136,7 +142,7 @@ public class BlogServiceImpl implements BlogService {
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
 
 
-        if (blog.getStatus() != BlogStatus.PENDING){
+        if (blog.getStatus() != BlogStatus.PENDING) {
             throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog is not in pending status");
         }
 
@@ -160,7 +166,6 @@ public class BlogServiceImpl implements BlogService {
     }
 
 
-
     @Override
     public ListResponse getAllBlog(int pageNo, int pageSize, String sortBy, String sortDir, String searchTerm) {
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
@@ -170,6 +175,90 @@ public class BlogServiceImpl implements BlogService {
                 .or(BlogSpecification.hasPhoneNumber(searchTerm)));
 
         return getBlogResponseWithPagination(pageNo, pageSize, pageable, spec);
+    }
+
+    @Override
+    @Transactional
+    public BlogResponse uploadBlogImg(Long blogId, List<MultipartFile> files) {
+
+        if (files == null || files.isEmpty()) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "No files provided");
+        }
+
+        Blog blog = blogRepository.findById(blogId)
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
+
+        List<BlogImg> images = new ArrayList<>();
+        for (MultipartFile file : files) {
+
+            if (!file.getContentType().startsWith("image/")) {
+                throw new HivtmssException(HttpStatus.BAD_REQUEST, "Invalid file type. Only images are allowed");
+            }
+
+            try {
+                String imageUrl = cloudinaryService.uploadFile(file);
+                BlogImg blogImg = new BlogImg();
+                blogImg.setImgUrl(imageUrl);
+                blogImg.setBlog(blog);
+                images.add(blogImg);
+            } catch (IOException e) {
+                throw new HivtmssException(HttpStatus.BAD_REQUEST, "Failed to upload image: " + e.getMessage());
+            }
+        }
+        blogImgRepository.saveAll(images);
+        blog.setBlogImgs(images);
+        blog.setLastModifiedDate(new Date());
+        blogRepository.save(blog);
+        return convertToResponse(blog);
+    }
+
+    @Override
+    @Transactional
+    public BlogResponse deleteAllImages(Long blogId) {
+
+        Blog blog = blogRepository.findById(blogId)
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
+
+        if (blog.getBlogImgs() != null) {
+            List<BlogImg> blogImgs = blog.getBlogImgs();
+            // Delete from Cloudinary
+            for (BlogImg image : blogImgs) {
+                try {
+                    cloudinaryService.deleteFile(image.getImgUrl());
+                } catch (IOException e) {
+                    throw new HivtmssException(HttpStatus.INTERNAL_SERVER_ERROR,
+                            "Failed to delete image from storage: " + e.getMessage());
+                }
+            }
+
+//             Clear images from database
+            blogImgRepository.deleteAll(blogImgs);
+            blog.getBlogImgs().clear();
+            blogRepository.save(blog);
+        }
+        return convertToResponse(blog);
+    }
+
+    @Override
+    public BlogResponse deleteImageByUrl(Long blogId, String imageUrl) {
+        Blog blog = blogRepository.findById(blogId)
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
+
+        if (blog.getBlogImgs() != null) {
+            BlogImg blogImg = blogImgRepository.findByImgUrl(imageUrl)
+                    .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Image not found"));
+            // Delete from Cloudinary
+            try {
+                cloudinaryService.deleteFile(imageUrl);
+            } catch (IOException e) {
+                throw new HivtmssException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Failed to delete image from storage: " + e.getMessage());
+            }
+
+            // Delete from database
+            blogImgRepository.delete(blogImg);
+        }
+        return convertToResponse(blog);
     }
 
 
@@ -192,20 +281,20 @@ public class BlogServiceImpl implements BlogService {
     }
 
 
-
     private BlogResponse convertToResponse(Blog blog) {
         return new BlogResponse(
                 blog.getId(),
                 blog.getTitle(),
                 blog.getContent(),
                 blog.getStatus(),
-                blog.getImageUrl(),
                 blog.getCreatedDate(),
                 blog.getLastModifiedDate(),
                 blog.isHidden(),
                 blog.getAccount().getId(),
-                blog.getAccount().fullName()
-
+                blog.getAccount().fullName(),
+                blog.getBlogImgs().stream()
+                        .map(BlogImg::getImgUrl)
+                        .collect(Collectors.toList())
         );
     }
 

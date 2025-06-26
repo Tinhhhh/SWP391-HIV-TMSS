@@ -1,33 +1,37 @@
-package com.swp391.hivtmss.model.payload.response;
+package com.swp391.hivtmss.model.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
+import com.swp391.hivtmss.model.payload.enums.DrugType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TestTypeResponse {
+public class DrugRequest {
 
-    @JsonProperty("test_type_id")
+
+    @JsonProperty("drug_id")
     private Long id;
 
-    @JsonProperty("test_type_name")
+    @JsonProperty("name")
     private String name;
 
-    @JsonProperty("test_type_description")
-    private String description;
+    @JsonProperty("short_name")
+    private String shortName;
 
-    @JsonProperty("test_type_code")
-    private String code;
+    @JsonProperty("type")
+    private DrugType type;
 
     @JsonProperty("is_active")
     private ActiveStatus isActive;
-    private String applicable;
 
-
+    @JsonProperty("create_date")
+    private Date createdDate;
 }

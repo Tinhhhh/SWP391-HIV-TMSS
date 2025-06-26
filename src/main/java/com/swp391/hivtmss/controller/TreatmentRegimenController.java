@@ -8,7 +8,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static com.swp391.hivtmss.util.AppConstants.*;
@@ -35,7 +34,7 @@ public class TreatmentRegimenController {
 
     @PostMapping
     @Operation(summary = "Create a new treatment regimen",
-            description = "Create a new treatment regimen. Role required: ADMIN, DOCTOR")
+            description = "Create a new treatment regimen. Role required: ADMIN")
     public ResponseEntity<Object> createTreatmentRegimen(@Valid @RequestBody TreatmentRegimenRequest request) {
         return ResponseBuilder.returnData(HttpStatus.CREATED,
                 "Treatment regimen created successfully",
@@ -44,16 +43,16 @@ public class TreatmentRegimenController {
 
     @GetMapping("/detail")
     @Operation(summary = "Get treatment regimen by ID",
-            description = "Get treatment regimen details by ID. Role required: ADMIN, DOCTOR")
+            description = "Get treatment regimen details by ID. Role required: ADMIN")
     public ResponseEntity<Object> getTreatmentRegimen(@RequestParam Long id) {
         return ResponseBuilder.returnData(HttpStatus.OK,
                 "Treatment regimen retrieved successfully",
                 treatmentRegimenService.getTreatmentRegimenById(id));
     }
 
-    @PutMapping("/update")
+    @PutMapping()
     @Operation(summary = "Update treatment regimen",
-            description = "Update an existing treatment regimen. Role required: ADMIN, DOCTOR")
+            description = "Update an existing treatment regimen. Role required: ADMIN")
     public ResponseEntity<Object> updateTreatmentRegimen(
             @RequestParam Long id,
             @Valid @RequestBody TreatmentRegimenRequest request) {
@@ -62,7 +61,7 @@ public class TreatmentRegimenController {
                 treatmentRegimenService.updateTreatmentRegimen(id, request));
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping()
     @Operation(summary = "Delete treatment regimen",
             description = "Delete a treatment regimen by ID. Role required: ADMIN")
     public ResponseEntity<Object> deleteTreatmentRegimen(@RequestParam Long id) {

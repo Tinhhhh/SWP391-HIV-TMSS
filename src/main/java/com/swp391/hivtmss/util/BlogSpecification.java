@@ -18,13 +18,13 @@ public class BlogSpecification {
                 return null;
             }
 
-            Join<Blog, Account> accountJoin = root.join("customer"); // Tên biến trong entity Appointment (kiểu Account)
+            Join<Blog, Account> accountJoin = root.join("account"); // Tên biến trong entity Blog (kiểu Account)
 
             String likePattern = "%" + keyword.toLowerCase() + "%";
             return cb.or(
-                    cb.like(cb.lower(accountJoin.get("email")), likePattern),
-                    cb.like(cb.lower(root.get("firstName")), likePattern),
-                    cb.like(cb.lower(root.get("lastName")), likePattern)
+                    cb.like(cb.lower(accountJoin.get("email")), likePattern)
+//                    cb.like(cb.lower(accountJoin.get("firstName")), likePattern),
+//                    cb.like(cb.lower(accountJoin.get("lastName")), likePattern)
             );
         };
     }
@@ -34,7 +34,7 @@ public class BlogSpecification {
             if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
                 return null;
             }
-            Join<Blog, Account> accountJoin = root.join("customer");
+            Join<Blog, Account> accountJoin = root.join("account");
             String likePattern = phoneNumber + "%";
 
             return cb.like(cb.lower(accountJoin.get("phone")), likePattern);
@@ -46,7 +46,7 @@ public class BlogSpecification {
             if (customerId == null) {
                 return null;
             }
-            Join<Blog, Account> accountJoin = root.join("customer");
+            Join<Blog, Account> accountJoin = root.join("account");
             return cb.equal(accountJoin.get("id"), customerId);
         };
     }

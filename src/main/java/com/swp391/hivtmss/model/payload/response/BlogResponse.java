@@ -1,12 +1,15 @@
 package com.swp391.hivtmss.model.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.swp391.hivtmss.model.entity.Account;
 import com.swp391.hivtmss.model.payload.enums.BlogStatus;
 import jakarta.persistence.Column;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -26,9 +29,6 @@ public class BlogResponse {
     @JsonProperty(value = "status", index = 4)
     private BlogStatus status;
 
-    @JsonProperty(value = "image_url", index = 5)
-    private String imageUrl;
-
     @Column(name = "last_modified_date", nullable = false)
     private Date lastModifiedDate;
 
@@ -43,5 +43,7 @@ public class BlogResponse {
 
     @JsonProperty(value = "full_name", index = 9)
     private String fullName;
+
+    private List<String> imageUrls;
 
 }

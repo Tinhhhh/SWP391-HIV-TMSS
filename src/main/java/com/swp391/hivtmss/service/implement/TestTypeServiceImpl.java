@@ -1,6 +1,5 @@
 package com.swp391.hivtmss.service.implement;
 
-import com.swp391.hivtmss.model.entity.Blog;
 import com.swp391.hivtmss.model.entity.TestType;
 import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import com.swp391.hivtmss.model.payload.exception.ResourceNotFoundException;
@@ -76,7 +75,7 @@ public class TestTypeServiceImpl implements TestTypeService {
         testTypeRepository.save(testType);
     }
 
-    public TestTypeResponse convertToResponse(TestType testType){
+    public TestTypeResponse convertToResponse(TestType testType) {
         return new TestTypeResponse(
                 testType.getId(),
                 testType.getName(),

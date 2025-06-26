@@ -122,6 +122,8 @@ public class TreatmentRegimenServiceImpl implements TreatmentRegimenService {
         treatmentRegimen.setNote(request.getNote());
         treatmentRegimen.setIsActive(ActiveStatus.ACTIVE);
 
+//        TreatmentRegimen model = modelMapper.map(treatmentRegimen, TreatmentRegimen.class);
+
         TreatmentRegimen savedRegimen = treatmentRegimenRepository.save(treatmentRegimen);
 
         if (request.getTreatmentRegimenDrugs() != null && !request.getTreatmentRegimenDrugs().isEmpty()) {
@@ -189,8 +191,6 @@ public class TreatmentRegimenServiceImpl implements TreatmentRegimenService {
         TreatmentRegimen updatedRegimen = treatmentRegimenRepository.save(existingRegimen);
         return modelMapper.map(updatedRegimen, TreatmentRegimenResponse.class);
     }
-
-
 
 
     @Override

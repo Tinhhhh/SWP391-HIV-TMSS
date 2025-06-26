@@ -34,4 +34,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>,
 
     List<Appointment> findByStatusAndStartTimeBefore(AppointmentStatus appointmentStatus, Date now);
 
+    List<Appointment> findByStatusAndNextFollowUpBeforeAndNextFollowUpReminderFalse(AppointmentStatus appointmentStatus, Date now);
+
 }

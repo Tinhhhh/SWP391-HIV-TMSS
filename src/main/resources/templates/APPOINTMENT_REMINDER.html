@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>[HIV-TMSS] password recovery code</title>
+    <title>[HIV-TMSS] Thời gian hẹn tái khám của bạn đã đến </title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -99,11 +99,13 @@
     <!--        <img alt="H Logo" src="https://i.imgur.com/n8FA1lf.png">-->
     <!--    </div>-->
     <div class="content">
-        <h2>Mã Đăng Nhập</h2>
         <p th:text="'Xin chào '+ ${username}+ ','"></p>
-        <p>Đây là mã xác minh :</p>
-        <div class="verification-code"><span th:text="${content}"></span></div>
-        <p>Nếu bạn không yêu cầu mã này, hãy bỏ qua email này.</p>
+        <p>Thời gian hẹn tái khám từ lần khám gần nhất của bạn đã đến</p>
+        <p th:text="'Tên bệnh nhân ' + ${patientName}"></p>
+        <p th:text="'Thời gian lần khám trước đó của bạn là: ' + ${appointmentDate}"></p>
+        <p>Vui lòng đến phòng khám của chúng tôi trong thời gian sớm nhất để được kiểm tra sức khỏe và nhận tư vấn từ
+            bác sĩ.</p>
+        <p>Nếu bạn đã đặt lịch hẹn tái khám, hãy bỏ qua email này.</p>
     </div>
     <div class="footer">
         <div class="social-icons">

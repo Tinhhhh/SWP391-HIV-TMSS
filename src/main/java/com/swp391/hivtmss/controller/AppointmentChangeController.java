@@ -14,7 +14,6 @@ import java.util.Date;
 import java.util.UUID;
 
 import static com.swp391.hivtmss.util.AppConstants.*;
-import static com.swp391.hivtmss.util.AppConstants.DEFAULT_SORT_DIRECTION;
 
 @RestController
 @RequestMapping("/api/v1/appointment-changes")
@@ -60,7 +59,7 @@ public class AppointmentChangeController {
             @RequestParam(value = "sortDir", defaultValue = DEFAULT_SORT_DIRECTION) String sortDir,
             @RequestParam("doctorId") UUID doctorId,
             @RequestParam("startTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date startTime,
-            @RequestParam("endTime")  @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date endTime
+            @RequestParam("endTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date endTime
     ) {
         return ResponseBuilder.returnData(
                 HttpStatus.OK, "Successfully retrieved appointment change requests",
@@ -80,7 +79,7 @@ public class AppointmentChangeController {
             @RequestParam(value = "sortDir", defaultValue = DEFAULT_SORT_DIRECTION) String sortDir,
             @RequestParam("doctorId") UUID doctorId,
             @RequestParam("startTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date startTime,
-            @RequestParam("endTime")  @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date endTime
+            @RequestParam("endTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date endTime
     ) {
         return ResponseBuilder.returnData(
                 HttpStatus.OK, "Successfully retrieved appointment change requests",
