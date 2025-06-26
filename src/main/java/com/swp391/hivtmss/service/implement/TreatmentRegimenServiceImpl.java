@@ -193,8 +193,6 @@ public class TreatmentRegimenServiceImpl implements TreatmentRegimenService {
     }
 
 
-
-
     @Override
     public void deleteTreatmentRegimen(Long id) {
         TreatmentRegimen treatmentRegimen = treatmentRegimenRepository.findById(id)

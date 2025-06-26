@@ -3,14 +3,15 @@ package com.swp391.hivtmss.service.implement;
 import com.swp391.hivtmss.model.entity.Drug;
 import com.swp391.hivtmss.model.entity.TreatmentRegimen;
 import com.swp391.hivtmss.model.entity.TreatmentRegimenDrug;
+import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import com.swp391.hivtmss.model.payload.exception.HivtmssException;
 import com.swp391.hivtmss.model.payload.exception.ResourceNotFoundException;
 import com.swp391.hivtmss.model.payload.request.TreatmentRegimenDrugRequest;
 import com.swp391.hivtmss.model.payload.response.DrugResponse;
 import com.swp391.hivtmss.model.payload.response.TreatmentRegimenDrugResponse;
 import com.swp391.hivtmss.repository.DrugRepository;
-import com.swp391.hivtmss.repository.TreatmentRegimenRepository;
 import com.swp391.hivtmss.repository.TreatmentRegimenDrugRepository;
+import com.swp391.hivtmss.repository.TreatmentRegimenRepository;
 import com.swp391.hivtmss.service.TreatmentRegimenDrugService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -21,10 +22,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 
 import java.util.Collections;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -76,8 +75,6 @@ public class TreatmentRegimenDrugServiceImpl implements TreatmentRegimenDrugServ
         treatmentRegimenDrug.setActive(ActiveStatus.ACTIVE);
         return mapToDTO(treatmentRegimenDrugRepository.save(treatmentRegimenDrug));
     }
-
-
 
 
     @Override
@@ -161,8 +158,6 @@ public class TreatmentRegimenDrugServiceImpl implements TreatmentRegimenDrugServ
         entity.setActive(ActiveStatus.ACTIVE);
         return mapToDTO(treatmentRegimenDrugRepository.save(entity));
     }
-
-
 
 
 }

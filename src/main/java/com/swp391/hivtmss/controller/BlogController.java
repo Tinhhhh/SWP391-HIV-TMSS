@@ -1,9 +1,11 @@
 package com.swp391.hivtmss.controller;
 
 import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
-import com.swp391.hivtmss.model.payload.request.*;
+import com.swp391.hivtmss.model.payload.request.BlogRequest;
+import com.swp391.hivtmss.model.payload.request.UpdateBlog;
+import com.swp391.hivtmss.model.payload.request.UpdateBlogByCustomer;
+import com.swp391.hivtmss.model.payload.request.UpdateBlogByManager;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
-import com.swp391.hivtmss.model.payload.response.DoctorDegreeResponse;
 import com.swp391.hivtmss.service.BlogService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -17,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
+
 import static com.swp391.hivtmss.util.AppConstants.*;
 
 @RestController
@@ -60,7 +63,7 @@ public class BlogController {
 
     @Operation(summary = "Update Blog By ID", description = "Get Blog By ID")
     @PutMapping
-    public ResponseEntity<Object> updateBlog(@PathParam("id") Long id,@Valid @RequestBody UpdateBlog updateBlog) {
+    public ResponseEntity<Object> updateBlog(@PathParam("id") Long id, @Valid @RequestBody UpdateBlog updateBlog) {
         blogService.updateBlog(id, updateBlog);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Update Blog Successfully");
     }
@@ -90,11 +93,11 @@ public class BlogController {
     public ResponseEntity<Object> cancelAppointment(@RequestParam("id") Long id) {
         blogService.cancelBlog(id);
         return ResponseBuilder.returnMessage(
-                HttpStatus.OK, "Blog Status rejected by Manager successfully");
+                HttpStatus.OK, "Blog Status rejected successfully");
     }
 
     @Operation(summary = "Get all blog info", description = "get all blogs info")
-    @GetMapping("/blog")
+    @GetMapping("/blog/all")
     public ResponseEntity<Object> getBlogs(
             @RequestParam(value = "pageNo", defaultValue = DEFAULT_PAGE_NUMBER) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
@@ -102,7 +105,7 @@ public class BlogController {
             @RequestParam(value = "sortDir", defaultValue = DEFAULT_SORT_DIRECTION) String sortDir,
             @RequestParam("searchTerm") String searchTerm) {
         return ResponseBuilder.returnData(
-                HttpStatus.OK, "Successfully retrieved appointments for customer",
+                HttpStatus.OK, "Successfully retrieved Blog for customer",
                 blogService.getAllBlog(pageNo, pageSize, sortBy, sortDir, searchTerm));
     }
 

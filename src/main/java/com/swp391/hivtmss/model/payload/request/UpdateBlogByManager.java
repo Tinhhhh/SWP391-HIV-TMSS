@@ -45,10 +45,10 @@ public class UpdateBlogByManager {
     private UUID accountId;
 
     @JsonProperty(value = "role_id", index = 9)
-    private String roleID;
+    private Long roleID;
 
     @JsonProperty(value = "role_name", index = 10)
-    private String rolaName;
+    private String roleName;
 
 
 }

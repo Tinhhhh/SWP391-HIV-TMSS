@@ -4,6 +4,7 @@ import com.swp391.hivtmss.model.entity.Account;
 import com.swp391.hivtmss.model.entity.Blog;
 import com.swp391.hivtmss.model.entity.BlogImg;
 import com.swp391.hivtmss.model.payload.enums.BlogStatus;
+import com.swp391.hivtmss.model.payload.enums.RoleName;
 import com.swp391.hivtmss.model.payload.exception.HivtmssException;
 import com.swp391.hivtmss.model.payload.exception.ResourceNotFoundException;
 import com.swp391.hivtmss.model.payload.request.BlogRequest;
@@ -121,9 +122,13 @@ public class BlogServiceImpl implements BlogService {
         Account account = accountRepository.findById(updateBlogByManager.getAccountId())
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, Account not found"));
 
+        if (!account.isActive() || !account.getRole().getRoleName().equals(RoleName.MANAGER.toString())) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, Account is not valid or not MANAGER");
+        }
         Blog blog = blogRepository.findById(updateBlogByManager.getId())
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
-        restrictedModelMapper.map(updateBlogByManager, account);
+
+        restrictedModelMapper.map(updateBlogByManager, blog);
 
         blog.setStatus(BlogStatus.APPROVED);
         blogRepository.save(blog);

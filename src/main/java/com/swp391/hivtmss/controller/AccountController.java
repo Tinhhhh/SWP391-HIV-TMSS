@@ -5,6 +5,7 @@ import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
 import com.swp391.hivtmss.model.payload.request.EditAccount;
 import com.swp391.hivtmss.model.payload.request.EditAccountByAdmin;
 import com.swp391.hivtmss.model.payload.request.NewAccount;
+import com.swp391.hivtmss.model.payload.response.AccountInfoResponse;
 import com.swp391.hivtmss.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,13 +14,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
-import com.swp391.hivtmss.model.payload.response.AccountInfoResponse;
-
 
 import java.util.UUID;
 
@@ -36,7 +34,7 @@ public class AccountController {
 
     @Operation(summary = "Change account's password", description = "Change account's password")
     @PostMapping("/change-password")
-    public ResponseEntity<Object> changePassword(HttpServletRequest request,@RequestParam String oldPassword, @RequestParam String newPassword) {
+    public ResponseEntity<Object> changePassword(HttpServletRequest request, @RequestParam String oldPassword, @RequestParam String newPassword) {
         accountService.changePassword(request, oldPassword, newPassword);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Change password successfully");
     }
@@ -49,7 +47,7 @@ public class AccountController {
 
     @Operation(summary = "Update current account info by user", description = "Update current account info by user")
     @PutMapping
-    public ResponseEntity<Object> updateAccount(HttpServletRequest request,@Valid @RequestBody EditAccount account) {
+    public ResponseEntity<Object> updateAccount(HttpServletRequest request, @Valid @RequestBody EditAccount account) {
         accountService.updateAccountInfo(request, account);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Update account successfully");
     }

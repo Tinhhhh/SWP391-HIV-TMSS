@@ -10,16 +10,25 @@ import java.util.UUID;
 
 public interface DoctorDegreeService {
     DoctorDegreeResponse createDoctorDegree(DoctorDegreeRequest doctorDegreeRequest);
+
     DoctorDegreeResponse getDoctorDegreeById(Long id);
+
     DoctorDegreeResponse getDoctorDegreeByAccountId(UUID accountId);
+
     List<DoctorDegreeResponse> getAllDoctorDegrees();
+
     DoctorDegreeResponse updateDoctorDegree(Long id, DoctorDegreeRequest doctorDegreeRequest);
+
     void deleteDoctorDegree(Long id);
 
     DoctorDegree getDoctorDegreeEntityById(Long id);
+
     DoctorDegreeResponse saveDoctorDegree(DoctorDegree doctorDegree);
+
     DoctorDegreeResponse uploadDegreeImages(Long id, List<MultipartFile> files);
+
     DoctorDegreeResponse deleteAllImages(Long doctorDegreeId);
+
     DoctorDegreeResponse deleteImageByUrl(Long doctorDegreeId, String imageUrl);
 
 }

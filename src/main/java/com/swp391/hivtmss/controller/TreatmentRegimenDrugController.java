@@ -1,26 +1,19 @@
 package com.swp391.hivtmss.controller;
 
-import com.swp391.hivtmss.model.entity.TreatmentRegimenDrug;
 import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
 import com.swp391.hivtmss.model.payload.request.TreatmentRegimenDrugRequest;
-
+import com.swp391.hivtmss.model.payload.response.ListResponse;
 import com.swp391.hivtmss.model.payload.response.TreatmentRegimenDrugResponse;
 import com.swp391.hivtmss.service.TreatmentRegimenDrugService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.data.domain.Page;
-import com.swp391.hivtmss.model.payload.response.ListResponse;
-import static com.swp391.hivtmss.util.AppConstants.DEFAULT_PAGE_NUMBER;
-import static com.swp391.hivtmss.util.AppConstants.DEFAULT_PAGE_SIZE;
-import static com.swp391.hivtmss.util.AppConstants.DEFAULT_SORT_BY;
-import static com.swp391.hivtmss.util.AppConstants.DEFAULT_SORT_DIRECTION;
-
-import java.util.List;
+import static com.swp391.hivtmss.util.AppConstants.*;
 
 @RestController
 @RequestMapping("/api/v1/treatment-regimen-drugs")
@@ -58,7 +51,6 @@ public class TreatmentRegimenDrugController {
                 new ListResponse(page.getContent(), pageNo, pageSize,
                         page.getTotalElements(), page.getTotalPages(), page.isLast()));
     }
-
 
 
     @Operation(summary = "Get a specific treatment regimen drug by ID")

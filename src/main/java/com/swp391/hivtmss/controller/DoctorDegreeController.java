@@ -1,7 +1,5 @@
 package com.swp391.hivtmss.controller;
 
-import com.swp391.hivtmss.model.entity.DegreeImg;
-import com.swp391.hivtmss.model.entity.DoctorDegree;
 import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
 import com.swp391.hivtmss.model.payload.request.DoctorDegreeRequest;
 import com.swp391.hivtmss.model.payload.response.DoctorDegreeResponse;

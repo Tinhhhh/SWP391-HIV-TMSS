@@ -37,7 +37,8 @@ public class BeanConfiguration {
         return new ModelMapper();
     }
 
-    @Bean ModelMapper restrictedModelMapper() {
+    @Bean
+    ModelMapper restrictedModelMapper() {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setFieldMatchingEnabled(true)
                 .setAmbiguityIgnored(true)

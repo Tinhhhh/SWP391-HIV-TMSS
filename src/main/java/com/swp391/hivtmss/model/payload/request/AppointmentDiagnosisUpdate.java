@@ -2,9 +2,6 @@ package com.swp391.hivtmss.model.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.hivtmss.model.payload.enums.*;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

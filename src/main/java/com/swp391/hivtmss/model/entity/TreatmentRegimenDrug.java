@@ -1,7 +1,6 @@
 package com.swp391.hivtmss.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

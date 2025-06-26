@@ -1,6 +1,5 @@
 package com.swp391.hivtmss.model.entity;
 
-import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import com.swp391.hivtmss.model.payload.enums.Classification;
 import com.swp391.hivtmss.model.payload.enums.StudyMode;
 import jakarta.persistence.*;

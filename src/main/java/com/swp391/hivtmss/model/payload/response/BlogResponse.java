@@ -1,10 +1,12 @@
 package com.swp391.hivtmss.model.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.swp391.hivtmss.model.entity.Account;
 import com.swp391.hivtmss.model.payload.enums.BlogStatus;
 import jakarta.persistence.Column;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;

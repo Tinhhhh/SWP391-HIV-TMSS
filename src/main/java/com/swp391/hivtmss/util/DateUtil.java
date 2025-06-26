@@ -78,7 +78,7 @@ public class DateUtil {
 
     }
 
-    public LocalDateTime getLocalDateTime(LocalDateTime date, int time){
+    public LocalDateTime getLocalDateTime(LocalDateTime date, int time) {
         return LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), time, 0);
     }
 
