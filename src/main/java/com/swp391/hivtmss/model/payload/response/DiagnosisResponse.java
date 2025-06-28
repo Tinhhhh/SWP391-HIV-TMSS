@@ -1,17 +1,11 @@
 package com.swp391.hivtmss.model.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.swp391.hivtmss.model.entity.Appointment;
-import com.swp391.hivtmss.model.entity.TestType;
 import com.swp391.hivtmss.model.payload.enums.*;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-
-import java.util.Date;
 
 @Getter
 @Setter

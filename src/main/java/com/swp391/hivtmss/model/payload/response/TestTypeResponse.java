@@ -1,15 +1,11 @@
 package com.swp391.hivtmss.model.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.swp391.hivtmss.model.entity.Diagnosis;
 import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -32,7 +28,6 @@ public class TestTypeResponse {
     @JsonProperty("is_active")
     private ActiveStatus isActive;
     private String applicable;
-
 
 
 }

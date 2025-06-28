@@ -5,6 +5,7 @@ import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
 import com.swp391.hivtmss.model.payload.request.EditAccount;
 import com.swp391.hivtmss.model.payload.request.EditAccountByAdmin;
 import com.swp391.hivtmss.model.payload.request.NewAccount;
+import com.swp391.hivtmss.model.payload.response.AccountInfoResponse;
 import com.swp391.hivtmss.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,8 +14,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -31,7 +34,7 @@ public class AccountController {
 
     @Operation(summary = "Change account's password", description = "Change account's password")
     @PostMapping("/change-password")
-    public ResponseEntity<Object> changePassword(HttpServletRequest request,@RequestParam String oldPassword, @RequestParam String newPassword) {
+    public ResponseEntity<Object> changePassword(HttpServletRequest request, @RequestParam String oldPassword, @RequestParam String newPassword) {
         accountService.changePassword(request, oldPassword, newPassword);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Change password successfully");
     }
@@ -44,7 +47,7 @@ public class AccountController {
 
     @Operation(summary = "Update current account info by user", description = "Update current account info by user")
     @PutMapping
-    public ResponseEntity<Object> updateAccount(HttpServletRequest request,@Valid @RequestBody EditAccount account) {
+    public ResponseEntity<Object> updateAccount(HttpServletRequest request, @Valid @RequestBody EditAccount account) {
         accountService.updateAccountInfo(request, account);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Update account successfully");
     }
@@ -85,4 +88,18 @@ public class AccountController {
         return ResponseBuilder.returnMessage(HttpStatus.CREATED, "Create new account successfully");
     }
 
+    // Fix the uploadAvatar method
+    @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload account avatar",
+            description = "Upload or replace an account avatar. The old avatar will be replaced if it exists.")
+    public ResponseEntity<?> uploadAvatar(
+            HttpServletRequest request,
+            @RequestParam("file") MultipartFile file) {
+        AccountInfoResponse updatedAccount = accountService.uploadAvatar(request, file);
+        return ResponseBuilder.returnData(
+                HttpStatus.OK,
+                "Avatar uploaded successfully",
+                updatedAccount
+        );
+    }
 }

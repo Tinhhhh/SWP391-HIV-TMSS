@@ -46,7 +46,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(){
+    public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory());
 
@@ -71,7 +71,6 @@ public class RedisConfig {
         objectMapper.registerModule(module);
         return objectMapper;
     }
-
 
 
 }

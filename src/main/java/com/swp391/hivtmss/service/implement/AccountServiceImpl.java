@@ -17,6 +17,7 @@ import com.swp391.hivtmss.repository.AccountRepository;
 import com.swp391.hivtmss.repository.RoleRepository;
 import com.swp391.hivtmss.security.JwtTokenProvider;
 import com.swp391.hivtmss.service.AccountService;
+import com.swp391.hivtmss.service.CloudinaryService;
 import com.swp391.hivtmss.service.EmailService;
 import com.swp391.hivtmss.util.AccountSpecification;
 import com.swp391.hivtmss.util.DateUtil;
@@ -33,7 +34,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -49,6 +52,7 @@ public class AccountServiceImpl implements AccountService {
     private final ModelMapper modelMapper;
     private final ModelMapper restrictedModelMapper;
     private final EmailService emailService;
+    private final CloudinaryService cloudinaryService;
 
     @Override
     public void changePassword(HttpServletRequest request, String oldPassword, String newPassword) {
@@ -195,5 +199,36 @@ public class AccountServiceImpl implements AccountService {
         emailService.sendAccountInformation(
                 account.fullName(), account.getEmail(), password, account.getEmail(),
                 EmailTemplateName.CREATE_ACCOUNT.getName(), "[HIV TMSS service] Thông tin tài khoản của bạn đã đăng ký, cảm ơn đã sử dụng hệ thống của chúng tôi");
+    }
+
+    @Override
+    public AccountInfoResponse uploadAvatar(HttpServletRequest request, MultipartFile file) {
+        try {
+            String email = extractEmail(request);
+            Account account = accountRepository.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("Account not found with email: " + email));
+
+            // Delete old avatar if exists
+            if (account.getAvatar() != null && !account.getAvatar().isEmpty()) {
+                try {
+                    cloudinaryService.deleteFile(account.getAvatar());
+                } catch (IOException e) {
+                    // Log error but continue with upload
+                    System.err.println("Failed to delete old avatar: " + e.getMessage());
+                }
+            }
+
+            // Upload new avatar
+            String avatarUrl = cloudinaryService.uploadFile(file);
+            account.setAvatar(avatarUrl);
+            accountRepository.save(account);
+
+            // Return updated account info
+            AccountInfoResponse accountInfoResponse = modelMapper.map(account, AccountInfoResponse.class);
+            accountInfoResponse.setRoleName(account.getRole().getRoleName());
+            return accountInfoResponse;
+        } catch (IOException e) {
+            throw new HivtmssException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload avatar: " + e.getMessage());
+        }
     }
 }

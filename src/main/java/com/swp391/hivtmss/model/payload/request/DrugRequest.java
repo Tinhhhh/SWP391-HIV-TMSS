@@ -3,12 +3,10 @@ package com.swp391.hivtmss.model.payload.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import com.swp391.hivtmss.model.payload.enums.DrugType;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 import java.util.Date;
 

@@ -9,6 +9,7 @@ import com.swp391.hivtmss.model.payload.response.AccountReponseForAdmin;
 import com.swp391.hivtmss.model.payload.response.ListResponse;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -27,4 +28,5 @@ public interface AccountService {
 
     void createAccountByAdmin(NewAccount account) throws MessagingException;
 
+    AccountInfoResponse uploadAvatar(HttpServletRequest request, MultipartFile file);
 }

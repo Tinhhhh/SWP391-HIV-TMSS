@@ -24,12 +24,12 @@ public class AppointmentUpdate {
 
     @JsonProperty("first_name")
     @Pattern(regexp = "^[\\p{L}\\s]*$", message = "First name contain only characters")
-    @Size(max = 50, message = "First name must be less than 50 characters")
+    @Size(max = 100, message = "First name must be less than 50 characters")
     private String firstName;
 
     @JsonProperty("last_name")
     @Pattern(regexp = "^[\\p{L}\\s]*$", message = "Last name contain only characters")
-    @Size(max = 50, message = "Last name must be less than 50 characters")
+    @Size(max = 100, message = "Last name must be less than 50 characters")
     private String lastName;
 
     private Gender gender;

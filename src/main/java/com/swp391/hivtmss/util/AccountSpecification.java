@@ -10,7 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 @UtilityClass
 public class AccountSpecification {
 
-    public Specification<Account>hasEmailOrFullName(String keyword) {
+    public Specification<Account> hasEmailOrFullName(String keyword) {
         return (root, query, cb) -> {
 
             if (keyword == null || keyword.trim().isEmpty()) {

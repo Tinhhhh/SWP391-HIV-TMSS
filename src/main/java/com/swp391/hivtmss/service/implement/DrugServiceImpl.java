@@ -1,15 +1,11 @@
 package com.swp391.hivtmss.service.implement;
 
-import com.swp391.hivtmss.model.entity.Blog;
 import com.swp391.hivtmss.model.entity.Drug;
-import com.swp391.hivtmss.model.entity.TestType;
 import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import com.swp391.hivtmss.model.payload.exception.HivtmssException;
 import com.swp391.hivtmss.model.payload.exception.ResourceNotFoundException;
 import com.swp391.hivtmss.model.payload.request.DrugRequest;
-import com.swp391.hivtmss.model.payload.response.BlogResponse;
 import com.swp391.hivtmss.model.payload.response.DrugResponse;
-import com.swp391.hivtmss.model.payload.response.TestTypeResponse;
 import com.swp391.hivtmss.repository.DrugRepository;
 import com.swp391.hivtmss.service.DrugService;
 import lombok.RequiredArgsConstructor;
@@ -78,7 +74,7 @@ public class DrugServiceImpl implements DrugService {
 
     }
 
-    public DrugResponse convertToResponse(Drug drug){
+    public DrugResponse convertToResponse(Drug drug) {
         return new DrugResponse(
                 drug.getId(),
                 drug.getName(),

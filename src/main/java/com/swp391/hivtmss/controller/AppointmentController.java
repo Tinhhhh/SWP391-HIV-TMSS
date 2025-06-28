@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.UUID;
 
 import static com.swp391.hivtmss.util.AppConstants.*;
-import static com.swp391.hivtmss.util.AppConstants.DEFAULT_SORT_DIRECTION;
 
 @RestController
 @RequiredArgsConstructor

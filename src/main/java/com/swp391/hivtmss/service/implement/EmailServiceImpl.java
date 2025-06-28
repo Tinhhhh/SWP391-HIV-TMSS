@@ -56,6 +56,22 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Override
+    @Async
+    public void sendAppointmentFollowUpNotification(String name, String to, String appointmentDate, String patientName, String template, String subject) throws MessagingException {
+        try {
+            String senderNickName = "Customer Service Team at HIV Treatment and Medical Services System";
+            Context context = new Context();
+            context.setVariable("username", name);
+            context.setVariable("appointmentDate", appointmentDate);
+            context.setVariable("patientName", patientName);
+            extractTemplate(to, template, subject, senderNickName, context);
+        } catch (Exception exception) {
+            System.out.println("Error: " + exception.getMessage());
+            throw new RuntimeException("Error: " + exception.getMessage());
+        }
+    }
+
     private void extractTemplate(String sentTo, String template, String subject, String senderNickName, Context context) throws MessagingException, UnsupportedEncodingException {
         String text = templateEngine.process(template, context);
         MimeMessage message = getMessage();

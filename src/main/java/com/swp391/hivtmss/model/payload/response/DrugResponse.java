@@ -3,7 +3,6 @@ package com.swp391.hivtmss.model.payload.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import com.swp391.hivtmss.model.payload.enums.DrugType;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

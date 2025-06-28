@@ -6,4 +6,6 @@ public interface EmailService {
     void sendAccountInformation(String name, String email, String password, String to, String template, String subject) throws MessagingException;
 
     void sendMimeMessageWithHtml(String name, String to, String content, String template, String subject) throws MessagingException;
+
+    void sendAppointmentFollowUpNotification(String name, String to, String appointmentDate, String patientName, String template, String subject) throws MessagingException;
 }

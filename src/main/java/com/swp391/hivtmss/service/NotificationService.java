@@ -5,7 +5,7 @@ import java.util.UUID;
 public interface NotificationService {
 
     //When new appointment is created
-    void newAppointment(UUID doctorId, UUID customerId);
+    void newAppointment(UUID doctorId, UUID customerId, Long appointmentId);
 
     void appointmentFinished(UUID customerId);
 

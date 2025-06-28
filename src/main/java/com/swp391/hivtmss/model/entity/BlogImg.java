@@ -11,20 +11,19 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "degree_img")
-public class DegreeImg {
+@Table(name = "blog_img")
+public class BlogImg {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "degree_img_id")
+    @Column(name = "blog_img_id")
     private Long id;
 
     @Column(name = "img_url")
     private String imgUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_degree_id", nullable = false)
-    private DoctorDegree doctorDegree;
-
+    @ManyToOne
+    @JoinColumn(name = "blog_id", nullable = false)
+    private Blog blog;
 
 }

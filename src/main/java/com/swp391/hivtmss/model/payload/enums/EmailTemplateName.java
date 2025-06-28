@@ -5,7 +5,8 @@ import lombok.Getter;
 @Getter
 public enum EmailTemplateName {
     CREATE_ACCOUNT("CREATE_ACCOUNT"),
-    FORGOT_PASSWORD("FORGOT_PASSWORD");
+    FORGOT_PASSWORD("FORGOT_PASSWORD"),
+    APPOINTMENT_REMINDER("APPOINTMENT_REMINDER");
 
     private final String name;
 
