@@ -32,7 +32,7 @@ public class TestTypeController {
 
     @Operation(summary = "Get Test-Type By TestTypeID", description = "Get TestType By ID")
     @GetMapping
-    public ResponseEntity<Object> getTestTypeById(@PathParam("id") Long id) {
+    public ResponseEntity<Object> getTestTypeById(@RequestParam("id") Long id) {
 
         return ResponseBuilder.returnData(HttpStatus.OK, "this your Test-Type with TestTypeID: " + id,
                 testTypeService.getTestTypeByID(id));
@@ -50,7 +50,7 @@ public class TestTypeController {
 
     @Operation(summary = "Update Test-Type By ID", description = "Get Test-Type By ID")
     @PutMapping
-    public ResponseEntity<Object> updateTestType(@PathParam("id") Long id,
+    public ResponseEntity<Object> updateTestType(@RequestParam("id") Long id,
                                                  @Valid @RequestBody TestTypeRequest testTypeRequest) {
 
         testTypeService.updateTestType(id, testTypeRequest);
@@ -59,7 +59,7 @@ public class TestTypeController {
 
     @Operation(summary = "Delete Test-Type", description = "Delete Test-Type")
     @DeleteMapping
-    public ResponseEntity<Object> deleteTestType(@PathParam("id") Long id,
+    public ResponseEntity<Object> deleteTestType(@RequestParam("id") Long id,
                                                  @Valid @RequestBody TestTypeRequest testTypeRequest) {
         // delete TestType by change TestType , not delete all information
 

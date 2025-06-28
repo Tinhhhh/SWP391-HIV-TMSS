@@ -33,7 +33,7 @@ public class BlogController {
 
     @Operation(summary = "Get Blog By BlogID", description = "Get Blog By BlogID")
     @GetMapping
-    public ResponseEntity<Object> getBlogById(@PathParam("id") Long id) {
+    public ResponseEntity<Object> getBlogById(@RequestParam("id") Long id) {
 
         return ResponseBuilder.returnData(HttpStatus.OK, "Get BlogByID Successfully",
                 blogService.getBlogById(id));
@@ -41,7 +41,7 @@ public class BlogController {
 
     @Operation(summary = "Get All Blogs By AccountID", description = "Get All Blogs By AccountID")
     @GetMapping("/account")
-    public ResponseEntity<Object> getBlogByAccountId(@PathParam("accountId") UUID accountId) {
+    public ResponseEntity<Object> getBlogByAccountId(@RequestParam("accountId") UUID accountId) {
 
         List<BlogResponse> blogResponseList = blogService.getBlogByAccountId(accountId);
         return ResponseBuilder.returnData(HttpStatus.OK, "Get All Blog By AccountID Successfully",
@@ -57,14 +57,14 @@ public class BlogController {
 
     @Operation(summary = "Update Blog By ID", description = "Get Blog By ID")
     @PutMapping
-    public ResponseEntity<Object> updateBlog(@PathParam("id") Long id,@Valid @RequestBody UpdateBlog updateBlog) {
+    public ResponseEntity<Object> updateBlog(@RequestParam("id") Long id,@Valid @RequestBody UpdateBlog updateBlog) {
         blogService.updateBlog(id, updateBlog);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Update Blog Successfully");
     }
 
     @Operation(summary = "Delete Blog", description = "Delete Blog")
     @DeleteMapping
-    public ResponseEntity<Object> deleteBlog(@PathParam("id") Long id,
+    public ResponseEntity<Object> deleteBlog(@RequestParam("id") Long id,
                                              @Valid @RequestBody UpdateBlogByCustomer updateBlogByCustomer) {
         // delete blog by change blog status , not delete all information
         blogService.deleteBlog(id, updateBlogByCustomer);

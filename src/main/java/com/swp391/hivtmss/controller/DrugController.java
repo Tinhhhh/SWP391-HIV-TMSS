@@ -32,7 +32,7 @@ public class DrugController {
 
     @Operation(summary = "Get Drug By DrugID", description = "Get Drug By DrugID")
     @GetMapping
-    public ResponseEntity<Object> getDrugById(@PathParam("id") Long id) {
+    public ResponseEntity<Object> getDrugById(@RequestParam("id") Long id) {
 
         return ResponseBuilder.returnData(HttpStatus.OK, "Get DrugByID Successfully",
                 drugService.getDrugById(id));
@@ -47,9 +47,8 @@ public class DrugController {
 
     @Operation(summary = "Delete Drug", description = "Delete Drug")
     @DeleteMapping
-    public ResponseEntity<Object> deleteDrug(@PathParam("id") Long id,
+    public ResponseEntity<Object> deleteDrug(@RequestParam("id") Long id,
                                                  @Valid @RequestBody DrugRequest drugRequest) {
-        // delete Drug by change TestType , not delete all information
 
         drugService.deleteDrug(id, drugRequest);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Drug is Delete successfully");
@@ -58,7 +57,7 @@ public class DrugController {
 
     @Operation(summary = "Update Drug By ID", description = "Get Drug By ID")
     @PutMapping
-    public ResponseEntity<Object> updateDrug(@PathParam("id") Long id,
+    public ResponseEntity<Object> updateDrug(@RequestParam("id") Long id,
                                                  @Valid @RequestBody DrugRequest drugRequest) {
 
         drugService.updateDrug(id, drugRequest);
