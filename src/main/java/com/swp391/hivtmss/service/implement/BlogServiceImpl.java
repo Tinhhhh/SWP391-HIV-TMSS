@@ -101,7 +101,7 @@ public class BlogServiceImpl implements BlogService {
         blog.setTitle(updateBlog.getTitle());
         blog.setContent(updateBlog.getContent());
         blog.setCreatedDate(new Date());
-
+        blog.setHidden(true);
         blogRepository.save(blog);
 
     }

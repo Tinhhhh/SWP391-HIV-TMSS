@@ -36,4 +36,6 @@ public interface BlogService {
     BlogResponse deleteAllImages(Long blogId);
 
     BlogResponse deleteImageByUrl(Long blogId, String imageUrl);
+
+
 }

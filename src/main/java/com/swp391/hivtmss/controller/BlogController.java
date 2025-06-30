@@ -3,14 +3,18 @@ package com.swp391.hivtmss.controller;
 import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
 import com.swp391.hivtmss.model.payload.request.*;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
+import com.swp391.hivtmss.model.payload.response.DoctorDegreeResponse;
 import com.swp391.hivtmss.service.BlogService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -50,9 +54,10 @@ public class BlogController {
 
     @Operation(summary = "Get All Blog ", description = "Get All Blog")
     @GetMapping("/all")
-    public ResponseEntity<List<BlogResponse>> getAllBlog() {
+    public ResponseEntity<Object> getAllBlog() {
         List<BlogResponse> blog = blogService.getAllBlogs();
-        return ResponseEntity.ok(blog);
+        return ResponseBuilder.returnData(HttpStatus.OK,"Get All Blog successfully",
+                blog);
     }
 
     @Operation(summary = "Update Blog By ID", description = "Get Blog By ID")
@@ -72,8 +77,10 @@ public class BlogController {
     }
 
 
-    @Operation(summary = "Update Blogs status with account:Manager ", description = "Update the Blog status By Role. Role required: MANAGER")
+    @Operation(summary = "Update Blogs status with account:Manager ",
+            description = "Update the Blog status By Role. Role required: MANAGER")
     @PutMapping("/approved")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Object> updateBlogByRole(
             @RequestBody UpdateBlogByManager updateBlogByManager) {
 
@@ -84,7 +91,8 @@ public class BlogController {
 
     @Operation(summary = "Rejected Blog status ", description = "Reject the status of an Blog. Role required: MANAGER")
     @PutMapping("/rejected")
-    public ResponseEntity<Object> cancelAppointment(@RequestParam("id") Long id) {
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<Object> cancelBlog(@RequestParam("id") Long id) {
         blogService.cancelBlog(id);
         return ResponseBuilder.returnMessage(
                 HttpStatus.OK, "Blog Status rejected successfully");
@@ -102,6 +110,5 @@ public class BlogController {
                 HttpStatus.OK, "Successfully retrieved Blog for customer",
                 blogService.getAllBlog(pageNo, pageSize, sortBy, sortDir, searchTerm));
     }
-
 
 }
