@@ -30,6 +30,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     @Transactional
-    public void createBlog(BlogRequest blogRequest) {
+    public void createBlog(BlogRequest blogRequest, List<MultipartFile> files) {
         Account account = accountRepository.findById(blogRequest.getAccountID())
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
@@ -67,6 +68,10 @@ public class BlogServiceImpl implements BlogService {
         blog.setAccount(account);
 
         Blog savedBlog = blogRepository.save(blog);
+        if (files != null && !files.isEmpty()) {
+            uploadBlogImg(savedBlog.getId(), files);
+        }
+
         convertToResponse(savedBlog);
     }
 

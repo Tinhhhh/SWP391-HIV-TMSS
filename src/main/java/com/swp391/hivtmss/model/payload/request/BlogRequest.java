@@ -1,5 +1,6 @@
 package com.swp391.hivtmss.model.payload.request;
 
+import com.swp391.hivtmss.model.entity.BlogImg;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -23,7 +25,7 @@ public class BlogRequest {
     private String content;
 
     @NotNull(message = "ImageUrl cannot be null")
-    private String imageUrl;
+    private List<BlogImg> imageUrl;
 
     private UUID accountID;
 }

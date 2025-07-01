@@ -30,8 +30,9 @@ public class BlogController {
 
     @Operation(summary = "Create Blog By Account", description = "Create Blog By Account")
     @PostMapping
-    public ResponseEntity<Object> createBlog(@Valid @RequestBody BlogRequest blogRequest) {
-        blogService.createBlog(blogRequest);
+    public ResponseEntity<Object> createBlog(@Valid @RequestBody BlogRequest blogRequest,
+                                             @RequestParam(value = "files") List<MultipartFile> files) {
+        blogService.createBlog(blogRequest, files);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Blog created successfully");
     }
 
@@ -109,6 +110,33 @@ public class BlogController {
         return ResponseBuilder.returnData(
                 HttpStatus.OK, "Successfully retrieved Blog for customer",
                 blogService.getAllBlog(pageNo, pageSize, sortBy, sortDir, searchTerm));
+    }
+
+
+    @PostMapping(value = "/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> uploadBlogImg(
+            @RequestParam("blogId") Long blogId,
+            @RequestParam(value = "files") List<MultipartFile> files) {
+        BlogResponse blogImg = blogService.uploadBlogImg(blogId, files);
+        return ResponseBuilder.returnData(
+                HttpStatus.OK,
+                "Images uploaded successfully",
+                blogImg
+        );
+    }
+
+    @DeleteMapping("/images")
+    public ResponseEntity<Object> deleteAllImages(@RequestParam("blogId") Long blogId) {
+        BlogResponse blogImg = blogService.deleteAllImages(blogId);
+        return ResponseBuilder.returnData(HttpStatus.OK, "All images deleted successfully", blogImg);
+    }
+
+    @DeleteMapping("/images/by-url")
+    public ResponseEntity<Object> deleteImageByUrl(
+            @RequestParam("blogId") Long blogId,
+            @RequestParam("imageUrl") String imageUrl) {
+        BlogResponse blogImg = blogService.deleteImageByUrl(blogId, imageUrl);
+        return ResponseBuilder.returnData(HttpStatus.OK, "Image deleted successfully", blogImg);
     }
 
 }
