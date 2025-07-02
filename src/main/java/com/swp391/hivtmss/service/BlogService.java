@@ -22,7 +22,7 @@ public interface BlogService {
 
     List<BlogResponse> getAllBlogs();
 
-    void updateBlog(Long id, UpdateBlog updateBlog);
+    void updateBlog(Long id, UpdateBlog updateBlog, List<MultipartFile> files);
 
     void deleteBlog(Long id, UpdateBlogByCustomer updateBlogByCustomer);
 

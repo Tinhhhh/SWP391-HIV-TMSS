@@ -63,8 +63,10 @@ public class BlogController {
 
     @Operation(summary = "Update Blog By ID", description = "Get Blog By ID")
     @PutMapping
-    public ResponseEntity<Object> updateBlog(@RequestParam("id") Long id,@Valid @RequestBody UpdateBlog updateBlog) {
-        blogService.updateBlog(id, updateBlog);
+    public ResponseEntity<Object> updateBlog(@RequestParam("id") Long id,
+                                             @Valid @RequestBody UpdateBlog updateBlog,
+                                             @RequestParam(value = "files") List<MultipartFile> files) {
+        blogService.updateBlog(id, updateBlog, files);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Update Blog Successfully");
     }
 
