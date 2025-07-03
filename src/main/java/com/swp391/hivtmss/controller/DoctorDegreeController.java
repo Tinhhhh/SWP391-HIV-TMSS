@@ -51,7 +51,6 @@ public class DoctorDegreeController {
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get all doctor degrees",
             description = "Retrieve all doctor degrees. Role required: ADMIN")
     public ResponseEntity<?> getAllDoctorDegrees() {
@@ -70,7 +69,6 @@ public class DoctorDegreeController {
     }
 
     @DeleteMapping("/delete")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete doctor degree",
             description = "Delete a doctor degree by ID. Role required: ADMIN")
     public ResponseEntity<?> deleteDoctorDegree(@RequestParam("id") Long id) {

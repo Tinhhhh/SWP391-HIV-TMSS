@@ -27,6 +27,8 @@ public class Notification {
 
     private String title;
     private String content;
+
+    @Enumerated(EnumType.STRING)
     private NotificationStatus status;
 
     @CreatedDate
