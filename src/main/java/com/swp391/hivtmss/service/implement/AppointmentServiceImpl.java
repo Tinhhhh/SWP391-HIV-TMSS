@@ -15,6 +15,7 @@ import com.swp391.hivtmss.model.payload.response.ListResponse;
 import com.swp391.hivtmss.repository.*;
 import com.swp391.hivtmss.service.AppointmentService;
 import com.swp391.hivtmss.service.EmailService;
+import com.swp391.hivtmss.service.NotificationService;
 import com.swp391.hivtmss.util.AppointmentSpecification;
 import com.swp391.hivtmss.util.AppointmentTime;
 import com.swp391.hivtmss.util.DateUtil;
@@ -49,9 +50,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final TreatmentRegimenRepository treatmentRegimenRepository;
     private final TreatmentRepository treatmentRepository;
     private final TreatmentRegimenDrugRepository treatmentRegimenDrugRepository;
-    private final AppointmentChangeRepository appointmentChangeRepository;
-    private final NotificationRepository notificationRepository;
     private final EmailService emailService;
+    private final NotificationService notificationService;
 
     @Override
     public List<DoctorResponse> getAvailableDoctors(Date startTime) {
@@ -118,9 +118,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(AppointmentStatus.PENDING);
         appointment.setNextFollowUpReminder(false);
 
-        appointmentRepository.save(appointment);
+        appointment = appointmentRepository.save(appointment);
 
         // Tạo notification cho bác sĩ và khách hàng
+        notificationService.newAppointment(appointment.getId());
 
     }
 
@@ -181,7 +182,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
-    public void updateAppointmentTreatment(AppointmentUpdate appointmentUpdate) {
+    public void updateAppointmentTreatment(AppointmentUpdate appointmentUpdate) throws MessagingException {
         Appointment appointment = appointmentRepository.findById(appointmentUpdate.getAppointmentId())
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment not found"));
 
@@ -216,6 +217,19 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(AppointmentStatus.COMPLETED);
         appointment.setNextFollowUp(DateUtil.convertToStartOfTheDay(appointmentUpdate.getNextFollowUp()));
         appointmentRepository.save(appointment);
+
+        // Tạo notification cho bác sĩ và khách hàng
+        notificationService.appointmentFinished(appointment.getId());
+        // Gửi email thông báo cho khách hàng
+        emailService.sendAppointmentFinishedNotification(
+                appointment.getCustomer().fullName(),
+                appointment.getCustomer().getEmail(),
+                appointment,
+                EmailTemplateName.APPOINTMENT_FINISHED.getName(),
+                "[HIV TMSS service] Thông báo kết quả xét nghiệm và điều trị HIV"
+        );
+
+
     }
 
     @Override
@@ -378,5 +392,17 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
     }
 
+
+    public void testEmail() throws MessagingException {
+        Appointment appointment = appointmentRepository.findById(6L)
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment not found"));
+        emailService.sendAppointmentFinishedNotification(
+                appointment.getCustomer().fullName(),
+                appointment.getCustomer().getEmail(),
+                appointment,
+                EmailTemplateName.APPOINTMENT_FINISHED.getName(),
+                "[HIV TMSS service] Thông báo kết quả xét nghiệm và điều trị HIV"
+        );
+    }
 
 }

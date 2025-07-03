@@ -14,6 +14,7 @@ import com.swp391.hivtmss.repository.AccountRepository;
 import com.swp391.hivtmss.repository.AppointmentChangeRepository;
 import com.swp391.hivtmss.repository.AppointmentRepository;
 import com.swp391.hivtmss.service.AppointmentChangeService;
+import com.swp391.hivtmss.service.NotificationService;
 import com.swp391.hivtmss.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -39,6 +40,7 @@ public class AppointmentChangeServiceImpl implements AppointmentChangeService {
     private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
     private final ModelMapper restrictedModelMapper;
+    private final NotificationService notificationService;
 
 
     @Override
@@ -89,6 +91,7 @@ public class AppointmentChangeServiceImpl implements AppointmentChangeService {
         appointmentChangeRepository.save(appointmentChange);
 
         // Tạo notification cho bác sĩ và khách hàng
+        notificationService.appointmentDoctorChange(oldDoctor, newDoctor);
 
     }
 
@@ -176,6 +179,7 @@ public class AppointmentChangeServiceImpl implements AppointmentChangeService {
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment change not found"));
 
         Appointment appointment = appointmentChange.getAppointment();
+        boolean isAccepted = false;
 
         // Chỉ có thể thay đổi trạng thái của lịch sử cuộc hẹn nếu nó đang ở trạng thái PENDING
         if (appointmentChange.getStatus() != AppointmentChangeStatus.PENDING) {
@@ -190,12 +194,16 @@ public class AppointmentChangeServiceImpl implements AppointmentChangeService {
         if (status == AppointmentChangeStatus.ACCEPTED) {
             appointment.setDoctor(appointmentChange.getNewDoctor());
             appointmentRepository.save(appointment);
+            isAccepted = true;
 
         }
 
         // Nếu status là Rejected, không cần làm gì thêm, chỉ cần cập nhật trạng thái của lịch sử cuộc hẹn
         appointmentChange.setStatus(status);
         appointmentChangeRepository.save(appointmentChange);
+
+        //Gửi notification cho bác sĩ và khách hàng
+        notificationService.appointmentChangeReply(appointment, appointmentChange.getNewDoctor(), appointmentChange.getOldDoctor(), isAccepted );
 
     }
 

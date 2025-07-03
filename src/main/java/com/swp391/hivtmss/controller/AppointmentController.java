@@ -8,6 +8,7 @@ import com.swp391.hivtmss.service.AppointmentService;
 import com.swp391.hivtmss.util.DateUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -79,7 +80,7 @@ public class AppointmentController {
     @Operation(summary = "Update appointment details including treatment method", description = "Update the details of an appointment. Role required: DOCTOR")
     @PutMapping("/treatment")
     public ResponseEntity<Object> updateAppointmentDetails(
-            @RequestBody AppointmentUpdate appointmentUpdate) {
+            @RequestBody AppointmentUpdate appointmentUpdate) throws MessagingException {
 
         appointmentService.updateAppointmentTreatment(appointmentUpdate);
         return ResponseBuilder.returnMessage(
@@ -126,6 +127,12 @@ public class AppointmentController {
                 HttpStatus.OK, "Successfully retrieved appointments",
                 appointmentService.getAllAppointment(pageNo, pageSize, sortBy, sortDir, searchTerm));
     }
+
+//    @GetMapping("test")
+//    public ResponseEntity<Object> test() throws MessagingException {
+//        appointmentService.testEmail();
+//        return ResponseBuilder.returnMessage(HttpStatus.OK, "Test successful");
+//    }
 
 
 }
