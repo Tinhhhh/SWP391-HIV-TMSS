@@ -24,8 +24,5 @@ public class BlogRequest {
     @NotNull(message = "Content cannot be blank")
     private String content;
 
-    @NotNull(message = "ImageUrl cannot be null")
-    private List<BlogImg> imageUrl;
-
     private UUID accountID;
 }

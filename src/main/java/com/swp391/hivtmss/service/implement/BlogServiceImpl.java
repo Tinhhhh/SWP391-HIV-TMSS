@@ -65,7 +65,7 @@ public class BlogServiceImpl implements BlogService {
         blog.setCreatedDate(new Date());
         blog.setHidden(true);
         blog.setAccount(account);
-
+        blogRepository.save(blog);
         if (files != null && !files.isEmpty()) {
                 List<BlogImg> images = new ArrayList<>();
                 for (MultipartFile file : files) {
@@ -90,7 +90,7 @@ public class BlogServiceImpl implements BlogService {
                 blog.setBlogImgs(images);
                 blog.setLastModifiedDate(new Date());
         }
-        blogRepository.save(blog);
+
         convertToResponse(blog);
 
     }
@@ -128,6 +128,7 @@ public class BlogServiceImpl implements BlogService {
         blog.setCreatedDate(new Date());
         blog.setHidden(true);
 
+        blogRepository.save(blog);
 
         if (files != null && !files.isEmpty()) {
             List<BlogImg> images = new ArrayList<>();
@@ -153,7 +154,7 @@ public class BlogServiceImpl implements BlogService {
             blog.setBlogImgs(images);
             blog.setLastModifiedDate(new Date());
         }
-        blogRepository.save(blog);
+
     }
 
     @Override

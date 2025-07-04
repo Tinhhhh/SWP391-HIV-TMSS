@@ -21,8 +21,6 @@ public class UpdateBlog {
     @NotNull(message = "Content cannot be blank")
     private String content;
 
-    @NotNull(message = "ImageUrl cannot be null")
-    private List<BlogImg> imageUrl;
 
 
 }

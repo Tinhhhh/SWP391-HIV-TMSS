@@ -29,8 +29,8 @@ public class BlogController {
 
 
     @Operation(summary = "Create Blog By Account", description = "Create Blog By Account")
-    @PostMapping
-    public ResponseEntity<Object> createBlog(@Valid @RequestBody BlogRequest blogRequest,
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> createBlog(@Valid @ModelAttribute  BlogRequest blogRequest,
                                              @RequestParam(value = "files") List<MultipartFile> files) {
         blogService.createBlog(blogRequest, files);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Blog created successfully");
@@ -62,9 +62,9 @@ public class BlogController {
     }
 
     @Operation(summary = "Update Blog By ID", description = "Get Blog By ID")
-    @PutMapping
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> updateBlog(@RequestParam("id") Long id,
-                                             @Valid @RequestBody UpdateBlog updateBlog,
+                                             @Valid @ModelAttribute UpdateBlog updateBlog,
                                              @RequestParam(value = "files") List<MultipartFile> files) {
         blogService.updateBlog(id, updateBlog, files);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Update Blog Successfully");
