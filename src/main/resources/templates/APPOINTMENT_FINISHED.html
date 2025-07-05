@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>[HIV-TMSS] Thông báo kết quả xét nghiệm và phương hướng điều trị </title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #dddddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .header img {
+            max-width: 200px; /* Increase the size of the logo */
+        }
+
+        .content {
+            text-align: center;
+            font-size: 16px;
+            color: #333333;
+        }
+
+        .content h2 {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+
+        .verification-code {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 15px 30px;
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffffff;
+            border: 2px solid #ff6347;
+            border-radius: 5px;
+            background-color: #ff6347; /* Change color to #ff6347 */
+            letter-spacing: 5px;
+        }
+
+        .verification-link {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #ff6347; /* Change text color to #ff6347 */
+            border: 2px solid #ff6347; /* Change border color to #ff6347 */
+            border-radius: 5px;
+            background-color: transparent; /* Set background to transparent */
+            text-decoration: none;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #888888;
+            margin-top: 20px;
+        }
+
+        .footer a {
+            color: #888888;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+
+        .footer .social-icons {
+            margin: 20px 0;
+        }
+
+        .footer .social-icons img {
+            width: 24px;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!--    <div class="header">-->
+    <!--        <img alt="H Logo" src="https://i.imgur.com/n8FA1lf.png">-->
+    <!--    </div>-->
+    <div class="content">
+        <p th:text="'Xin chào '+ ${username}+ ','"></p>
+        <p>Bên dưới là kết quả xét nghiệm và phương hướng điều trị của bạn </p>
+        <p th:text="'Tên bệnh nhân ' + ${patientName}"></p>
+        <p th:text="'Thời gian hẹn khám: ' + ${appointmentDate}"></p>
+        <h2>Kết quả xét nghiệm</h2>
+        <p th:text="'Loại xét nghiệm: ' + ${testType}"></p>
+        <p th:if="${sampleType != null}" th:text="'Mẫu xét nghiệm: ' + ${sampleType}"></p>
+        <p th:if="${result != null}" th:text="'Kết quả xét nghiệm: ' + ${result}"></p>
+        <p th:if="${resultType != null}" th:text="'Chuẩn đoán: ' + ${resultType}"></p>
+        <p th:if="${virusType != null}" th:text="'Loại virus: ' + ${virusType}"></p>
+        <p th:if="${agAbResult != null}" th:text="'Kết quả xét nghiệm Ag Ab: ' + ${agAbResult}"></p>
+        <p th:if="${cd4 != null}" th:text="'Tải lượng cd4: ' + ${cd4}"></p>
+        <p th:if="${virusLoad != null}" th:text="'Tải lượng virus: ' + ${virusLoad}"></p>
+        <p th:if="${pcrType != null}" th:text="'Loại PCR: ' + ${pcrType}"></p>
+        <p th:if="${clinicalStage != null}" th:text="'Giai đoạn: ' + ${clinicalStage}"></p>
+        <p th:if="${note != null}" th:text="'Ghi chú: ' + ${note}"></p>
+        <h2>Phương hướng điều trị</h2>
+        <p th:text="'Sử dụng thuốc kết hợp: ' + ${drugs}"></p>
+        <p th:text="'Dặn dò của bác sĩ:  ' + (${doctorAdvice} != null ? ${doctorAdvice} : 'Không có')"></p>
+        <p>Xin hãy tuân thủ theo phương hướng điều trị và sử dụng thuốc theo đúng chỉ định của bác sĩ để đạt được kết
+            quả điều trị tốt nhất.</p>
+    </div>
+    <div class="footer">
+        <div class="social-icons">
+            <a href="#">
+                <img alt="Facebook" src="https://i.imgur.com/NBqZYzn.png"></a>
+            <a href="#"><img alt="Twitter" src="https://imgur.com/7LPMq2B.png"></a>
+            <a href="#"><img alt="Instagram" src="https://imgur.com/FlPZGYu.png"
+                             style="width: 24px"></a>
+        </div>
+        <p><a href="#">Chính sách bảo mật</a> | <a href="#">Hỗ trợ</a> | <a href="#">Điều khoản dịch
+            vụ</a></p>
+        <p>Cảm ơn bạn đã chọn chúng tôi!</p>
+        <p>© 2025 Hiv treatment and medical service system.</p>
+    </div>
+</div>
+</body>
+</html>

@@ -6,6 +6,7 @@ import com.swp391.hivtmss.model.payload.request.NewAppointment;
 import com.swp391.hivtmss.model.payload.response.AppointmentResponse;
 import com.swp391.hivtmss.model.payload.response.DoctorResponse;
 import com.swp391.hivtmss.model.payload.response.ListResponse;
+import jakarta.mail.MessagingException;
 
 import java.util.Date;
 import java.util.List;
@@ -18,7 +19,7 @@ public interface AppointmentService {
 
     void updateAppointmentDiagnosis(AppointmentDiagnosisUpdate appointmentUpdate);
 
-    void updateAppointmentTreatment(AppointmentUpdate appointmentUpdate);
+    void updateAppointmentTreatment(AppointmentUpdate appointmentUpdate) throws MessagingException;
 
     List<AppointmentResponse> getAppointmentByRange(Date startTime, Date endTime, UUID doctorId);
 
@@ -32,5 +33,6 @@ public interface AppointmentService {
             int pageNo, int pageSize, String sortBy, String sortDir, String searchTerm
     );
 
+    void testEmail() throws MessagingException;
 
 }

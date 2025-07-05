@@ -82,4 +82,23 @@ public class DateUtil {
         return LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), time, 0);
     }
 
+    public static String getTimeAgo(Date createdDate) {
+        Instant now = Instant.now();
+        Instant createdInstant = createdDate.toInstant();
+        long secondsAgo = now.getEpochSecond() - createdInstant.getEpochSecond();
+
+        if (secondsAgo < 60) {
+            return secondsAgo + " giây trước";
+        } else if (secondsAgo < 3600) {
+            return secondsAgo / 60 + " phút trước";
+        } else if (secondsAgo < 86400) {
+            return secondsAgo / 3600 + " giờ trước";
+        } else if (secondsAgo < 2592000) {
+            return secondsAgo / 86400 + " ngày trước";
+        } else if (secondsAgo < 31536000) {
+            return secondsAgo / 2592000 + " tháng trước";
+        } else {
+            return secondsAgo / 31536000 + " năm trước";
+        }
+    }
 }
