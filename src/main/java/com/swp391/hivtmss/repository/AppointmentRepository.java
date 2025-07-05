@@ -36,4 +36,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>,
 
     List<Appointment> findByStatusAndNextFollowUpBeforeAndNextFollowUpReminderFalse(AppointmentStatus appointmentStatus, Date now);
 
+    Optional<Appointment> findByStartTimeBetweenAndCustomer_IdAndStatus(Date startOfDay, Date endOfDay, UUID customerId, AppointmentStatus appointmentStatus);
+
+    Long countByCreatedDateBetween(Date start, Date end);
 }

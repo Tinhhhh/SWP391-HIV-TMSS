@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -100,5 +101,13 @@ public class DateUtil {
         } else {
             return secondsAgo / 31536000 + " năm trước";
         }
+    }
+
+    public static Date subtractOneMonth(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.add(Calendar.MONTH, -1); // Lùi 1 tháng
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH)); // Gán ngày cuối tháng
+        return cal.getTime();
     }
 }

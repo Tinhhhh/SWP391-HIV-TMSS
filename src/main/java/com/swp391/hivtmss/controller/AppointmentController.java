@@ -135,4 +135,17 @@ public class AppointmentController {
 //    }
 
 
+    @Operation(summary = "Get dashboard data", description = "Fetches dashboard data for admin panel within a specified date range. Example: 2025-07-05T08:01:00")
+    @GetMapping("/dashboard")
+    public ResponseEntity<Object> getDashboard(@RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+                                               @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        return ResponseBuilder.returnData(HttpStatus.OK, "Dashboard data retrieved successfully", appointmentService.getDashboardByRange(startDate, endDate));
+    }
+
+    @Operation(summary = "Get monthly dashboard data", description = "Fetches monthly dashboard data for admin panel within a specified date range. Example: 2025-07-05T08:01:00 - 2025-04-22T08:01:00")
+    @GetMapping("/dashboard/monthly")
+    public ResponseEntity<Object> getMonthlyDashboard(@RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+                                                      @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        return ResponseBuilder.returnData(HttpStatus.OK, "Monthly dashboard data retrieved successfully", appointmentService.getMonthlyDashboardByRange(startDate, endDate));
+    }
 }

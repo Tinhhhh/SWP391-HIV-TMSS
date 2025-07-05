@@ -3,11 +3,10 @@ package com.swp391.hivtmss.service;
 import com.swp391.hivtmss.model.payload.request.AppointmentDiagnosisUpdate;
 import com.swp391.hivtmss.model.payload.request.AppointmentUpdate;
 import com.swp391.hivtmss.model.payload.request.NewAppointment;
-import com.swp391.hivtmss.model.payload.response.AppointmentResponse;
-import com.swp391.hivtmss.model.payload.response.DoctorResponse;
-import com.swp391.hivtmss.model.payload.response.ListResponse;
+import com.swp391.hivtmss.model.payload.response.*;
 import jakarta.mail.MessagingException;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -35,4 +34,8 @@ public interface AppointmentService {
 
     void testEmail() throws MessagingException;
 
+
+    DashboardResponse getDashboardByRange(LocalDateTime startDate, LocalDateTime endDate);
+
+    ChartResponse getMonthlyDashboardByRange(LocalDateTime startDate, LocalDateTime endDate);
 }

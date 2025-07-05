@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,4 +16,6 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
     List<Blog> findByAccountId(UUID accountId);
 
     Page<Blog> findAll(Specification<Blog> spec, Pageable pageable);
+
+    Long countByCreatedDateBetween(Date start, Date end);
 }
