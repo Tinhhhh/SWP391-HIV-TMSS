@@ -3,11 +3,10 @@ package com.swp391.hivtmss.service.implement;
 import com.swp391.hivtmss.model.entity.Account;
 import com.swp391.hivtmss.model.entity.Appointment;
 import com.swp391.hivtmss.model.entity.AppointmentChange;
-import com.swp391.hivtmss.model.payload.enums.AppointmentChangeStatus;
-import com.swp391.hivtmss.model.payload.enums.AppointmentStatus;
-import com.swp391.hivtmss.model.payload.enums.RoleName;
+import com.swp391.hivtmss.model.payload.enums.*;
 import com.swp391.hivtmss.model.payload.exception.HivtmssException;
 import com.swp391.hivtmss.model.payload.response.AppointmentChangeResponse;
+import com.swp391.hivtmss.model.payload.response.AppointmentChangeResponseForAdmin;
 import com.swp391.hivtmss.model.payload.response.DoctorResponse;
 import com.swp391.hivtmss.model.payload.response.ListResponse;
 import com.swp391.hivtmss.repository.AccountRepository;
@@ -15,6 +14,7 @@ import com.swp391.hivtmss.repository.AppointmentChangeRepository;
 import com.swp391.hivtmss.repository.AppointmentRepository;
 import com.swp391.hivtmss.service.AppointmentChangeService;
 import com.swp391.hivtmss.service.NotificationService;
+import com.swp391.hivtmss.util.AppointmentChangeSpecification;
 import com.swp391.hivtmss.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -22,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -203,7 +204,7 @@ public class AppointmentChangeServiceImpl implements AppointmentChangeService {
         appointmentChangeRepository.save(appointmentChange);
 
         //Gửi notification cho bác sĩ và khách hàng
-        notificationService.appointmentChangeReply(appointment, appointmentChange.getNewDoctor(), appointmentChange.getOldDoctor(), isAccepted );
+        notificationService.appointmentChangeReply(appointment, appointmentChange.getNewDoctor(), appointmentChange.getOldDoctor(), isAccepted);
 
     }
 
@@ -214,6 +215,54 @@ public class AppointmentChangeServiceImpl implements AppointmentChangeService {
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment change not found"));
 
         return getAppointmentChangeResponse(appointmentChange);
+    }
+
+    @Override
+    public AppointmentChangeResponseForAdmin getAllAppointmentChangeForAdmin(int pageNo, int pageSize, String sortBy, String sortDir, String searchTerm, AppointmentChangeStatusFilter status, AppointmentChangeType type, Date startTime, Date endTime) {
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+
+        if (endTime.before(startTime)) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, end time must be after start time");
+        }
+
+        startTime = DateUtil.convertToStartOfTheDay(startTime);
+        endTime = DateUtil.convertToEndOfTheDay(endTime);
+
+        Specification<AppointmentChange> spec = Specification.where(
+                AppointmentChangeSpecification.doctorNameContaining(searchTerm)
+                        .and(AppointmentChangeSpecification.hasCreatedDateBetween(startTime, endTime)));
+
+        if (status != AppointmentChangeStatusFilter.ALL) {
+            spec = spec.and(AppointmentChangeSpecification.hasStatus(AppointmentChangeStatus.valueOf(status.name())));
+        }
+
+        if (type != AppointmentChangeType.ALL) {
+            if (type == AppointmentChangeType.SENT) {
+                spec = spec.and(AppointmentChangeSpecification.hasOldDoctorName(searchTerm));
+            } else if (type == AppointmentChangeType.RECEIVED) {
+                spec = spec.and(AppointmentChangeSpecification.hasNewDoctorName(searchTerm));
+            }
+        }
+
+        Page<AppointmentChange> appointmentChangePage = appointmentChangeRepository.findAll(spec, pageable);
+        List<AppointmentChangeResponse> appointmentChangeResponseList = appointmentChangePage.getContent().stream()
+                .map(this::getAppointmentChangeResponse).toList();
+
+        AppointmentChangeResponseForAdmin appointmentChangeResponseForAdmins = new AppointmentChangeResponseForAdmin();
+
+        ListResponse listResponse = new ListResponse(
+                appointmentChangeResponseList,
+                pageNo,
+                pageSize,
+                appointmentChangePage.getTotalElements(),
+                appointmentChangePage.getTotalPages(),
+                appointmentChangePage.isLast()
+        );
+
+        appointmentChangeResponseForAdmins.setType(type);
+        appointmentChangeResponseForAdmins.setResponse(listResponse);
+        return appointmentChangeResponseForAdmins;
     }
 
     @Scheduled(cron = "1 15 0 * * ?")

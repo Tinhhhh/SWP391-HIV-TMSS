@@ -53,6 +53,7 @@ public class SecurityCofig {
                                         .requestMatchers("/api/v1/appointment-changes/**").permitAll()
                                         .requestMatchers("/api/v1/treatment-regimen-drugs/**").permitAll()
                                         .requestMatchers("/api/v1/notifications/**").permitAll()
+                                        .requestMatchers("/api/v1/drugs/**").permitAll()
                                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)

@@ -8,10 +8,7 @@ import com.swp391.hivtmss.model.payload.exception.HivtmssException;
 import com.swp391.hivtmss.model.payload.request.AppointmentDiagnosisUpdate;
 import com.swp391.hivtmss.model.payload.request.AppointmentUpdate;
 import com.swp391.hivtmss.model.payload.request.NewAppointment;
-import com.swp391.hivtmss.model.payload.response.AppointmentResponse;
-import com.swp391.hivtmss.model.payload.response.CustomerResponse;
-import com.swp391.hivtmss.model.payload.response.DoctorResponse;
-import com.swp391.hivtmss.model.payload.response.ListResponse;
+import com.swp391.hivtmss.model.payload.response.*;
 import com.swp391.hivtmss.repository.*;
 import com.swp391.hivtmss.service.AppointmentService;
 import com.swp391.hivtmss.service.EmailService;
@@ -33,7 +30,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,6 +52,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final TreatmentRegimenDrugRepository treatmentRegimenDrugRepository;
     private final EmailService emailService;
     private final NotificationService notificationService;
+    private final BlogRepository blogRepository;
 
     @Override
     public List<DoctorResponse> getAvailableDoctors(Date startTime) {
@@ -128,6 +129,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private void appointmentValidate(NewAppointment newAppointment) {
 
         newAppointment.setStartTime(DateUtil.convertUTCtoICT(newAppointment.getStartTime()));
+        newAppointment.setEndTime(DateUtil.convertUTCtoICT(newAppointment.getEndTime()));
 
         LocalDateTime startDate = DateUtil.convertToLocalDateTime(newAppointment.getStartTime());
         LocalDateTime workingTimeStart = DateUtil.getLocalDateTime(startDate, AppointmentTime.WORKING_HOURS_START);
@@ -159,6 +161,17 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (appointments.isPresent()) {
             throw new HivtmssException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error, doctor has another appointment at this time");
         }
+
+        //Kiểm tra xem trong ngày hôm nay khách hàng này đã đặt lịch hẹn nào chưa
+        Date startOfDay = DateUtil.convertToStartOfTheDay(new Date());
+        Date endOfDay = DateUtil.convertToEndOfTheDay(new Date());
+        Optional<Appointment> customerAppointments = appointmentRepository
+                .findByStartTimeBetweenAndCustomer_IdAndStatus(startOfDay, endOfDay, newAppointment.getCustomerId(), AppointmentStatus.PENDING);
+
+        if (customerAppointments.isPresent()) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Bạn đã có một lịch hẹn trong ngày hôm nay nên không thể đặt lịch hẹn thêm nữa");
+        }
+
 
     }
 
@@ -403,6 +416,121 @@ public class AppointmentServiceImpl implements AppointmentService {
                 EmailTemplateName.APPOINTMENT_FINISHED.getName(),
                 "[HIV TMSS service] Thông báo kết quả xét nghiệm và điều trị HIV"
         );
+    }
+
+    @Override
+    public DashboardResponse getDashboardByRange(LocalDateTime startDate, LocalDateTime endDate) {
+
+        Date start = DateUtil.convertToStartOfTheDay(DateUtil.convertToDate(startDate));
+        Date end = DateUtil.convertToEndOfTheDay(DateUtil.convertToDate(endDate));
+
+        if (end.before(start)) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Định dạng thời gian không hợp lệ, ngày kết thúc phải sau ngày bắt đầu");
+        }
+
+        DashboardResponse dashboard = getDashboard(start, end);
+
+        return dashboard;
+    }
+
+    private DashboardResponse getDashboard(Date start, Date end) {
+
+        Long totalCustomers = accountRepository.countByCreatedDateBetweenAndRole_Id(start, end, 1L);
+        Long totalDoctors = accountRepository.countByCreatedDateBetweenAndRole_Id(start, end, 2L);
+        Long totalAppointments = appointmentRepository.countByCreatedDateBetween(start, end);
+        Long totalBlogs = blogRepository.countByCreatedDateBetween(start, end);
+
+        Long totalCustomersPreviousMonth = accountRepository.countByCreatedDateBetweenAndRole_Id(
+                start, DateUtil.subtractOneMonth(end), 1L);
+
+        Long totalAppointmentsPreviousMonth = appointmentRepository.countByCreatedDateBetween(
+                start, DateUtil.subtractOneMonth(end));
+
+        double customerRegistrationRate = 0.0;
+        if (totalCustomersPreviousMonth != 0) {
+            customerRegistrationRate = ((totalCustomers - totalCustomersPreviousMonth) / (double) totalCustomersPreviousMonth) * 100;
+            if (!Double.isFinite(customerRegistrationRate)) {
+                customerRegistrationRate = 0.0;
+            }
+        }
+
+        double appointmentRate = 0.0;
+        if (totalAppointmentsPreviousMonth != 0) {
+            appointmentRate = ((totalAppointments - totalAppointmentsPreviousMonth) / (double) totalAppointmentsPreviousMonth) * 100;
+            if (!Double.isFinite(appointmentRate)) {
+                appointmentRate = 0.0;
+            }
+        }
+
+        Long activeDoctors = accountRepository.countByCreatedDateBetweenAndRole_IdAndIsActive(start, end, 2L, true);
+
+        DashboardResponse dashboardResponse = new DashboardResponse();
+        dashboardResponse.setTotalCustomers(totalCustomers);
+        dashboardResponse.setTotalDoctors(totalDoctors);
+        dashboardResponse.setTotalAppointments(totalAppointments);
+        dashboardResponse.setTotalBlogs(totalBlogs);
+        dashboardResponse.setCustomerRegistrationRate(customerRegistrationRate);
+        dashboardResponse.setAppointmentRate(appointmentRate);
+        dashboardResponse.setActiveDoctors(activeDoctors);
+        dashboardResponse.setStartDate(DateUtil.formatTimestamp(start));
+        dashboardResponse.setEndDate(DateUtil.formatTimestamp(end));
+
+        return dashboardResponse;
+    }
+
+
+    @Override
+    public ChartResponse getMonthlyDashboardByRange(LocalDateTime startDate, LocalDateTime endDate) {
+        Map<Integer, List<LocalDateTime>> result = new LinkedHashMap<>();
+
+        Date start = DateUtil.convertToStartOfTheDay(DateUtil.convertToDate(startDate));
+        Date end = DateUtil.convertToEndOfTheDay(DateUtil.convertToDate(endDate));
+
+        if (end.before(start)) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "End date must be after start date.");
+        }
+
+        LocalDate startLocalDate = DateUtil.convertToLocalDateTime(start).toLocalDate();
+        LocalDate endLocalDate = DateUtil.convertToLocalDateTime(end).toLocalDate();
+
+
+        // Tìm thứ Hai đầu tiên chứa start
+        LocalDate currentStart = startLocalDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        int weekIndex = 1;
+
+        while (!currentStart.isAfter(endLocalDate)) {
+            //Tìm ngày cuối cùng của tuần này
+            LocalDate currentEnd = currentStart.plusDays(6);
+
+            //Kiểm tra ngày cuối cùng tuần này có vượt quá end date không
+            if (currentEnd.isAfter(endLocalDate)) {
+                currentEnd = endLocalDate;
+            }
+
+            List<LocalDateTime> range = List.of(
+                    currentStart.atStartOfDay(),
+                    currentEnd.atTime(LocalTime.MAX)
+            );
+
+            result.put(weekIndex++, range);
+            currentStart = currentStart.plusWeeks(1);
+        }
+
+        ChartResponse chartResponse = new ChartResponse();
+        List<DashboardResponse> dashboardResponses = new ArrayList<>();
+        for (Map.Entry<Integer, List<LocalDateTime>> entry : result.entrySet()) {
+            int week = entry.getKey();
+            List<LocalDateTime> dateRange = entry.getValue();
+            Date startRange = DateUtil.convertToDate(dateRange.get(0));
+            Date endRange = DateUtil.convertToDate(dateRange.get(1));
+            DashboardResponse dashboardResponse = getDashboard(startRange, endRange);
+            chartResponse.setWeek(week);
+            dashboardResponses.add(dashboardResponse);
+        }
+
+        chartResponse.setWeeklyDashboard(dashboardResponses);
+
+        return chartResponse;
     }
 
 }

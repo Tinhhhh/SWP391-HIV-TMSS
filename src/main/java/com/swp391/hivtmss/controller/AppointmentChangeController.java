@@ -1,6 +1,8 @@
 package com.swp391.hivtmss.controller;
 
 import com.swp391.hivtmss.model.payload.enums.AppointmentChangeStatus;
+import com.swp391.hivtmss.model.payload.enums.AppointmentChangeStatusFilter;
+import com.swp391.hivtmss.model.payload.enums.AppointmentChangeType;
 import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
 import com.swp391.hivtmss.service.AppointmentChangeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -98,6 +100,28 @@ public class AppointmentChangeController {
         return ResponseBuilder.returnData(
                 HttpStatus.OK, "Successfully retrieved appointment change request",
                 appointmentChangeService.getAppointmentChangeById(appointmentChangeId)
+        );
+    }
+
+    @Operation(summary = "Get all appointment change by a admin",
+            description = "This api retrieves all appointment change by admin within a date range. " +
+                    "Example: 2025-06-08T08:01:00. " +
+                    "Role required: ADMIN")
+    @GetMapping("/all")
+    public ResponseEntity<Object> getAllAppointmentChangeRequests(
+            @RequestParam(value = "pageNo", defaultValue = DEFAULT_PAGE_NUMBER) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = DEFAULT_SORT_BY) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = DEFAULT_SORT_DIRECTION) String sortDir,
+            @RequestParam(value = "searchTerm", required = false) String searchTerm,
+            @RequestParam("status") AppointmentChangeStatusFilter status,
+            @RequestParam("type") AppointmentChangeType type,
+            @RequestParam("startTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date startTime,
+            @RequestParam("endTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date endTime
+    ) {
+        return ResponseBuilder.returnData(
+                HttpStatus.OK, "Successfully retrieved appointment change requests",
+                appointmentChangeService.getAllAppointmentChangeForAdmin(pageNo, pageSize, sortBy, sortDir, searchTerm, status, type, startTime, endTime)
         );
     }
 }
