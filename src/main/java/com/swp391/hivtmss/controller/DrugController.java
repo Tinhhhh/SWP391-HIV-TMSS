@@ -1,7 +1,8 @@
 package com.swp391.hivtmss.controller;
 
 import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
-import com.swp391.hivtmss.model.payload.request.DrugRequest;
+import com.swp391.hivtmss.model.payload.request.*;
+import com.swp391.hivtmss.model.payload.response.BlogResponse;
 import com.swp391.hivtmss.model.payload.response.DrugResponse;
 import com.swp391.hivtmss.service.DrugService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,7 +32,7 @@ public class DrugController {
 
     @Operation(summary = "Get Drug By DrugID", description = "Get Drug By DrugID")
     @GetMapping
-    public ResponseEntity<Object> getDrugById(@PathParam("id") Long id) {
+    public ResponseEntity<Object> getDrugById(@RequestParam("id") Long id) {
 
         return ResponseBuilder.returnData(HttpStatus.OK, "Get DrugByID Successfully",
                 drugService.getDrugById(id));
@@ -46,9 +47,8 @@ public class DrugController {
 
     @Operation(summary = "Delete Drug", description = "Delete Drug")
     @DeleteMapping
-    public ResponseEntity<Object> deleteDrug(@PathParam("id") Long id,
-                                             @Valid @RequestBody DrugRequest drugRequest) {
-        // delete Drug by change TestType , not delete all information
+    public ResponseEntity<Object> deleteDrug(@RequestParam("id") Long id,
+                                                 @Valid @RequestBody DrugRequest drugRequest) {
 
         drugService.deleteDrug(id, drugRequest);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Drug is Delete successfully");
@@ -57,8 +57,8 @@ public class DrugController {
 
     @Operation(summary = "Update Drug By ID", description = "Get Drug By ID")
     @PutMapping
-    public ResponseEntity<Object> updateDrug(@PathParam("id") Long id,
-                                             @Valid @RequestBody DrugRequest drugRequest) {
+    public ResponseEntity<Object> updateDrug(@RequestParam("id") Long id,
+                                                 @Valid @RequestBody DrugRequest drugRequest) {
 
         drugService.updateDrug(id, drugRequest);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Drug is update successfully");

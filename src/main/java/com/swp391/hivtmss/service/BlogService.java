@@ -7,13 +7,14 @@ import com.swp391.hivtmss.model.payload.request.UpdateBlogByManager;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
 import com.swp391.hivtmss.model.payload.response.ListResponse;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface BlogService {
-    void createBlog(@Valid BlogRequest blogRequest);
+    void createBlog(@Valid BlogRequest blogRequest, List<MultipartFile> files);
 
     BlogResponse getBlogById(Long id);
 
@@ -21,7 +22,7 @@ public interface BlogService {
 
     List<BlogResponse> getAllBlogs();
 
-    void updateBlog(Long id, UpdateBlog updateBlog);
+    void updateBlog(Long id, UpdateBlog updateBlog, List<MultipartFile> files);
 
     void deleteBlog(Long id, UpdateBlogByCustomer updateBlogByCustomer);
 
@@ -36,4 +37,6 @@ public interface BlogService {
     BlogResponse deleteAllImages(Long blogId);
 
     BlogResponse deleteImageByUrl(Long blogId, String imageUrl);
+
+
 }
