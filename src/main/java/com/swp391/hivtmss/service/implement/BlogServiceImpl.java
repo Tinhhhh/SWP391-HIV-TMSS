@@ -30,6 +30,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     @Transactional
-    public void createBlog(BlogRequest blogRequest) {
+    public void createBlog(BlogRequest blogRequest, List<MultipartFile> files) {
         Account account = accountRepository.findById(blogRequest.getAccountID())
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
@@ -62,12 +63,36 @@ public class BlogServiceImpl implements BlogService {
         blog.setContent(blogRequest.getContent());
         blog.setStatus(BlogStatus.PENDING);
         blog.setCreatedDate(new Date());
-        blog.setLastModifiedDate(new Date());
         blog.setHidden(true);
         blog.setAccount(account);
+        blogRepository.save(blog);
+        if (files != null && !files.isEmpty()) {
+                List<BlogImg> images = new ArrayList<>();
+                for (MultipartFile file : files) {
 
-        Blog savedBlog = blogRepository.save(blog);
-        convertToResponse(savedBlog);
+                    if (!file.getContentType().startsWith("image/")) {
+                        throw new HivtmssException(HttpStatus.BAD_REQUEST,
+                                "Invalid file type. Only images are allowed");
+                    }
+
+                    try {
+                        String imageUrl = cloudinaryService.uploadFile(file);
+                        BlogImg blogImg = new BlogImg();
+                        blogImg.setImgUrl(imageUrl);
+                        blogImg.setBlog(blog);
+                        images.add(blogImg);
+                    } catch (IOException e) {
+                        throw new HivtmssException(HttpStatus.BAD_REQUEST,
+                                "Failed to upload image: " + e.getMessage());
+                    }
+                }
+                blogImgRepository.saveAll(images);
+                blog.setBlogImgs(images);
+                blog.setLastModifiedDate(new Date());
+        }
+
+        convertToResponse(blog);
+
     }
 
     @Override
@@ -94,15 +119,41 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public void updateBlog(Long id, UpdateBlog updateBlog) {
+    public void updateBlog(Long id, UpdateBlog updateBlog, List<MultipartFile> files ) {
         Blog blog = blogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("BlogID not found"));
 
         blog.setTitle(updateBlog.getTitle());
         blog.setContent(updateBlog.getContent());
         blog.setCreatedDate(new Date());
+        blog.setHidden(true);
 
         blogRepository.save(blog);
+
+        if (files != null && !files.isEmpty()) {
+            List<BlogImg> images = new ArrayList<>();
+            for (MultipartFile file : files) {
+
+                if (!file.getContentType().startsWith("image/")) {
+                    throw new HivtmssException(HttpStatus.BAD_REQUEST,
+                            "Invalid file type. Only images are allowed");
+                }
+
+                try {
+                    String imageUrl = cloudinaryService.uploadFile(file);
+                    BlogImg blogImg = new BlogImg();
+                    blogImg.setImgUrl(imageUrl);
+                    blogImg.setBlog(blog);
+                    images.add(blogImg);
+                } catch (IOException e) {
+                    throw new HivtmssException(HttpStatus.BAD_REQUEST,
+                            "Failed to upload image: " + e.getMessage());
+                }
+            }
+            blogImgRepository.saveAll(images);
+            blog.setBlogImgs(images);
+            blog.setLastModifiedDate(new Date());
+        }
 
     }
 

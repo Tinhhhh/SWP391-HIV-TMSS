@@ -1,11 +1,9 @@
 package com.swp391.hivtmss.controller;
 
 import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
-import com.swp391.hivtmss.model.payload.request.BlogRequest;
-import com.swp391.hivtmss.model.payload.request.UpdateBlog;
-import com.swp391.hivtmss.model.payload.request.UpdateBlogByCustomer;
-import com.swp391.hivtmss.model.payload.request.UpdateBlogByManager;
+import com.swp391.hivtmss.model.payload.request.*;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
+import com.swp391.hivtmss.model.payload.response.DoctorDegreeResponse;
 import com.swp391.hivtmss.service.BlogService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -14,12 +12,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
-
 import static com.swp391.hivtmss.util.AppConstants.*;
 
 @RestController
@@ -31,15 +29,16 @@ public class BlogController {
 
 
     @Operation(summary = "Create Blog By Account", description = "Create Blog By Account")
-    @PostMapping
-    public ResponseEntity<Object> createBlog(@Valid @RequestBody BlogRequest blogRequest) {
-        blogService.createBlog(blogRequest);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> createBlog(@Valid @ModelAttribute  BlogRequest blogRequest,
+                                             @RequestParam(value = "files") List<MultipartFile> files) {
+        blogService.createBlog(blogRequest, files);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Blog created successfully");
     }
 
     @Operation(summary = "Get Blog By BlogID", description = "Get Blog By BlogID")
     @GetMapping
-    public ResponseEntity<Object> getBlogById(@PathParam("id") Long id) {
+    public ResponseEntity<Object> getBlogById(@RequestParam("id") Long id) {
 
         return ResponseBuilder.returnData(HttpStatus.OK, "Get BlogByID Successfully",
                 blogService.getBlogById(id));
@@ -47,7 +46,7 @@ public class BlogController {
 
     @Operation(summary = "Get All Blogs By AccountID", description = "Get All Blogs By AccountID")
     @GetMapping("/account")
-    public ResponseEntity<Object> getBlogByAccountId(@PathParam("accountId") UUID accountId) {
+    public ResponseEntity<Object> getBlogByAccountId(@RequestParam("accountId") UUID accountId) {
 
         List<BlogResponse> blogResponseList = blogService.getBlogByAccountId(accountId);
         return ResponseBuilder.returnData(HttpStatus.OK, "Get All Blog By AccountID Successfully",
@@ -56,21 +55,24 @@ public class BlogController {
 
     @Operation(summary = "Get All Blog ", description = "Get All Blog")
     @GetMapping("/all")
-    public ResponseEntity<List<BlogResponse>> getAllBlog() {
+    public ResponseEntity<Object> getAllBlog() {
         List<BlogResponse> blog = blogService.getAllBlogs();
-        return ResponseEntity.ok(blog);
+        return ResponseBuilder.returnData(HttpStatus.OK,"Get All Blog successfully",
+                blog);
     }
 
     @Operation(summary = "Update Blog By ID", description = "Get Blog By ID")
-    @PutMapping
-    public ResponseEntity<Object> updateBlog(@PathParam("id") Long id, @Valid @RequestBody UpdateBlog updateBlog) {
-        blogService.updateBlog(id, updateBlog);
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> updateBlog(@RequestParam("id") Long id,
+                                             @Valid @ModelAttribute UpdateBlog updateBlog,
+                                             @RequestParam(value = "files") List<MultipartFile> files) {
+        blogService.updateBlog(id, updateBlog, files);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Update Blog Successfully");
     }
 
     @Operation(summary = "Delete Blog", description = "Delete Blog")
     @DeleteMapping
-    public ResponseEntity<Object> deleteBlog(@PathParam("id") Long id,
+    public ResponseEntity<Object> deleteBlog(@RequestParam("id") Long id,
                                              @Valid @RequestBody UpdateBlogByCustomer updateBlogByCustomer) {
         // delete blog by change blog status , not delete all information
         blogService.deleteBlog(id, updateBlogByCustomer);
@@ -78,8 +80,10 @@ public class BlogController {
     }
 
 
-    @Operation(summary = "Update Blogs status with account:Manager ", description = "Update the Blog status By Role. Role required: MANAGER")
+    @Operation(summary = "Update Blogs status with account:Manager ",
+            description = "Update the Blog status By Role. Role required: MANAGER")
     @PutMapping("/approved")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Object> updateBlogByRole(
             @RequestBody UpdateBlogByManager updateBlogByManager) {
 
@@ -90,7 +94,8 @@ public class BlogController {
 
     @Operation(summary = "Rejected Blog status ", description = "Reject the status of an Blog. Role required: MANAGER")
     @PutMapping("/rejected")
-    public ResponseEntity<Object> cancelAppointment(@RequestParam("id") Long id) {
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<Object> cancelBlog(@RequestParam("id") Long id) {
         blogService.cancelBlog(id);
         return ResponseBuilder.returnMessage(
                 HttpStatus.OK, "Blog Status rejected successfully");
@@ -108,6 +113,7 @@ public class BlogController {
                 HttpStatus.OK, "Successfully retrieved Blog for customer",
                 blogService.getAllBlog(pageNo, pageSize, sortBy, sortDir, searchTerm));
     }
+
 
     @PostMapping(value = "/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> uploadBlogImg(
@@ -134,6 +140,5 @@ public class BlogController {
         BlogResponse blogImg = blogService.deleteImageByUrl(blogId, imageUrl);
         return ResponseBuilder.returnData(HttpStatus.OK, "Image deleted successfully", blogImg);
     }
-
 
 }
