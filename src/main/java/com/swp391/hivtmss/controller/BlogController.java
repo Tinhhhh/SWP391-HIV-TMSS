@@ -34,31 +34,14 @@ public class BlogController {
     @Operation(summary = "Create Blog By Account", description = "Create Blog By Account")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> createBlog(
-
-                                             @Parameter(
-                                                     name = "blogRequest",
-                                                     description = "Thông tin blog",
-                                                     required = true,
-                                                     content = @Content(
-                                                             mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                                             schema = @Schema(implementation = BlogRequest.class)
-                                                     )
-                                             )
-                                             @RequestPart("blogRequest") @Valid BlogRequest blogRequest,
-
-                                             @Parameter(
-                                                     name = "files",
-                                                     description = "Ảnh bài viết",
-                                                     required = true,
-                                                     content = @Content(
-                                                             mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
-                                                             schema = @Schema(type = "string", format = "binary")
-                                                     )
-                                             )
-                                                 @RequestPart("files") List<MultipartFile> files
+            @RequestPart("title") String title,
+            @RequestPart("content") String content,
+            @RequestPart("accountID") String accountID,
+            @RequestPart("files") List<MultipartFile> files
     ) {
+        BlogRequest blogRequest = new BlogRequest(title, content, UUID.fromString(accountID));
         blogService.createBlog(blogRequest, files);
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Blog created successfully");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Blog tạo thành công");
     }
 
     @Operation(summary = "Get Blog By BlogID", description = "Get Blog By BlogID")
