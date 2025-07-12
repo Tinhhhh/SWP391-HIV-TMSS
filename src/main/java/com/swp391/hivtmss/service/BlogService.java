@@ -24,7 +24,7 @@ public interface BlogService {
 
     void updateBlog(Long id, UpdateBlog updateBlog, List<MultipartFile> files);
 
-    void deleteBlog(Long id, UpdateBlogByCustomer updateBlogByCustomer);
+    void deleteBlog(Long id);
 
     void updateBlogByManager(UpdateBlogByManager updateBlogByManager);
 
