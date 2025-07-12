@@ -51,48 +51,55 @@ public class BlogServiceImpl implements BlogService {
     private final ModelMapper modelMapper;
     private final BlogImgRepository blogImgRepository;
 
-    @Override
+
     @Transactional
+    @Override
     public void createBlog(BlogRequest blogRequest, List<MultipartFile> files) {
+
         Account account = accountRepository.findById(blogRequest.getAccountID())
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
+        // Tạo blog mới
         Blog blog = new Blog();
-
         blog.setTitle(blogRequest.getTitle());
         blog.setContent(blogRequest.getContent());
         blog.setStatus(BlogStatus.PENDING);
         blog.setCreatedDate(new Date());
+        blog.setLastModifiedDate(new Date());
         blog.setHidden(true);
         blog.setAccount(account);
+
+        // Lưu blog lần đầu
         blogRepository.save(blog);
+
+        // Upload ảnh nếu có
         if (files != null && !files.isEmpty()) {
-                List<BlogImg> images = new ArrayList<>();
-                for (MultipartFile file : files) {
-
-                    if (!file.getContentType().startsWith("image/")) {
-                        throw new HivtmssException(HttpStatus.BAD_REQUEST,
-                                "Invalid file type. Only images are allowed");
-                    }
-
-                    try {
-                        String imageUrl = cloudinaryService.uploadFile(file);
-                        BlogImg blogImg = new BlogImg();
-                        blogImg.setImgUrl(imageUrl);
-                        blogImg.setBlog(blog);
-                        images.add(blogImg);
-                    } catch (IOException e) {
-                        throw new HivtmssException(HttpStatus.BAD_REQUEST,
-                                "Failed to upload image: " + e.getMessage());
-                    }
+            List<BlogImg> images = new ArrayList<>();
+            for (MultipartFile file : files) {
+                // Kiểm tra định dạng ảnh
+                if (!file.getContentType().startsWith("image/")) {
+                    throw new HivtmssException(HttpStatus.BAD_REQUEST,
+                            "Invalid file type. Only images are allowed");
                 }
-                blogImgRepository.saveAll(images);
-                blog.setBlogImgs(images);
-                blog.setLastModifiedDate(new Date());
+
+                try {
+                    String imageUrl = cloudinaryService.uploadFile(file);
+                    BlogImg blogImg = new BlogImg();
+                    blogImg.setImgUrl(imageUrl);
+                    blogImg.setBlog(blog);
+                    images.add(blogImg);
+                } catch (IOException e) {
+                    throw new HivtmssException(HttpStatus.BAD_REQUEST,
+                            "Failed to upload image: " + e.getMessage());
+                }
+            }
+            // Lưu ảnh và gán lại vào blog
+            blogImgRepository.saveAll(images);
+            blog.setBlogImgs(images);
+            blog.setLastModifiedDate(new Date());
+            blogRepository.save(blog);
         }
-
         convertToResponse(blog);
-
     }
 
     @Override

@@ -72,8 +72,11 @@ public class BlogController {
     @Operation(summary = "Update Blog By ID", description = "Get Blog By ID")
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> updateBlog(@RequestParam("id") Long id,
-                                             @Valid @RequestPart("updateBlog") UpdateBlog updateBlog,
-                                             @RequestParam(value = "files") List<MultipartFile> files) {
+                                             @RequestPart("title") String title,
+                                             @RequestPart("content") String content,
+                                             @RequestPart("files") List<MultipartFile> files) {
+
+        UpdateBlog updateBlog = new UpdateBlog(title, content);
         blogService.updateBlog(id, updateBlog, files);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Update Blog Successfully");
     }
