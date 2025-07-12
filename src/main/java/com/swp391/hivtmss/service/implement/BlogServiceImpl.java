@@ -159,7 +159,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     @Transactional
-    public void deleteBlog(Long id, UpdateBlogByCustomer updateBlogByCustomer) {
+    public void deleteBlog(Long id) {
 
         Blog blog = blogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Blog not found"));

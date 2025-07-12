@@ -30,8 +30,8 @@ public class BlogController {
 
     @Operation(summary = "Create Blog By Account", description = "Create Blog By Account")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Object> createBlog(@Valid @ModelAttribute  BlogRequest blogRequest,
-                                             @RequestParam(value = "files") List<MultipartFile> files) {
+    public ResponseEntity<Object> createBlog(@Valid @RequestPart("blogRequest") BlogRequest blogRequest,
+                                             @RequestPart("files") List<MultipartFile> files) {
         blogService.createBlog(blogRequest, files);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Blog created successfully");
     }
@@ -64,7 +64,7 @@ public class BlogController {
     @Operation(summary = "Update Blog By ID", description = "Get Blog By ID")
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> updateBlog(@RequestParam("id") Long id,
-                                             @Valid @ModelAttribute UpdateBlog updateBlog,
+                                             @Valid @RequestPart("updateBlog") UpdateBlog updateBlog,
                                              @RequestParam(value = "files") List<MultipartFile> files) {
         blogService.updateBlog(id, updateBlog, files);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Update Blog Successfully");
@@ -72,10 +72,10 @@ public class BlogController {
 
     @Operation(summary = "Delete Blog", description = "Delete Blog")
     @DeleteMapping
-    public ResponseEntity<Object> deleteBlog(@RequestParam("id") Long id,
-                                             @Valid @RequestBody UpdateBlogByCustomer updateBlogByCustomer) {
+    public ResponseEntity<Object> deleteBlog(@RequestParam("id") Long id
+                                             ) {
         // delete blog by change blog status , not delete all information
-        blogService.deleteBlog(id, updateBlogByCustomer);
+        blogService.deleteBlog(id);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Delete Blog Successfully");
     }
 
