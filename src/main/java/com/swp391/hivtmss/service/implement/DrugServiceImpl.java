@@ -68,6 +68,7 @@ public class DrugServiceImpl implements DrugService {
         drug.setName(drugRequest.getName());
         drug.setShortName(drugRequest.getShortName());
         drug.setType(drugRequest.getType());
+        drug.setIsActive(ActiveStatus.ACTIVE);
         drug.setCreatedDate(new Date());
 
         drugRepository.save(drug);

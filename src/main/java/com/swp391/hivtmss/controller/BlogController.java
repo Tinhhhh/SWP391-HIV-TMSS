@@ -41,7 +41,7 @@ public class BlogController {
     ) {
         BlogRequest blogRequest = new BlogRequest(title, content, UUID.fromString(accountID));
         blogService.createBlog(blogRequest, files);
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Blog tạo thành công");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Create Blog Successfully");
     }
 
     @Operation(summary = "Get Blog By BlogID", description = "Get Blog By BlogID")
