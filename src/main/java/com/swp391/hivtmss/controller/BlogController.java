@@ -6,6 +6,9 @@ import com.swp391.hivtmss.model.payload.response.BlogResponse;
 import com.swp391.hivtmss.model.payload.response.DoctorDegreeResponse;
 import com.swp391.hivtmss.service.BlogService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +33,30 @@ public class BlogController {
 
     @Operation(summary = "Create Blog By Account", description = "Create Blog By Account")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Object> createBlog(@Valid @RequestPart("blogRequest") BlogRequest blogRequest,
-                                             @RequestPart("files") List<MultipartFile> files) {
+    public ResponseEntity<Object> createBlog(
+
+                                             @Parameter(
+                                                     name = "blogRequest",
+                                                     description = "Thông tin blog",
+                                                     required = true,
+                                                     content = @Content(
+                                                             mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                                             schema = @Schema(implementation = BlogRequest.class)
+                                                     )
+                                             )
+                                             @RequestPart("blogRequest") @Valid BlogRequest blogRequest,
+
+                                             @Parameter(
+                                                     name = "files",
+                                                     description = "Ảnh bài viết",
+                                                     required = true,
+                                                     content = @Content(
+                                                             mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                                                             schema = @Schema(type = "string", format = "binary")
+                                                     )
+                                             )
+                                                 @RequestPart("files") List<MultipartFile> files
+    ) {
         blogService.createBlog(blogRequest, files);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Blog created successfully");
     }
