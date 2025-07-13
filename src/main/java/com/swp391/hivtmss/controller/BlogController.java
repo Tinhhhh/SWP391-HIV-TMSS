@@ -1,5 +1,6 @@
 package com.swp391.hivtmss.controller;
 
+import com.swp391.hivtmss.model.payload.enums.BlogStatus;
 import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
 import com.swp391.hivtmss.model.payload.request.*;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
@@ -95,9 +96,11 @@ public class BlogController {
             description = "Update the Blog status By Role. Role required: MANAGER")
     @PutMapping("/approved")
     public ResponseEntity<Object> updateBlogByRole(
-            @RequestBody UpdateBlogByManager updateBlogByManager) {
+            @RequestParam("id") Long id,
+            @RequestParam("accountID" ) UUID accountID,
+            @RequestParam("status") BlogStatus blogStatus) {
 
-        blogService.updateBlogByManager(updateBlogByManager);
+        blogService.updateBlogByManager(id, accountID, blogStatus);
         return ResponseBuilder.returnMessage(
                 HttpStatus.OK, "Blog Status approved by Manager successfully");
     }
