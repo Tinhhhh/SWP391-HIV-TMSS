@@ -91,10 +91,9 @@ public class BlogController {
     }
 
 
-    @Operation(summary = "Update Blogs status with account:Manager ",
+    @Operation(summary = "Update Blogs status with account: Manager ",
             description = "Update the Blog status By Role. Role required: MANAGER")
     @PutMapping("/approved")
-    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Object> updateBlogByRole(
             @RequestBody UpdateBlogByManager updateBlogByManager) {
 
@@ -105,7 +104,6 @@ public class BlogController {
 
     @Operation(summary = "Rejected Blog status ", description = "Reject the status of an Blog. Role required: MANAGER")
     @PutMapping("/rejected")
-    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Object> cancelBlog(@RequestParam("id") Long id) {
         blogService.cancelBlog(id);
         return ResponseBuilder.returnMessage(

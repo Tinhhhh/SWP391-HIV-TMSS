@@ -26,9 +26,6 @@ public class UpdateBlogByManager {
     @JsonProperty(value = "content", index = 3)
     private String content;
 
-    @JsonProperty(value = "status", index = 4)
-    private BlogStatus status;
-
     @JsonProperty(value = "image_url", index = 5)
     private String imageUrl;
 
