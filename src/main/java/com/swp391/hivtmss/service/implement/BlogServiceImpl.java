@@ -180,15 +180,13 @@ public class BlogServiceImpl implements BlogService {
         Account account = accountRepository.findById(accountID)
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, Account not found"));
 
-        if (!account.isActive() || !account.getRole().getRoleName().equals(RoleName.MANAGER.toString())) {
-            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, Account is not valid or not MANAGER");
-        }
         Blog blog = blogRepository.findById(id)
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
 
         if (blog.getStatus() != BlogStatus.PENDING) {
             throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog is not in pending status");
-        }else if (blogStatus == BlogStatus.APPROVED || blogStatus == BlogStatus.REJECTED) {
+        }
+        if (blogStatus == BlogStatus.APPROVED || blogStatus == BlogStatus.REJECTED) {
             blog.setStatus(blogStatus);
             blogRepository.save(blog);
         } else {
