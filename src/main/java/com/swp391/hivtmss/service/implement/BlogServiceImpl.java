@@ -176,22 +176,24 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public void updateBlogByManager(UpdateBlogByManager updateBlogByManager) {
-        Account account = accountRepository.findById(updateBlogByManager.getAccountId())
+    public void updateBlogByManager(Long id, UUID accountID, BlogStatus blogStatus) {
+        Account account = accountRepository.findById(accountID)
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, Account not found"));
 
         if (!account.isActive() || !account.getRole().getRoleName().equals(RoleName.MANAGER.toString())) {
             throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, Account is not valid or not MANAGER");
         }
-        Blog blog = blogRepository.findById(updateBlogByManager.getId())
+        Blog blog = blogRepository.findById(id)
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
 
-        restrictedModelMapper.map(updateBlogByManager, blog);
-
-        blog.setStatus(BlogStatus.APPROVED);
-        blogRepository.save(blog);
-
-
+        if (blog.getStatus() != BlogStatus.PENDING) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog is not in pending status");
+        }else if (blogStatus == BlogStatus.APPROVED || blogStatus == BlogStatus.REJECTED) {
+            blog.setStatus(blogStatus);
+            blogRepository.save(blog);
+        } else {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Invalid status. Only APPROVED or REJECTED allowed.");
+        }
     }
 
     @Override

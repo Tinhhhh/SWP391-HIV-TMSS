@@ -1,5 +1,6 @@
 package com.swp391.hivtmss.service;
 
+import com.swp391.hivtmss.model.payload.enums.BlogStatus;
 import com.swp391.hivtmss.model.payload.request.BlogRequest;
 import com.swp391.hivtmss.model.payload.request.UpdateBlog;
 import com.swp391.hivtmss.model.payload.request.UpdateBlogByCustomer;
@@ -26,7 +27,7 @@ public interface BlogService {
 
     void deleteBlog(Long id);
 
-    void updateBlogByManager(UpdateBlogByManager updateBlogByManager);
+    void updateBlogByManager(Long id, UUID accountID, BlogStatus blogStatus);
 
     void cancelBlog(Long accountId);
 
