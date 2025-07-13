@@ -102,7 +102,7 @@ public class BlogController {
 
         blogService.updateBlogByManager(id, accountID, blogStatus);
         return ResponseBuilder.returnMessage(
-                HttpStatus.OK, "Blog Status approved by Manager successfully");
+                HttpStatus.OK, "Blog Status Update by Manager successfully");
     }
 
     @Operation(summary = "Rejected Blog status ", description = "Reject the status of an Blog. Role required: MANAGER")
