@@ -94,7 +94,7 @@ public class BlogController {
 
     @Operation(summary = "Update Blogs status with account: Manager ",
             description = "Update the Blog status By Role. Role required: MANAGER")
-    @PutMapping("/approved")
+    @PutMapping("/updateStatus")
     public ResponseEntity<Object> updateBlogByRole(
             @RequestParam("id") Long id,
             @RequestParam("accountID" ) UUID accountID,
