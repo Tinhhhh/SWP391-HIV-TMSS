@@ -65,7 +65,7 @@ public class AuthenServiceImpl implements AuthenService {
     public void register(RegistrationRequest request) throws MessagingException {
 
         if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RegisterAccountExistedException("Account already exists");
+            throw new RegisterAccountExistedException("Email đã tồn tại, vui lòng sử dụng email khác");
         }
 
         Role role = roleRepository.findById(1L)
@@ -99,7 +99,7 @@ public class AuthenServiceImpl implements AuthenService {
                 .orElseThrow(() -> new HivtmssException(HttpStatus.UNAUTHORIZED, "Authentication fails, your email is not exist"));
 
         if (account.isLocked()) {
-            throw new HivtmssException(HttpStatus.UNAUTHORIZED, "Your account is locked. Please contact admin");
+            throw new HivtmssException(HttpStatus.UNAUTHORIZED, "Tài khoản của bạn đã bị khóa, vui lòng liên hệ quản trị viên để được hỗ trợ");
         }
 
         //Create new token

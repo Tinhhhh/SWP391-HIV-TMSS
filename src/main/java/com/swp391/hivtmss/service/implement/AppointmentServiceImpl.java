@@ -133,23 +133,23 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         LocalDateTime startDate = DateUtil.convertToLocalDateTime(newAppointment.getStartTime());
         LocalDateTime workingTimeStart = DateUtil.getLocalDateTime(startDate, AppointmentTime.WORKING_HOURS_START);
-        LocalDateTime workingTimeEnd = DateUtil.getLocalDateTime(startDate, AppointmentTime.WORKING_HOURS_END);
+        LocalDateTime workingTimeEnd = DateUtil.getLocalDateTime(startDate, AppointmentTime.BOOKING_HOURS_END);
 
         // Kiểm tra ngày hẹn có nằm trong 5 ngày làm việc
         if (startDate.getDayOfWeek() == DayOfWeek.SATURDAY || startDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
-            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment cannot be scheduled on weekends");
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Không thể đặt lịch hẹn vào ngày cuối tuần, vui lòng chọn ngày trong tuần (Thứ Hai - Thứ Sáu)");
         }
 
-        // Kiểm tra giờ làm việc có nằm trong khoảng từ 8h sáng đến 5h chiều
+        // Kiểm tra giờ làm việc có nằm trong khoảng từ 8h sáng đến 4h chiều
         if (startDate.isBefore(workingTimeStart) ||
                 startDate.isAfter(workingTimeEnd)) {
-            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment start time must be within working hours (8:00 - 17:00)");
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Không thể đặt lịch hẹn ngoài giờ làm việc, vui lòng chọn giờ trong khoảng từ 8h sáng đến 4h chiều");
         }
 
         // Kiểm tra giờ bắt đầu phải là giờ hiện tại hoặc sau giờ hiện tại
         LocalDateTime now = LocalDateTime.now();
         if (startDate.isBefore(now)) {
-            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment start time must be after current time");
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Bạn không thể đặt lịch hẹn trong quá khứ, vui lòng chọn giờ trong tương lai");
         }
 
         //Kiểm tra bác sĩ có lịch hẹn trong khoảng thời gian này hay không
@@ -159,7 +159,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 newAppointment.getDoctorId()).stream().filter(appointment -> appointment.getStatus().equals(AppointmentStatus.PENDING)).findFirst();
 
         if (appointments.isPresent()) {
-            throw new HivtmssException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error, doctor has another appointment at this time");
+            throw new HivtmssException(HttpStatus.INTERNAL_SERVER_ERROR, "Bác sĩ đã có lịch hẹn trong khoảng thời gian này, vui lòng chọn thời gian khác");
         }
 
         //Kiểm tra xem trong ngày hôm nay khách hàng này đã đặt lịch hẹn nào chưa
