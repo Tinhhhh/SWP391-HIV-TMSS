@@ -239,10 +239,6 @@ public class BlogServiceImpl implements BlogService {
     @Transactional
     public BlogResponse uploadBlogImg(Long blogId, List<MultipartFile> files) {
 
-        if (files == null || files.isEmpty()) {
-            throw new HivtmssException(HttpStatus.BAD_REQUEST, "No files provided");
-        }
-
         Blog blog = blogRepository.findById(blogId)
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
 
