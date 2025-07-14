@@ -61,16 +61,15 @@ public class BlogServiceImpl implements BlogService {
 
         // Tạo blog mới
         Blog blog = new Blog();
+        if (blogRequest.getTitle().length() > 255) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Title quá dài, tối đa 255 ký tự");
+        }
         blog.setTitle(blogRequest.getTitle());
         blog.setContent(blogRequest.getContent());
         blog.setStatus(BlogStatus.PENDING);
         blog.setCreatedDate(new Date());
-        blog.setLastModifiedDate(new Date());
         blog.setHidden(true);
         blog.setAccount(account);
-
-        // Lưu blog lần đầu
-        blogRepository.save(blog);
 
         // Upload ảnh nếu có
         if (files != null && !files.isEmpty()) {
@@ -96,9 +95,9 @@ public class BlogServiceImpl implements BlogService {
             // Lưu ảnh và gán lại vào blog
             blogImgRepository.saveAll(images);
             blog.setBlogImgs(images);
-            blog.setLastModifiedDate(new Date());
-            blogRepository.save(blog);
         }
+        blog.setLastModifiedDate(new Date());
+        blogRepository.save(blog);
         convertToResponse(blog);
     }
 
