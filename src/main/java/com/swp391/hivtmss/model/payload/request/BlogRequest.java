@@ -2,6 +2,7 @@ package com.swp391.hivtmss.model.payload.request;
 
 import com.swp391.hivtmss.model.entity.BlogImg;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ public class BlogRequest {
     private String title;
 
     @Schema(description = "Nội dung bài viết", required = true)
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Schema(description = "ID tài khoản người tạo blog", required = true)
