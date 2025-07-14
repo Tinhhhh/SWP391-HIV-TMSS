@@ -20,7 +20,7 @@ public class UpdateBlog {
     private String title;
 
     @NotNull(message = "Content cannot be blank")
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
 
