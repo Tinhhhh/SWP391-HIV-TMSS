@@ -15,6 +15,6 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
-        response.getWriter().write("{\"message\": \"You need to log in to access this resource\"}");
+        response.getWriter().write("{\"message\": \"You need to log in to access this resource or you have no permission to access\"}");
     }
 }
