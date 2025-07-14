@@ -5,6 +5,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class AppointmentTime {
     public final int WORKING_HOURS_START = 8; // 8h sáng
+    public final int BOOKING_HOURS_END = 16; // 8h sáng
     public final int WORKING_HOURS_END = 17; // 5h chiều
     public final int LUNCH_BREAK_START = 12; // 12h trưa
     public final int LUNCH_BREAK_END = 13; // 1h chiều
