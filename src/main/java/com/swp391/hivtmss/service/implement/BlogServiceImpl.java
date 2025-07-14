@@ -127,23 +127,23 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public void updateBlog(Long id, UpdateBlog updateBlog, List<MultipartFile> files ) {
-        Blog blog = blogRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("BlogID not found"));
 
+
+        Blog blog = blogRepository.findById(id)
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
+
+        // Cập nhật nội dung
         blog.setTitle(updateBlog.getTitle());
         blog.setContent(updateBlog.getContent());
-        blog.setCreatedDate(new Date());
+        blog.setLastModifiedDate(new Date());
         blog.setHidden(true);
 
-        blogRepository.save(blog);
-
+        // Nếu có ảnh, thì xử lý ảnh
         if (files != null && !files.isEmpty()) {
             List<BlogImg> images = new ArrayList<>();
             for (MultipartFile file : files) {
-
                 if (!file.getContentType().startsWith("image/")) {
-                    throw new HivtmssException(HttpStatus.BAD_REQUEST,
-                            "Invalid file type. Only images are allowed");
+                    throw new HivtmssException(HttpStatus.BAD_REQUEST, "Invalid file type. Only images are allowed");
                 }
 
                 try {
@@ -153,15 +153,15 @@ public class BlogServiceImpl implements BlogService {
                     blogImg.setBlog(blog);
                     images.add(blogImg);
                 } catch (IOException e) {
-                    throw new HivtmssException(HttpStatus.BAD_REQUEST,
-                            "Failed to upload image: " + e.getMessage());
+                    throw new HivtmssException(HttpStatus.BAD_REQUEST, "Failed to upload image: " + e.getMessage());
                 }
             }
             blogImgRepository.saveAll(images);
             blog.setBlogImgs(images);
-            blog.setLastModifiedDate(new Date());
         }
 
+        blogRepository.save(blog);
+        convertToResponse(blog);
     }
 
     @Override
