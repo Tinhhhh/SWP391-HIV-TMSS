@@ -242,28 +242,33 @@ public class BlogServiceImpl implements BlogService {
         Blog blog = blogRepository.findById(blogId)
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
 
-        List<BlogImg> images = new ArrayList<>();
-        for (MultipartFile file : files) {
+        if (files != null && !files.isEmpty()) {
+            List<BlogImg> images = new ArrayList<>();
 
-            if (!file.getContentType().startsWith("image/")) {
-                throw new HivtmssException(HttpStatus.BAD_REQUEST, "Invalid file type. Only images are allowed");
-            }
+            for (MultipartFile file : files) {
+                if (!file.getContentType().startsWith("image/")) {
+                    throw new HivtmssException(HttpStatus.BAD_REQUEST, "Invalid file type. Only images are allowed");
+                }
 
-            try {
-                String imageUrl = cloudinaryService.uploadFile(file);
-                BlogImg blogImg = new BlogImg();
-                blogImg.setImgUrl(imageUrl);
-                blogImg.setBlog(blog);
-                images.add(blogImg);
-            } catch (IOException e) {
-                throw new HivtmssException(HttpStatus.BAD_REQUEST, "Failed to upload image: " + e.getMessage());
+                try {
+                    String imageUrl = cloudinaryService.uploadFile(file);
+                    BlogImg blogImg = new BlogImg();
+                    blogImg.setImgUrl(imageUrl);
+                    blogImg.setBlog(blog);
+                    images.add(blogImg);
+                } catch (IOException e) {
+                    throw new HivtmssException(HttpStatus.BAD_REQUEST, "Failed to upload image: " + e.getMessage());
+                }
             }
+            blogImgRepository.saveAll(images);
+            blog.setBlogImgs(images);
         }
-        blogImgRepository.saveAll(images);
-        blog.setBlogImgs(images);
+        // Cập nhật thông tin blog khác
         blog.setLastModifiedDate(new Date());
         blogRepository.save(blog);
+
         return convertToResponse(blog);
+
     }
 
     @Override
