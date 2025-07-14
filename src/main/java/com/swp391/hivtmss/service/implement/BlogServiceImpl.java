@@ -131,6 +131,9 @@ public class BlogServiceImpl implements BlogService {
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
 
         // Cập nhật nội dung
+        if (updateBlog.getTitle().length() > 255) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Title quá dài, tối đa 255 ký tự");
+        }
         blog.setTitle(updateBlog.getTitle());
         blog.setContent(updateBlog.getContent());
         blog.setLastModifiedDate(new Date());
