@@ -51,48 +51,55 @@ public class BlogServiceImpl implements BlogService {
     private final ModelMapper modelMapper;
     private final BlogImgRepository blogImgRepository;
 
-    @Override
+
     @Transactional
+    @Override
     public void createBlog(BlogRequest blogRequest, List<MultipartFile> files) {
+
         Account account = accountRepository.findById(blogRequest.getAccountID())
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
+        // Tạo blog mới
         Blog blog = new Blog();
-
         blog.setTitle(blogRequest.getTitle());
         blog.setContent(blogRequest.getContent());
         blog.setStatus(BlogStatus.PENDING);
         blog.setCreatedDate(new Date());
+        blog.setLastModifiedDate(new Date());
         blog.setHidden(true);
         blog.setAccount(account);
+
+        // Lưu blog lần đầu
         blogRepository.save(blog);
+
+        // Upload ảnh nếu có
         if (files != null && !files.isEmpty()) {
-                List<BlogImg> images = new ArrayList<>();
-                for (MultipartFile file : files) {
-
-                    if (!file.getContentType().startsWith("image/")) {
-                        throw new HivtmssException(HttpStatus.BAD_REQUEST,
-                                "Invalid file type. Only images are allowed");
-                    }
-
-                    try {
-                        String imageUrl = cloudinaryService.uploadFile(file);
-                        BlogImg blogImg = new BlogImg();
-                        blogImg.setImgUrl(imageUrl);
-                        blogImg.setBlog(blog);
-                        images.add(blogImg);
-                    } catch (IOException e) {
-                        throw new HivtmssException(HttpStatus.BAD_REQUEST,
-                                "Failed to upload image: " + e.getMessage());
-                    }
+            List<BlogImg> images = new ArrayList<>();
+            for (MultipartFile file : files) {
+                // Kiểm tra định dạng ảnh
+                if (!file.getContentType().startsWith("image/")) {
+                    throw new HivtmssException(HttpStatus.BAD_REQUEST,
+                            "Invalid file type. Only images are allowed");
                 }
-                blogImgRepository.saveAll(images);
-                blog.setBlogImgs(images);
-                blog.setLastModifiedDate(new Date());
+
+                try {
+                    String imageUrl = cloudinaryService.uploadFile(file);
+                    BlogImg blogImg = new BlogImg();
+                    blogImg.setImgUrl(imageUrl);
+                    blogImg.setBlog(blog);
+                    images.add(blogImg);
+                } catch (IOException e) {
+                    throw new HivtmssException(HttpStatus.BAD_REQUEST,
+                            "Failed to upload image: " + e.getMessage());
+                }
+            }
+            // Lưu ảnh và gán lại vào blog
+            blogImgRepository.saveAll(images);
+            blog.setBlogImgs(images);
+            blog.setLastModifiedDate(new Date());
+            blogRepository.save(blog);
         }
-
         convertToResponse(blog);
-
     }
 
     @Override
@@ -159,7 +166,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     @Transactional
-    public void deleteBlog(Long id, UpdateBlogByCustomer updateBlogByCustomer) {
+    public void deleteBlog(Long id) {
 
         Blog blog = blogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Blog not found"));
@@ -169,22 +176,22 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public void updateBlogByManager(UpdateBlogByManager updateBlogByManager) {
-        Account account = accountRepository.findById(updateBlogByManager.getAccountId())
+    public void updateBlogByManager(Long id, UUID accountID, BlogStatus blogStatus) {
+        Account account = accountRepository.findById(accountID)
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, Account not found"));
 
-        if (!account.isActive() || !account.getRole().getRoleName().equals(RoleName.MANAGER.toString())) {
-            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, Account is not valid or not MANAGER");
-        }
-        Blog blog = blogRepository.findById(updateBlogByManager.getId())
+        Blog blog = blogRepository.findById(id)
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
 
-        restrictedModelMapper.map(updateBlogByManager, blog);
-
-        blog.setStatus(BlogStatus.APPROVED);
-        blogRepository.save(blog);
-
-
+        if (blog.getStatus() != BlogStatus.PENDING) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog is not in pending status");
+        }
+        if (blogStatus == BlogStatus.APPROVED || blogStatus == BlogStatus.REJECTED) {
+            blog.setStatus(blogStatus);
+            blogRepository.save(blog);
+        } else {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Invalid status. Only APPROVED or REJECTED allowed.");
+        }
     }
 
     @Override
@@ -231,10 +238,6 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Transactional
     public BlogResponse uploadBlogImg(Long blogId, List<MultipartFile> files) {
-
-        if (files == null || files.isEmpty()) {
-            throw new HivtmssException(HttpStatus.BAD_REQUEST, "No files provided");
-        }
 
         Blog blog = blogRepository.findById(blogId)
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));

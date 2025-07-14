@@ -1,11 +1,15 @@
 package com.swp391.hivtmss.controller;
 
+import com.swp391.hivtmss.model.payload.enums.BlogStatus;
 import com.swp391.hivtmss.model.payload.exception.ResponseBuilder;
 import com.swp391.hivtmss.model.payload.request.*;
 import com.swp391.hivtmss.model.payload.response.BlogResponse;
 import com.swp391.hivtmss.model.payload.response.DoctorDegreeResponse;
 import com.swp391.hivtmss.service.BlogService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +34,15 @@ public class BlogController {
 
     @Operation(summary = "Create Blog By Account", description = "Create Blog By Account")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Object> createBlog(@Valid @ModelAttribute  BlogRequest blogRequest,
-                                             @RequestParam(value = "files") List<MultipartFile> files) {
+    public ResponseEntity<Object> createBlog(
+            @RequestPart("title") String title,
+            @RequestPart("content") String content,
+            @RequestPart("accountID") String accountID,
+            @RequestPart("files") List<MultipartFile> files
+    ) {
+        BlogRequest blogRequest = new BlogRequest(title, content, UUID.fromString(accountID));
         blogService.createBlog(blogRequest, files);
-        return ResponseBuilder.returnMessage(HttpStatus.OK, "Your Blog created successfully");
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Create Blog Successfully");
     }
 
     @Operation(summary = "Get Blog By BlogID", description = "Get Blog By BlogID")
@@ -64,37 +73,40 @@ public class BlogController {
     @Operation(summary = "Update Blog By ID", description = "Get Blog By ID")
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> updateBlog(@RequestParam("id") Long id,
-                                             @Valid @ModelAttribute UpdateBlog updateBlog,
-                                             @RequestParam(value = "files") List<MultipartFile> files) {
+                                             @RequestPart("title") String title,
+                                             @RequestPart("content") String content,
+                                             @RequestPart("files") List<MultipartFile> files) {
+
+        UpdateBlog updateBlog = new UpdateBlog(title, content);
         blogService.updateBlog(id, updateBlog, files);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Update Blog Successfully");
     }
 
     @Operation(summary = "Delete Blog", description = "Delete Blog")
     @DeleteMapping
-    public ResponseEntity<Object> deleteBlog(@RequestParam("id") Long id,
-                                             @Valid @RequestBody UpdateBlogByCustomer updateBlogByCustomer) {
+    public ResponseEntity<Object> deleteBlog(@RequestParam("id") Long id
+                                             ) {
         // delete blog by change blog status , not delete all information
-        blogService.deleteBlog(id, updateBlogByCustomer);
+        blogService.deleteBlog(id);
         return ResponseBuilder.returnMessage(HttpStatus.OK, "Delete Blog Successfully");
     }
 
 
-    @Operation(summary = "Update Blogs status with account:Manager ",
+    @Operation(summary = "Update Blogs status with account: Manager ",
             description = "Update the Blog status By Role. Role required: MANAGER")
-    @PutMapping("/approved")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PutMapping("/updateStatus")
     public ResponseEntity<Object> updateBlogByRole(
-            @RequestBody UpdateBlogByManager updateBlogByManager) {
+            @RequestParam("id") Long id,
+            @RequestParam("accountID" ) UUID accountID,
+            @RequestParam("status") BlogStatus blogStatus) {
 
-        blogService.updateBlogByManager(updateBlogByManager);
+        blogService.updateBlogByManager(id, accountID, blogStatus);
         return ResponseBuilder.returnMessage(
-                HttpStatus.OK, "Blog Status approved by Manager successfully");
+                HttpStatus.OK, "Blog Status Update by Manager successfully");
     }
 
     @Operation(summary = "Rejected Blog status ", description = "Reject the status of an Blog. Role required: MANAGER")
     @PutMapping("/rejected")
-    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Object> cancelBlog(@RequestParam("id") Long id) {
         blogService.cancelBlog(id);
         return ResponseBuilder.returnMessage(
