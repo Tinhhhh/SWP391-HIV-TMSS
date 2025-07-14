@@ -75,7 +75,7 @@ public class BlogController {
     public ResponseEntity<Object> updateBlog(@RequestParam("id") Long id,
                                              @RequestPart("title") String title,
                                              @RequestPart("content") String content,
-                                             @RequestPart("files") List<MultipartFile> files) {
+                                             @RequestPart(value = "files", required = false) List<MultipartFile> files) {
 
         UpdateBlog updateBlog = new UpdateBlog(title, content);
         blogService.updateBlog(id, updateBlog, files);
