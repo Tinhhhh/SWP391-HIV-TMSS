@@ -71,6 +71,8 @@ public class BlogServiceImpl implements BlogService {
         blog.setHidden(true);
         blog.setAccount(account);
 
+        blogRepository.save(blog);
+
         // Upload ảnh nếu có
         if (files != null && !files.isEmpty()) {
             List<BlogImg> images = new ArrayList<>();
@@ -95,6 +97,9 @@ public class BlogServiceImpl implements BlogService {
             // Lưu ảnh và gán lại vào blog
             blogImgRepository.saveAll(images);
             blog.setBlogImgs(images);
+        }else{
+            throw new HivtmssException(HttpStatus.BAD_REQUEST,
+                    "Bạn phải đăng ít nhât 1 ảnh.");
         }
         blog.setLastModifiedDate(new Date());
         blogRepository.save(blog);
@@ -135,7 +140,6 @@ public class BlogServiceImpl implements BlogService {
         }
         blog.setTitle(updateBlog.getTitle());
         blog.setContent(updateBlog.getContent());
-        blog.setLastModifiedDate(new Date());
         blog.setHidden(true);
 
         // Nếu có ảnh, thì xử lý ảnh
@@ -159,7 +163,7 @@ public class BlogServiceImpl implements BlogService {
             blogImgRepository.saveAll(images);
             blog.setBlogImgs(images);
         }
-
+        blog.setLastModifiedDate(new Date());
         blogRepository.save(blog);
         convertToResponse(blog);
     }

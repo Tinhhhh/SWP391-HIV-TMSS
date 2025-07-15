@@ -38,7 +38,7 @@ public class BlogController {
             @RequestPart("title") String title,
             @RequestPart("content") String content,
             @RequestPart("accountID") String accountID,
-            @RequestPart("files") List<MultipartFile> files
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
         BlogRequest blogRequest = new BlogRequest(title, content, UUID.fromString(accountID));
         blogService.createBlog(blogRequest, files);
