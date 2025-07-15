@@ -3,11 +3,9 @@ package com.swp391.hivtmss.model.payload.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import com.swp391.hivtmss.model.payload.enums.LineLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +31,7 @@ public class TreatmentRegimenResponse {
     private Date createdDate;
 
     @JsonProperty("treatment_regimen_drugs")
-    private List<TreatmentRegimenDrugResponse> drugMethods;
+    private List<TreatmentRegimenDrugResponse> drugMethods = new ArrayList<>();
 
 
 }

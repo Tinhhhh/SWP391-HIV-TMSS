@@ -5,6 +5,7 @@ import com.swp391.hivtmss.model.entity.TreatmentRegimen;
 import com.swp391.hivtmss.model.entity.TreatmentRegimenDrug;
 import com.swp391.hivtmss.model.payload.enums.ActiveStatus;
 import com.swp391.hivtmss.model.payload.exception.HivtmssException;
+import com.swp391.hivtmss.model.payload.request.MethodDrugsRequest;
 import com.swp391.hivtmss.model.payload.request.TreatmentRegimenDrugRequest;
 import com.swp391.hivtmss.model.payload.request.TreatmentRegimenRequest;
 import com.swp391.hivtmss.model.payload.response.DrugResponse;
@@ -26,11 +27,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +38,6 @@ public class TreatmentRegimenServiceImpl implements TreatmentRegimenService {
 
     private final TreatmentRegimenRepository treatmentRegimenRepository;
     private final ModelMapper modelMapper;
-    private final ModelMapper restrictedModelMapper;
     private final TreatmentRegimenDrugRepository treatmentRegimenDrugRepository;
     private final DrugRepository drugRepository;
 
@@ -48,57 +46,18 @@ public class TreatmentRegimenServiceImpl implements TreatmentRegimenService {
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 
-        Specification<TreatmentRegimen> spec = Specification.where(TreatmentRegimenSpecification.hasName(keyword)
+        Specification<TreatmentRegimen> spec = Specification.where(TreatmentRegimenSpecification.hasName(keyword))
                 .or(TreatmentRegimenSpecification.hasApplicable(keyword))
-                .or(TreatmentRegimenSpecification.hasActive(ActiveStatus.ACTIVE)));
+                .or(TreatmentRegimenSpecification.hasActive(ActiveStatus.ACTIVE));
 
         Page<TreatmentRegimen> regimenDetailPage = treatmentRegimenRepository.findAll(spec, pageable);
         List<TreatmentRegimen> resource = regimenDetailPage.getContent();
         List<TreatmentRegimenResponse> modelResponse = new ArrayList<>();
 
         for (TreatmentRegimen treatmentRegimen : resource) {
-            TreatmentRegimenResponse treatmentRegimenResponse = modelMapper.map(treatmentRegimen, TreatmentRegimenResponse.class);
-
-            // Lấy danh sách thuốc theo phác đồ điều trị
-            Map<Integer, List<Drug>> drugMap = new HashMap<>();
-
-            List<TreatmentRegimenDrug> treatmentRegimenDrugs = treatmentRegimenDrugRepository
-                    .findByTreatmentRegimen_Id(treatmentRegimen.getId());
-
-            if (!treatmentRegimenDrugs.isEmpty()) {
-                // Nhóm theo method
-                Map<Integer, List<TreatmentRegimenDrug>> treatmentRegimenDrugResponses = treatmentRegimenDrugs.stream()
-                        .map(treatmentRegimenDrug -> {
-
-                            drugMap.computeIfAbsent(treatmentRegimenDrug.getMethod(), k -> new ArrayList<>())
-                                    .add(drugRepository.findById(treatmentRegimenDrug.getDrug().getId())
-                                            .orElseThrow(() -> new HivtmssException(HttpStatus.INTERNAL_SERVER_ERROR, "Request fails, drug not found")));
-
-                            return treatmentRegimenDrug;
-                        }).collect(Collectors.groupingBy(TreatmentRegimenDrug::getMethod));
-
-
-                // Chuyển đổi từng nhóm thành DTO
-                List<TreatmentRegimenDrugResponse> drugMethods = treatmentRegimenDrugResponses.entrySet().stream()
-                        .map(entry -> {
-                            Integer method = entry.getKey();
-
-                            List<Drug> drugsOfMethod = drugMap.getOrDefault(method, new ArrayList<>());
-                            List<DrugResponse> drugResponses = drugsOfMethod.stream()
-                                    .map(drug -> modelMapper.map(drug, DrugResponse.class))
-                                    .toList();
-
-                            TreatmentRegimenDrugResponse drugMethodResponse = new TreatmentRegimenDrugResponse();
-                            drugMethodResponse.setMethod(method);
-                            drugMethodResponse.setDrugs(drugResponses);
-                            return drugMethodResponse;
-                        })
-                        .toList();
-
-                treatmentRegimenResponse.setDrugMethods(drugMethods);
-            }
-
-            modelResponse.add(treatmentRegimenResponse);
+            TreatmentRegimenResponse response = modelMapper.map(treatmentRegimen, TreatmentRegimenResponse.class);
+            addDrugsToResponse(response, treatmentRegimen.getId());
+            modelResponse.add(response);
         }
 
         return new ListResponse(modelResponse,
@@ -115,6 +74,8 @@ public class TreatmentRegimenServiceImpl implements TreatmentRegimenService {
             throw new HivtmssException(HttpStatus.BAD_REQUEST, "Treatment regimen with this name already exists");
         }
 
+        validateMethodsAndDrugs(request);
+
         TreatmentRegimen treatmentRegimen = new TreatmentRegimen();
         treatmentRegimen.setName(request.getName());
         treatmentRegimen.setApplicable(request.getApplicable());
@@ -122,74 +83,50 @@ public class TreatmentRegimenServiceImpl implements TreatmentRegimenService {
         treatmentRegimen.setNote(request.getNote());
         treatmentRegimen.setIsActive(ActiveStatus.ACTIVE);
 
-//        TreatmentRegimen model = modelMapper.map(treatmentRegimen, TreatmentRegimen.class);
-
         TreatmentRegimen savedRegimen = treatmentRegimenRepository.save(treatmentRegimen);
 
-        if (request.getTreatmentRegimenDrugs() != null && !request.getTreatmentRegimenDrugs().isEmpty()) {
-            for (TreatmentRegimenDrugRequest drugRequest : request.getTreatmentRegimenDrugs()) {
-                Drug drug = drugRepository.findById(drugRequest.getDrugId())
-                        .orElseThrow(() -> new HivtmssException(HttpStatus.NOT_FOUND, "Drug not found"));
-
-                TreatmentRegimenDrug treatmentRegimenDrug = new TreatmentRegimenDrug();
-                treatmentRegimenDrug.setDrug(drug);
-                treatmentRegimenDrug.setMethod(drugRequest.getMethod());
-                treatmentRegimenDrug.setTreatmentRegimen(savedRegimen);
-                treatmentRegimenDrugRepository.save(treatmentRegimenDrug);
-            }
+        if (request.getMethods() != null) {
+            saveTreatmentRegimenDrugs(request.getMethods(), savedRegimen);
         }
 
-        return modelMapper.map(savedRegimen, TreatmentRegimenResponse.class);
+        TreatmentRegimenResponse response = modelMapper.map(savedRegimen, TreatmentRegimenResponse.class);
+        addDrugsToResponse(response, savedRegimen.getId());
+        return response;
     }
-
 
     @Override
     public TreatmentRegimenResponse getTreatmentRegimenById(Long id) {
         TreatmentRegimen treatmentRegimen = treatmentRegimenRepository.findById(id)
                 .orElseThrow(() -> new HivtmssException(HttpStatus.NOT_FOUND, "Treatment regimen not found"));
-        return modelMapper.map(treatmentRegimen, TreatmentRegimenResponse.class);
+        TreatmentRegimenResponse response = modelMapper.map(treatmentRegimen, TreatmentRegimenResponse.class);
+        addDrugsToResponse(response, id);
+        return response;
     }
 
     @Override
     @Transactional
     public TreatmentRegimenResponse updateTreatmentRegimen(Long id, TreatmentRegimenRequest request) {
-        TreatmentRegimen existingRegimen = treatmentRegimenRepository.findById(id)
-                .orElseThrow(() -> new HivtmssException(HttpStatus.NOT_FOUND, "Treatment regimen not found"));
+        TreatmentRegimen regimen = treatmentRegimenRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        String.format("Treatment Regimen not found with id: %d", id)));
 
-        // Update basic information
-        existingRegimen.setName(request.getName());
-        existingRegimen.setApplicable(request.getApplicable());
-        existingRegimen.setLineLevel(request.getLineLevel());
-        existingRegimen.setNote(request.getNote());
+        // Update the treatment regimen
+        regimen.setName(request.getName());
+        regimen.setApplicable(request.getApplicable());
+        regimen.setLineLevel(request.getLineLevel());
+        regimen.setNote(request.getNote());
 
-        // Update drug associations if provided
-        if (request.getTreatmentRegimenDrugs() != null && !request.getTreatmentRegimenDrugs().isEmpty()) {
-            // Clear only the associations in treatment_regimen_drug table
-            List<TreatmentRegimenDrug> existingAssociations = treatmentRegimenDrugRepository
-                    .findByTreatmentRegimen_Id(existingRegimen.getId());
-            treatmentRegimenDrugRepository.deleteAllInBatch(existingAssociations);
+        // Remove existing drugs
+        treatmentRegimenDrugRepository.deleteByTreatmentRegimenId(id);
 
-            // Create new associations
-            List<TreatmentRegimenDrug> newAssociations = request.getTreatmentRegimenDrugs().stream()
-                    .map(drugRequest -> {
-                        Drug drug = drugRepository.findById(drugRequest.getDrugId())
-                                .orElseThrow(() -> new HivtmssException(HttpStatus.NOT_FOUND,
-                                        "Drug not found with ID: " + drugRequest.getDrugId()));
+        // Save new drugs
+        saveTreatmentRegimenDrugs(request.getMethods(), regimen);
 
-                        TreatmentRegimenDrug association = new TreatmentRegimenDrug();
-                        association.setDrug(drug);
-                        association.setMethod(drugRequest.getMethod());
-                        association.setTreatmentRegimen(existingRegimen);
-                        return association;
-                    })
-                    .collect(Collectors.toList());
+        TreatmentRegimen savedRegimen = treatmentRegimenRepository.save(regimen);
+        TreatmentRegimenResponse response = modelMapper.map(savedRegimen, TreatmentRegimenResponse.class);
+        addDrugsToResponse(response, savedRegimen.getId());
 
-            // Save new associations in batch
-            treatmentRegimenDrugRepository.saveAll(newAssociations);
-        }
-
-        TreatmentRegimen updatedRegimen = treatmentRegimenRepository.save(existingRegimen);
-        return modelMapper.map(updatedRegimen, TreatmentRegimenResponse.class);
+        return response;
     }
 
 
@@ -201,4 +138,80 @@ public class TreatmentRegimenServiceImpl implements TreatmentRegimenService {
         treatmentRegimenRepository.save(treatmentRegimen);
     }
 
+    private void validateMethodsAndDrugs(TreatmentRegimenRequest request) {
+        // Validate number of methods
+        if (request.getMethods().size() != request.getNumberOfMethods()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    String.format("Number of methods (%d) doesn't match the specified count (%d)",
+                            request.getMethods().size(), request.getNumberOfMethods()));
+        }
+
+        // Validate method numbers are sequential
+        Set<Integer> methodNumbers = request.getMethods().stream()
+                .map(MethodDrugsRequest::getMethodNumber)
+                .collect(Collectors.toSet());
+        for (int i = 1; i <= request.getNumberOfMethods(); i++) {
+            if (!methodNumbers.contains(i)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Method numbers must be sequential starting from 1");
+            }
+        }
+
+        // Validate all drugIds exist
+        Set<Long> drugIds = request.getMethods().stream()
+                .flatMap(method -> method.getDrugs().stream())
+                .map(TreatmentRegimenDrugRequest::getDrugId)
+                .collect(Collectors.toSet());
+
+        if (!drugRepository.existsByIdIn(drugIds)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "One or more drug IDs do not exist");
+        }
+    }
+
+
+
+    private void saveTreatmentRegimenDrugs(List<MethodDrugsRequest> methods, TreatmentRegimen regimen) {
+        methods.forEach(method -> {
+            method.getDrugs().forEach(drugRequest -> {
+                Drug drug = drugRepository.findById(drugRequest.getDrugId())
+                        .orElseThrow(() -> new HivtmssException(HttpStatus.NOT_FOUND,
+                                "Drug not found with ID: " + drugRequest.getDrugId()));
+
+                TreatmentRegimenDrug association = new TreatmentRegimenDrug(
+                        drug,
+                        method.getMethodNumber(),
+                        regimen,
+                        drugRequest.getNote()
+                );
+                treatmentRegimenDrugRepository.save(association);
+            });
+        });
+    }
+
+    private void addDrugsToResponse(TreatmentRegimenResponse response, Long regimenId) {
+        List<TreatmentRegimenDrug> savedDrugs = treatmentRegimenDrugRepository
+                .findByTreatmentRegimen_Id(regimenId);
+
+        if (!savedDrugs.isEmpty()) {
+            Map<Integer, List<Drug>> drugMap = new HashMap<>();
+            savedDrugs.forEach(trd -> {
+                drugMap.computeIfAbsent(trd.getMethod(), k -> new ArrayList<>())
+                        .add(trd.getDrug());
+            });
+
+            List<TreatmentRegimenDrugResponse> drugMethods = drugMap.entrySet().stream()
+                    .map(entry -> {
+                        TreatmentRegimenDrugResponse drugMethodResponse = new TreatmentRegimenDrugResponse();
+                        drugMethodResponse.setMethod(entry.getKey());
+                        drugMethodResponse.setDrugs(entry.getValue().stream()
+                                .map(drug -> modelMapper.map(drug, DrugResponse.class))
+                                .toList());
+                        return drugMethodResponse;
+                    })
+                    .toList();
+
+            response.setDrugMethods(drugMethods);
+        }
+    }
 }
