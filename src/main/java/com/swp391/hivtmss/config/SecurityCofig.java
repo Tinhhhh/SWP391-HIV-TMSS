@@ -93,7 +93,7 @@ public class SecurityCofig {
                                 //Doctor-degrees
                                 .requestMatchers("/api/v1/doctor-degrees/**").hasAnyAuthority("DOCTOR", "ADMIN")
                                 //Diagnosis
-                                .requestMatchers("/api/v1/diagnosis/**").hasAnyAuthority("DOCTOR", "ADMIN")
+                                .requestMatchers("/api/v1/diagnosis/**").hasAnyAuthority("CUSTOMER","DOCTOR", "ADMIN")
                                 //Blog
                                 .requestMatchers(HttpMethod.GET,
                                         "/api/v1/blogs",
