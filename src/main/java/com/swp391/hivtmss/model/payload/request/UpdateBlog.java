@@ -1,6 +1,7 @@
 package com.swp391.hivtmss.model.payload.request;
 
 import com.swp391.hivtmss.model.entity.BlogImg;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,7 @@ public class UpdateBlog {
     private String title;
 
     @NotNull(message = "Content cannot be blank")
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
 

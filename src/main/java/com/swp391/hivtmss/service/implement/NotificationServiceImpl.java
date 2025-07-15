@@ -88,8 +88,8 @@ public class NotificationServiceImpl implements NotificationService {
 
         Notification customerNoti = new Notification();
         customerNoti.setTitle("Đã có kết quả xét nghiệm");
-        customerNoti.setContent("Lịch hẹn khám bệnh của bạn với bác sĩ" + doctorAccount.fullName() +
-                " vào lúc" + DateUtil.formatTimestamp(appointment.getStartTime()) + " đã hoàn thành, vui lòng kiểm tra email hoặc vào mục lịch sử khám để xem chi tiết kết quả xét nghiệm và phương hướng điều trị."
+        customerNoti.setContent("Lịch hẹn khám bệnh của bạn với bác sĩ " + doctorAccount.fullName() +
+                " vào lúc " + DateUtil.formatTimestamp(appointment.getStartTime()) + " đã hoàn thành, vui lòng kiểm tra email hoặc vào mục lịch sử khám để xem chi tiết kết quả xét nghiệm và phương hướng điều trị."
         );
         customerNoti.setStatus(NotificationStatus.UNREAD);
         customerNoti.setAccount(customerAccount);
@@ -101,7 +101,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         Notification doctorNoti = new Notification();
         doctorNoti.setTitle("Yêu cầu chuyển lịch khám");
-        doctorNoti.setContent("Bạn yêu cầu chuyển lịch khám đến từ bác sĩ" + oldDoctor.fullName() +
+        doctorNoti.setContent("Bạn yêu cầu chuyển lịch khám đến từ bác sĩ " + oldDoctor.fullName() +
                 ", xin vui lòng kiểm tra mục chuyển lịch khám để trả lời.");
         doctorNoti.setStatus(NotificationStatus.UNREAD);
         doctorNoti.setAccount(newDoctor);
@@ -122,7 +122,7 @@ public class NotificationServiceImpl implements NotificationService {
         Notification oldDoctorNoti = new Notification();
         oldDoctorNoti.setTitle("Bác sĩ " + newDoctor.fullName() + " đã trả lời yêu cầu chuyển lịch khám");
         oldDoctorNoti.setContent("Bác sĩ " + newDoctor.fullName() + " đã " + (isAccept ? "chấp nhận" : "từ chối") +
-                "yêu cầu chuyển lịch hẹn. Xin vui lòng kiểm tra yêu cầu chuyển lịch khám của bạn để xem thông tin chi tiết.");
+                " yêu cầu chuyển lịch hẹn. Xin vui lòng kiểm tra yêu cầu chuyển lịch khám của bạn để xem thông tin chi tiết.");
         oldDoctorNoti.setStatus(NotificationStatus.UNREAD);
         oldDoctorNoti.setAccount(oldDoctor);
 

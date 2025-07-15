@@ -61,16 +61,15 @@ public class BlogServiceImpl implements BlogService {
 
         // Tạo blog mới
         Blog blog = new Blog();
+        if (blogRequest.getTitle().length() > 255) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Title quá dài, tối đa 255 ký tự");
+        }
         blog.setTitle(blogRequest.getTitle());
         blog.setContent(blogRequest.getContent());
         blog.setStatus(BlogStatus.PENDING);
         blog.setCreatedDate(new Date());
-        blog.setLastModifiedDate(new Date());
         blog.setHidden(true);
         blog.setAccount(account);
-
-        // Lưu blog lần đầu
-        blogRepository.save(blog);
 
         // Upload ảnh nếu có
         if (files != null && !files.isEmpty()) {
@@ -96,9 +95,9 @@ public class BlogServiceImpl implements BlogService {
             // Lưu ảnh và gán lại vào blog
             blogImgRepository.saveAll(images);
             blog.setBlogImgs(images);
-            blog.setLastModifiedDate(new Date());
-            blogRepository.save(blog);
         }
+        blog.setLastModifiedDate(new Date());
+        blogRepository.save(blog);
         convertToResponse(blog);
     }
 
@@ -128,22 +127,23 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public void updateBlog(Long id, UpdateBlog updateBlog, List<MultipartFile> files ) {
         Blog blog = blogRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("BlogID not found"));
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, blog not found"));
 
+        // Cập nhật nội dung
+        if (updateBlog.getTitle().length() > 255) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Title quá dài, tối đa 255 ký tự");
+        }
         blog.setTitle(updateBlog.getTitle());
         blog.setContent(updateBlog.getContent());
-        blog.setCreatedDate(new Date());
+        blog.setLastModifiedDate(new Date());
         blog.setHidden(true);
 
-        blogRepository.save(blog);
-
+        // Nếu có ảnh, thì xử lý ảnh
         if (files != null && !files.isEmpty()) {
             List<BlogImg> images = new ArrayList<>();
             for (MultipartFile file : files) {
-
                 if (!file.getContentType().startsWith("image/")) {
-                    throw new HivtmssException(HttpStatus.BAD_REQUEST,
-                            "Invalid file type. Only images are allowed");
+                    throw new HivtmssException(HttpStatus.BAD_REQUEST, "Invalid file type. Only images are allowed");
                 }
 
                 try {
@@ -153,15 +153,15 @@ public class BlogServiceImpl implements BlogService {
                     blogImg.setBlog(blog);
                     images.add(blogImg);
                 } catch (IOException e) {
-                    throw new HivtmssException(HttpStatus.BAD_REQUEST,
-                            "Failed to upload image: " + e.getMessage());
+                    throw new HivtmssException(HttpStatus.BAD_REQUEST, "Failed to upload image: " + e.getMessage());
                 }
             }
             blogImgRepository.saveAll(images);
             blog.setBlogImgs(images);
-            blog.setLastModifiedDate(new Date());
         }
 
+        blogRepository.save(blog);
+        convertToResponse(blog);
     }
 
     @Override
