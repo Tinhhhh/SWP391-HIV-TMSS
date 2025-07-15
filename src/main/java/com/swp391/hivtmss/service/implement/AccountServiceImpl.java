@@ -182,7 +182,7 @@ public class AccountServiceImpl implements AccountService {
         String encodedPassword = passwordEncoder.encode(password);
         Account account = modelMapper.map(newAcc, Account.class);
         account.setLocked(false);
-        account.setPassword(password);
+        account.setPassword(encodedPassword);
         account.setRole(role);
 
         if (newAcc.getRoleName().equals(RoleName.DOCTOR)) {
@@ -192,7 +192,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         accountRepository.save(account);
-        sendRegistrationEmail(account, encodedPassword);
+        sendRegistrationEmail(account, password);
     }
 
     private void sendRegistrationEmail(Account account, String password) throws MessagingException {

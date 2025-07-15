@@ -47,19 +47,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String username = jwtTokenProvider.getUsernameFromJwt(jwt);
 
             // Kiểm tra xem nếu là role doctor thì active chưa
-            if (username != null) {
-                Account account = accountRepository.findByEmail(username)
-                        .orElseThrow(() -> new RuntimeException("Account not found with email: " + username));
-
-                if (account.getRole().getRoleName().equals(RoleName.DOCTOR.getRole())) {
-                    if (!account.isActive()) {
-                        // Nếu là doctor nhưng chưa active, không set authentication
-                        filterChain.doFilter(request, response);
-                        return;
-                    }
-                }
-            }
-
+//            if (username != null) {
+//                Account account = accountRepository.findByEmail(username)
+//                        .orElseThrow(() -> new RuntimeException("Account not found with email: " + username));
+//
+//                if (account.getRole().getRoleName().equals(RoleName.DOCTOR.getRole())) {
+//                    if (!account.isActive()) {
+//                        // Nếu là doctor nhưng chưa active, không set authentication
+//                        filterChain.doFilter(request, response);
+//                        return;
+//                    }
+//                }
+//            }
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetail.loadUserByUsername(username);

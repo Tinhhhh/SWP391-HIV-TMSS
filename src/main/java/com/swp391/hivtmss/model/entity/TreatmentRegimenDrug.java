@@ -46,4 +46,12 @@ public class TreatmentRegimenDrug {
     @ManyToOne
     @JoinColumn(name = "treatment_regimen_id", nullable = false)
     private TreatmentRegimen treatmentRegimen;
+
+    public TreatmentRegimenDrug(Drug drug, Integer method, TreatmentRegimen treatmentRegimen, String note) {
+        this.drug = drug;
+        this.method = method;
+        this.treatmentRegimen = treatmentRegimen;
+        this.note = note;
+        this.active = ActiveStatus.ACTIVE;
+    }
 }
