@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -44,9 +45,10 @@ public class TreatmentRegimen {
     @Column(name = "created_date", nullable = false, updatable = false)
     private Date createdDate;
 
-    @OneToMany(mappedBy = "treatmentRegimen")
-    private List<Treatment> treatments;
+    @OneToMany(mappedBy = "treatmentRegimen", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Treatment> treatments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "treatmentRegimen")
-    private List<TreatmentRegimenDrug> treatmentRegimenDrugs;
+    @OneToMany(mappedBy = "treatmentRegimen", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TreatmentRegimenDrug> treatmentRegimenDrugs = new ArrayList<>();
 }
+
