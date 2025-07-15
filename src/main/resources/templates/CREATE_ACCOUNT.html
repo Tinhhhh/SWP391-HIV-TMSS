@@ -103,6 +103,7 @@
         <p th:text="'Xin chào '+ ${username}+ ','"></p>
         <p>Đây là thông tin đăng nhập của bạn:</p>
         <p>Email đăng nhập: <span th:text="${email}"></span></p>
+        <p>Mật khẩu: <span th:if="${password != null}" th:text="${password}"></span></p>
         <p>Bạn đã đăng ký tài khoản để sử dụng dịch vụ tại HIV Treatment and Medical Service System.</p>
     </div>
     <div class="footer">
