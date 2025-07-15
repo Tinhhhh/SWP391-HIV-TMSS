@@ -45,7 +45,6 @@ public class SecurityCofig {
                                 .requestMatchers(
                                         "/api/v1/accounts/change-password",
                                         "/api/v1/accounts/avatar").hasAnyAuthority("CUSTOMER", "DOCTOR", "MANAGER", "ADMIN")
-                                .requestMatchers("/api/v1/accounts/admin/all").hasAuthority("DOCTOR")
                                 .requestMatchers("/api/v1/accounts/admin/**").hasAuthority("ADMIN")
                                 //Appointment
                                 .requestMatchers(HttpMethod.GET, "/api/v1/appointments").hasAnyAuthority("CUSTOMER", "DOCTOR", "ADMIN")
