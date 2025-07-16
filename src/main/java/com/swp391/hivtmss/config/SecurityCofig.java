@@ -93,7 +93,7 @@ public class SecurityCofig {
                                 //Doctor-degrees
                                 .requestMatchers("/api/v1/doctor-degrees/**").hasAnyAuthority("DOCTOR", "ADMIN")
                                 //Diagnosis
-                                .requestMatchers("/api/v1/diagnosis/**").hasAnyAuthority("CUSTOMER","DOCTOR", "ADMIN")
+                                .requestMatchers("/api/v1/diagnosis/**").hasAnyAuthority("CUSTOMER", "DOCTOR", "ADMIN")
                                 //Blog
                                 .requestMatchers(HttpMethod.GET,
                                         "/api/v1/blogs",
@@ -115,6 +115,7 @@ public class SecurityCofig {
                                 .requestMatchers(HttpMethod.GET, "/api/v1/appointment-changes/**").hasAnyAuthority("DOCTOR", "ADMIN")
                                 .requestMatchers(HttpMethod.POST, "/api/v1/appointment-changes").hasAnyAuthority("DOCTOR")
                                 .requestMatchers(HttpMethod.PUT, "/api/v1/appointment-changes").hasAnyAuthority("DOCTOR")
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/appointment-changes/review").hasAnyAuthority("MANAGER")
                                 //treatments
                                 .requestMatchers("/api/v1/treatments/**").hasAnyAuthority("DOCTOR", "ADMIN", "CUSTOMER")
                                 .anyRequest().authenticated()

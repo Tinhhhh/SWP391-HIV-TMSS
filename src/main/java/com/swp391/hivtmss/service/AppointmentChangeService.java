@@ -27,4 +27,7 @@ public interface AppointmentChangeService {
     AppointmentChangeResponse getAppointmentChangeById(Long appointmentChangeId);
 
     AppointmentChangeResponseForAdmin getAllAppointmentChangeForAdmin(int pageNo, int pageSize, String sortBy, String sortDir, String searchTerm, AppointmentChangeStatusFilter status, AppointmentChangeType type, Date startTime, Date endTime);
+
+    void reviewAppointmentChange(Long appointmentChangeId, boolean isApproved);
+
 }

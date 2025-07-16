@@ -57,6 +57,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<DoctorResponse> getAvailableDoctors(Date startTime) {
 
+        // Chuyển đổi thời gian từ UTC sang ICT
+        startTime = DateUtil.convertUTCtoICT(startTime);
+
         List<Account> doctors = accountRepository.findByRoleIdAndIsLocked(2L, false);
 
         if (doctors.isEmpty()) {
@@ -224,6 +227,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         treatment.setMethod(appointmentUpdate.getMethod());
         treatment.setTreatmentRegimen(treatmentRegimen);
+        treatment.setDosageInstruction(appointmentUpdate.getDosageInstruction());
         treatmentRepository.save(treatment);
 
         appointment.setTreatment(treatment);
