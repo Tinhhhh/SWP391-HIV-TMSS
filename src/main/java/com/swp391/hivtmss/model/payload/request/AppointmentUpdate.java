@@ -48,6 +48,9 @@ public class AppointmentUpdate {
     @Size(max = 200, message = "prevention must be less than 50 characters")
     private String prevention;
 
+    @JsonProperty("dosage_instruction")
+    private String dosageInstruction;
+
     private boolean isPregnant;
 
     @FutureOrPresent

@@ -124,4 +124,16 @@ public class AppointmentChangeController {
                 appointmentChangeService.getAllAppointmentChangeForAdmin(pageNo, pageSize, sortBy, sortDir, searchTerm, status, type, startTime, endTime)
         );
     }
+
+    @Operation(summary = "Review appointment change request",
+            description = "This api allows a doctor to review an appointment change request. " +
+                    "Role required: MANAGER")
+    @PutMapping("/review")
+    public ResponseEntity<Object> reviewAppointmentChange(
+            @RequestParam("appointmentChangeId") Long appointmentChangeId,
+            @RequestParam("isApproved") boolean isApproved
+    ) {
+        appointmentChangeService.reviewAppointmentChange(appointmentChangeId, isApproved);
+        return ResponseBuilder.returnMessage(HttpStatus.OK, "Appointment change request reviewed successfully");
+    }
 }

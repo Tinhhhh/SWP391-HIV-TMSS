@@ -87,6 +87,7 @@ public class AppointmentChangeServiceImpl implements AppointmentChangeService {
         appointmentChange.setAppointment(appointment);
         appointmentChange.setReason(reason);
         appointmentChange.setStatus(AppointmentChangeStatus.PENDING);
+        appointmentChange.setApproved(false);
         appointmentChange.setOldDoctor(oldDoctor);
         appointmentChange.setNewDoctor(newDoctor);
         appointmentChangeRepository.save(appointmentChange);
@@ -182,13 +183,23 @@ public class AppointmentChangeServiceImpl implements AppointmentChangeService {
         Appointment appointment = appointmentChange.getAppointment();
         boolean isAccepted = false;
 
+        if (!appointmentChange.isApproved()) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Cập nhật thất bại vì yêu cầu chưa được phê duyệt");
+        }
+
+
         // Chỉ có thể thay đổi trạng thái của lịch sử cuộc hẹn nếu nó đang ở trạng thái PENDING
         if (appointmentChange.getStatus() != AppointmentChangeStatus.PENDING) {
-            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment change is not in pending status");
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Cập nhật thất bại, yêu cầu thay đổi cuộc hẹn không ở trạng thái PENDING");
         }
 
         if (status == AppointmentChangeStatus.CANCELLED || status == AppointmentChangeStatus.PENDING) {
-            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, invalid status");
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Cập nhật thất bại, status không hợp lệ");
+        }
+
+        //Kiểm tra xem thời gian của appointment đã qua chưa
+        if (appointment.getStartTime().before(DateUtil.getCurrentTimestamp())) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Cập nhật thất bại, cuộc hẹn đã qua thời gian");
         }
 
         // Nếu status là Accepted, cập nhật cuộc hẹn với bác sĩ mới
@@ -263,6 +274,33 @@ public class AppointmentChangeServiceImpl implements AppointmentChangeService {
         appointmentChangeResponseForAdmins.setType(type);
         appointmentChangeResponseForAdmins.setResponse(listResponse);
         return appointmentChangeResponseForAdmins;
+    }
+
+    @Override
+    public void reviewAppointmentChange(Long appointmentChangeId, boolean isApproved) {
+        AppointmentChange appointmentChange = appointmentChangeRepository.findById(appointmentChangeId)
+                .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment change not found"));
+
+        // Chỉ có thể phê duyệt hoặc từ chối yêu cầu nếu nó đang ở trạng thái PENDING
+        if (appointmentChange.getStatus() != AppointmentChangeStatus.PENDING) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Cập nhật thất bại, yêu cầu thay đổi cuộc hẹn không ở trạng thái PENDING");
+
+        }
+
+        if (appointmentChange.isApproved()) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Cập nhật thất bại, yêu cầu đã được phê duyệt hoặc từ chối trước đó");
+        }
+
+        // Cập nhật trạng thái của lịch sử cuộc hẹn
+        if (isApproved) {
+            appointmentChange.setStatus(AppointmentChangeStatus.ACCEPTED);
+            appointmentChange.setApproved(true);
+        } else {
+            appointmentChange.setStatus(AppointmentChangeStatus.CANCELLED);
+            appointmentChange.setApproved(false);
+        }
+
+        appointmentChangeRepository.save(appointmentChange);
     }
 
     @Scheduled(cron = "1 15 0 * * ?")

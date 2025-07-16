@@ -18,6 +18,9 @@ public class AppointmentChangeResponse {
 
     private String reason;
 
+    @JsonProperty("is_approved")
+    private boolean isApproved;
+
     private AppointmentChangeStatus status;
 
     @JsonProperty("created_date")

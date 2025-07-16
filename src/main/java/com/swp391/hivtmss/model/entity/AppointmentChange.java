@@ -27,6 +27,9 @@ public class AppointmentChange {
 
     private String reason;
 
+    @Column(name = "is_approved")
+    private boolean isApproved;
+
     @Enumerated(EnumType.STRING)
     private AppointmentChangeStatus status;
 
