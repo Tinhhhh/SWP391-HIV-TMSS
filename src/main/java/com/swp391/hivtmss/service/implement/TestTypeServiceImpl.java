@@ -54,15 +54,14 @@ public class TestTypeServiceImpl implements TestTypeService {
 
     @Override
     public void updateTestType(Long id, TestTypeRequest testTypeRequest) {
-        TestType testTypeID = testTypeRepository.findById(id)
+        TestType testType = testTypeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("testTypeID not found"));
-
-        TestType testType = new TestType();
 
         testType.setName(testTypeRequest.getName());
         testType.setDescription(testTypeRequest.getDescription());
         testType.setCode(testTypeRequest.getCode());
         testType.setApplicable(testTypeRequest.getApplicable());
+        testType.setIsActive(ActiveStatus.ACTIVE);
         testTypeRepository.save(testType);
     }
 
