@@ -112,7 +112,7 @@ public class SecurityCofig {
                                         "/api/v1/blogs/updateStatus",
                                         "/api/v1/blogs/rejected").hasAuthority("MANAGER")
                                 //appointment-changes
-                                .requestMatchers(HttpMethod.GET, "/api/v1/appointment-changes/**").hasAnyAuthority("DOCTOR", "ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/v1/appointment-changes/**").hasAnyAuthority("DOCTOR","MANAGER", "ADMIN")
                                 .requestMatchers(HttpMethod.POST, "/api/v1/appointment-changes").hasAnyAuthority("DOCTOR")
                                 .requestMatchers(HttpMethod.PUT, "/api/v1/appointment-changes").hasAnyAuthority("DOCTOR")
                                 .requestMatchers(HttpMethod.PUT, "/api/v1/appointment-changes/review").hasAnyAuthority("MANAGER")
