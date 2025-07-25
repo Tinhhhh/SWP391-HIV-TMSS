@@ -39,6 +39,8 @@ public class AppointmentResponse {
 
     private String prevention;
 
+    private String dosage;
+
     @JsonProperty("is_pregnant")
     private boolean isPregnant;
 

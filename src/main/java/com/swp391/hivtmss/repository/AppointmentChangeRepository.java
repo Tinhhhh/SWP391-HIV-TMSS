@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -24,4 +25,5 @@ public interface AppointmentChangeRepository extends JpaRepository<AppointmentCh
 
     Page<AppointmentChange> findByNewDoctor_IdAndCreatedDateBetween(UUID doctorId, Date startTime, Date endTime, Pageable pageable);
 
+    Optional<AppointmentChange> findByAppointment_IdAndStatus(Long appointmentId, AppointmentChangeStatus appointmentChangeStatus);
 }
