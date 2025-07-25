@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -49,9 +50,15 @@ public class AppointmentChangeServiceImpl implements AppointmentChangeService {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment not found"));
 
+        Optional<AppointmentChange> isExistAppointmentChange = appointmentChangeRepository.findByAppointment_IdAndStatus(appointmentId, AppointmentChangeStatus.PENDING);
+
+        if (isExistAppointmentChange.isPresent()) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Bạn đã gửi yêu cầu thay đổi cuộc hẹn trước đó, vui lòng đợi phê duyệt của quản lý");
+        }
+
         //Bác sĩ mới phải khác bác sĩ cũ
         if (appointment.getDoctor().getId().equals(doctorId)) {
-            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, doctor is the same as the current appointment doctor");
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Bác sĩ mới phải khác bác sĩ cũ");
         }
 
         // Cuộc hẹn phải đang ở trạng thái PENDING
@@ -61,7 +68,7 @@ public class AppointmentChangeServiceImpl implements AppointmentChangeService {
 
         // Cuộc hẹn phải chưa bắt đầu
         if (appointment.getStartTime().before(DateUtil.getCurrentTimestamp())) {
-            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment is already past the scheduled time");
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Cuộc hẹn đã bắt đầu, không thể thay đổi bác sĩ");
         }
 
         // Bác sĩ mới phải rảnh trong khoảng thời gian này
@@ -69,7 +76,7 @@ public class AppointmentChangeServiceImpl implements AppointmentChangeService {
                 .stream().anyMatch(a -> a.getDoctor().getId().equals(doctorId) && a.getStatus().equals(AppointmentStatus.PENDING));
 
         if (hasAppointment) {
-            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, doctor already has an appointment at this time");
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Bác sĩ mới đã có cuộc hẹn trong khoảng thời gian này, không thể thay đổi bác sĩ");
         }
 
         // Lưu lại bác sĩ cũ để tạo lịch sử thay đổi cuộc hẹn

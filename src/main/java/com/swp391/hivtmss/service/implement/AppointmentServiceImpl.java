@@ -364,6 +364,11 @@ public class AppointmentServiceImpl implements AppointmentService {
             response.setTreatmentId(appointment.getTreatment().getId());
         }
 
+        Treatment treatment = appointment.getTreatment();
+        if (treatment != null) {
+            response.setDosage(treatment.getDosageInstruction());
+        }
+
         return response;
     }
 
