@@ -300,7 +300,7 @@ public class AppointmentChangeServiceImpl implements AppointmentChangeService {
 
         // Cập nhật trạng thái của lịch sử cuộc hẹn
         if (isApproved) {
-            appointmentChange.setStatus(AppointmentChangeStatus.ACCEPTED);
+            
             appointmentChange.setApproved(true);
         } else {
             appointmentChange.setStatus(AppointmentChangeStatus.CANCELLED);
