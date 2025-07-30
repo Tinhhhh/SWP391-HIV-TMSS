@@ -193,6 +193,12 @@ public class AppointmentServiceImpl implements AppointmentService {
         diagnosisRepository.save(diagnosis);
 
         appointment.setDiagnosis(diagnosis);
+
+        if (appointmentUpdate.isFinished()) {
+            appointment.setStatus(AppointmentStatus.COMPLETED);
+            appointment.setNextFollowUpReminder(true);
+        }
+
         appointmentRepository.save(appointment);
     }
 
