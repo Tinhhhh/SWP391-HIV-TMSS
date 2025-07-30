@@ -85,11 +85,7 @@ public class EmailServiceImpl implements EmailService {
 
         Diagnosis diagnosis = appointment.getDiagnosis();
         TestType testType = diagnosis.getTestType();
-        Treatment treatment = appointment.getTreatment();
-        List<TreatmentRegimenDrug> treatmentRegimenDrugs = treatmentRegimenDrugRepository.findByTreatmentRegimen_IdAndMethod(treatment.getId(), treatment.getMethod());
-        String drug = treatmentRegimenDrugs.stream()
-                .map(t -> t.getDrug().getName())
-                .collect(Collectors.joining(", "));
+
 
         String clinicalStage = diagnosis.getClinicalStage().toString().split("_")[1];
         int result = romanToInt(clinicalStage);
@@ -97,6 +93,21 @@ public class EmailServiceImpl implements EmailService {
         try {
             String senderNickName = "Customer Service Team at HIV Treatment and Medical Services System";
             Context context = new Context();
+
+            Treatment treatment;
+            List<TreatmentRegimenDrug> treatmentRegimenDrugs;
+            String drug;
+            if (appointment.getTreatment() != null) {
+                treatment = appointment.getTreatment();
+                treatmentRegimenDrugs = treatmentRegimenDrugRepository.findByTreatmentRegimen_IdAndMethod(treatment.getId(), treatment.getMethod());
+                drug = treatmentRegimenDrugs.stream()
+                        .map(t -> t.getDrug().getName())
+                        .collect(Collectors.joining(", "));
+
+                context.setVariable("drugs", drug);
+                context.setVariable("doctorAdvice", treatment.getDosageInstruction());
+            }
+
             context.setVariable("username", name);
             context.setVariable("appointmentDate", DateUtil.formatTimestamp(appointment.getStartTime(), DateUtil.DATE_FORMAT));
             context.setVariable("patientName", appointment.fullName());
@@ -112,8 +123,6 @@ public class EmailServiceImpl implements EmailService {
             context.setVariable("pcrType", diagnosis.getPcrType());
             context.setVariable("clinicalStage", result);
             context.setVariable("note", diagnosis.getNote());
-            context.setVariable("drugs", drug);
-            context.setVariable("doctorAdvice", treatment.getDosageInstruction());
             extractTemplate(to, template, subject, senderNickName, context);
         } catch (Exception exception) {
             System.out.println("Error: " + exception.getMessage());

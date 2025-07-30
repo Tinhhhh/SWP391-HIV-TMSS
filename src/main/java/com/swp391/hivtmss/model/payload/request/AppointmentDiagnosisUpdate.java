@@ -46,4 +46,7 @@ public class AppointmentDiagnosisUpdate {
 
     private String note;
 
+    @JsonProperty("is_finished")
+    private boolean isFinished;
+
 }

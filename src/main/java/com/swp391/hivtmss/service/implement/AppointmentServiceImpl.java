@@ -180,7 +180,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
-    public void updateAppointmentDiagnosis(AppointmentDiagnosisUpdate appointmentUpdate) {
+    public void updateAppointmentDiagnosis(AppointmentDiagnosisUpdate appointmentUpdate) throws MessagingException {
 
         Appointment appointment = appointmentRepository.findById(appointmentUpdate.getAppointmentId())
                 .orElseThrow(() -> new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment not found"));
@@ -193,6 +193,23 @@ public class AppointmentServiceImpl implements AppointmentService {
         diagnosisRepository.save(diagnosis);
 
         appointment.setDiagnosis(diagnosis);
+
+        if (appointmentUpdate.isFinished()) {
+            appointment.setStatus(AppointmentStatus.COMPLETED);
+            appointment.setNextFollowUpReminder(true);
+
+            // Tạo notification cho bác sĩ và khách hàng
+            notificationService.appointmentFinished(appointment.getId());
+            // Gửi email thông báo cho khách hàng
+            emailService.sendAppointmentFinishedNotification(
+                    appointment.getCustomer().fullName(),
+                    appointment.getCustomer().getEmail(),
+                    appointment,
+                    EmailTemplateName.APPOINTMENT_FINISHED.getName(),
+                    "[HIV TMSS service] Thông báo kết quả xét nghiệm và điều trị HIV"
+            );
+        }
+
         appointmentRepository.save(appointment);
     }
 
