@@ -16,7 +16,7 @@ public interface AppointmentService {
 
     void createAppointment(NewAppointment newAppointment);
 
-    void updateAppointmentDiagnosis(AppointmentDiagnosisUpdate appointmentUpdate);
+    void updateAppointmentDiagnosis(AppointmentDiagnosisUpdate appointmentUpdate) throws MessagingException;
 
     void updateAppointmentTreatment(AppointmentUpdate appointmentUpdate) throws MessagingException;
 

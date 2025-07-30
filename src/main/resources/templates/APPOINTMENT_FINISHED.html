@@ -116,7 +116,7 @@
         <p th:if="${clinicalStage != null}" th:text="'Giai đoạn: ' + ${clinicalStage}"></p>
         <p th:if="${note != null}" th:text="'Ghi chú: ' + ${note}"></p>
         <h2>Phương hướng điều trị</h2>
-        <p th:text="'Sử dụng thuốc kết hợp: ' + ${drugs}"></p>
+        <p th:if="${drugs != null}" th:text="'Sử dụng thuốc kết hợp: ' + ${drugs}"></p>
         <p th:text="'Dặn dò của bác sĩ:  ' + (${doctorAdvice} != null ? ${doctorAdvice} : 'Không có')"></p>
         <p>Xin hãy tuân thủ theo phương hướng điều trị và sử dụng thuốc theo đúng chỉ định của bác sĩ để đạt được kết
             quả điều trị tốt nhất.</p>
