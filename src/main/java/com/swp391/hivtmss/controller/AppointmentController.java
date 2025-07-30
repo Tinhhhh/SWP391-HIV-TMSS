@@ -70,7 +70,7 @@ public class AppointmentController {
     @Operation(summary = "Update appointment diagnosis", description = "Update the diagnosis of an appointment. Role required: DOCTOR")
     @PutMapping("/diagnosis")
     public ResponseEntity<Object> updateDiagnosis(
-            @RequestBody AppointmentDiagnosisUpdate appointmentUpdate) {
+            @RequestBody AppointmentDiagnosisUpdate appointmentUpdate) throws MessagingException {
 
         appointmentService.updateAppointmentDiagnosis(appointmentUpdate);
         return ResponseBuilder.returnMessage(
