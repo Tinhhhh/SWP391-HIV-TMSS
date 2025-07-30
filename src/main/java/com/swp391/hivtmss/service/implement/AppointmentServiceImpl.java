@@ -194,6 +194,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         appointment.setDiagnosis(diagnosis);
 
+        // Nếu kết quả là dương tính khách hàng ko cần điều trị nữa
         if (appointmentUpdate.isFinished()) {
             appointment.setStatus(AppointmentStatus.COMPLETED);
             appointment.setNextFollowUpReminder(true);
@@ -298,6 +299,10 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         if (appointment.getStatus() != AppointmentStatus.PENDING) {
             throw new HivtmssException(HttpStatus.BAD_REQUEST, "Request fails, appointment is not in pending status");
+        }
+
+        if (appointment.getDiagnosis() != null) {
+            throw new HivtmssException(HttpStatus.BAD_REQUEST, "Huỷ cuộc hẹn không thành công, cuộc hẹn đã có kết quả xét nghiệm");
         }
 
         appointment.setStatus(AppointmentStatus.CANCELLED);
